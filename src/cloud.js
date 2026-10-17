@@ -1,0 +1,104 @@
+/* ==========================================================================
+   Cloud accounts (Supabase). Optional: without window.SDR_CONFIG the app
+   runs exactly as before, saving to this browser only.
+   One row per user in public.progress holds {progress, history, custom}.
+   ========================================================================== */
+const Cloud = (() => {
+  const cfg = window.SDR_CONFIG || {};
+  const enabled = !!(cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase && window.supabase.createClient);
+  const client = enabled ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}}) : null;
+  let user = null, status = "idle", lastSync = 0, timer = null, pulledAt = null;
+  const listeners = new Set();
+  const emit = (evt) => listeners.forEach(fn => { try{ fn(evt); }catch(e){ console.error(e); } });
+
+  // Merge two snapshots so nothing is lost when the same account is used on two devices.
+  function merge(a, b){
+    a = a || {}; b = b || {};
+    const progress = {...(a.progress||{})};
+    for (const [id, p] of Object.entries(b.progress||{})){
+      const cur = progress[id];
+      if (!cur || (p.last||0) > (cur.last||0)) progress[id] = p;
+    }
+    const seen = new Set(), history = [];
+    for (const x of [...(a.history||[]), ...(b.history||[])].sort((x,y) => x.ts - y.ts)){
+      const k = x.id + "@" + x.ts; if (seen.has(k)) continue; seen.add(k); history.push(x);
+    }
+    const custom = [...(a.custom||[])];
+    for (const q of (b.custom||[])) if (!custom.some(c => c.id === q.id)) custom.push(q);
+    return {progress, history: history.slice(-500), custom};
+  }
+
+  async function pull(){
+    if (!client || !user) return null;
+    const {data, error} = await client.from("progress").select("data, updated_at").eq("user_id", user.id).maybeSingle();
+    if (error) throw error;
+    pulledAt = data ? data.updated_at : null;
+    return data ? data.data : null;
+  }
+  async function push(snapshot){
+    if (!client || !user) return;
+    status = "saving"; emit({type:"status"});
+    const {error} = await client.from("progress").upsert({user_id:user.id, data:snapshot, updated_at:new Date().toISOString()});
+    if (error){ status = "error"; emit({type:"status", error}); return; }
+    status = "saved"; lastSync = Date.now(); emit({type:"status"});
+  }
+
+  let getSnapshot = () => ({});
+  function queueSave(){
+    if (!user) return;
+    clearTimeout(timer);
+    status = "pending"; emit({type:"status"});
+    timer = setTimeout(() => push(getSnapshot()), 1200);
+  }
+  function flush(){ if (user && timer){ clearTimeout(timer); timer = null; push(getSnapshot()); } }
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flush(); else refresh(); });
+
+  // Pick up changes made on another device when this tab comes back into focus.
+  async function refresh(){
+    if (!client || !user) return;
+    try{
+      const {data} = await client.from("progress").select("updated_at").eq("user_id", user.id).maybeSingle();
+      if (data && data.updated_at !== pulledAt && Date.now() - lastSync > 3000){
+        const remote = await pull();
+        emit({type:"remote", data: remote});
+      }
+    }catch{}
+  }
+
+  async function onSession(session, event){
+    const prev = user;
+    user = session ? session.user : null;
+    if (event === "PASSWORD_RECOVERY"){ emit({type:"recovery"}); }
+    if (user && (!prev || prev.id !== user.id)){
+      status = "loading"; emit({type:"signin", user});
+      try{ const remote = await pull(); emit({type:"remote", data: remote, first:true}); status = "saved"; lastSync = Date.now(); }
+      catch(e){ status = "error"; emit({type:"status", error:e}); }
+      emit({type:"status"});
+    }
+    if (!user && prev) emit({type:"signout"});
+    if (event === "INITIAL") emit({type:"ready"});
+  }
+  if (client){
+    client.auth.getSession().then(({data}) => onSession(data.session, "INITIAL"));
+    client.auth.onAuthStateChange((event, session) => onSession(session, event));
+  }
+
+  const redirect = () => location.origin + location.pathname;
+  return {
+    enabled, merge, queueSave, flush,
+    on: fn => listeners.add(fn),
+    setSnapshot: fn => { getSnapshot = fn; },
+    get user(){ return user; }, get status(){ return status; }, get lastSync(){ return lastSync; },
+    name(){ return user ? (user.user_metadata && user.user_metadata.name) || user.email.split("@")[0] : ""; },
+    async signUp(email, password, name){
+      const {data, error} = await client.auth.signUp({email, password, options:{data:{name}, emailRedirectTo: redirect()}});
+      if (error) throw error;
+      return {needsConfirm: !data.session};
+    },
+    async signIn(email, password){ const {error} = await client.auth.signInWithPassword({email, password}); if (error) throw error; },
+    async reset(email){ const {error} = await client.auth.resetPasswordForEmail(email, {redirectTo: redirect()}); if (error) throw error; },
+    async setPassword(password){ const {error} = await client.auth.updateUser({password}); if (error) throw error; },
+    async updateName(name){ const {data, error} = await client.auth.updateUser({data:{name}}); if (error) throw error; user = data.user; emit({type:"status"}); },
+    async signOut(){ flush(); await client.auth.signOut(); },
+  };
+})();

@@ -1,0 +1,2233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Superday Drill Room</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap">
+<style>
+/* Apple Human Interface Guidelines styling: system colours, grouped inset
+   lists, translucent sidebar + toolbar, SF-style type scale, Fitness rings. */
+:root{
+  --bg:#f2f2f7; --bg2:#ffffff; --bg3:#f2f2f7; --elev:#ffffff;
+  --label:#000000; --label2:rgba(60,60,67,.6); --label3:rgba(60,60,67,.3); --label4:rgba(60,60,67,.18);
+  --sep:rgba(60,60,67,.22); --fill:rgba(120,120,128,.2); --fill2:rgba(120,120,128,.16); --fill3:rgba(118,118,128,.12); --fill4:rgba(116,116,128,.08);
+  --blue:#007aff; --green:#34c759; --orange:#ff9500; --red:#ff3b30; --purple:#af52de; --indigo:#5856d6; --teal:#30b0c7; --pink:#ff2d55; --yellow:#ffcc00; --mint:#00c7be; --gray:#8e8e93;
+  --ring1:#fa114f; --ring2:#4fc700; --ring3:#00a8d6;
+  --sidebar:rgba(242,242,247,.86); --toolbar:rgba(242,242,247,.8);
+  --card-shadow:0 0 0 .5px rgba(0,0,0,.05), 0 1px 3px rgba(0,0,0,.04);
+  --sheet-shadow:0 20px 60px rgba(0,0,0,.22), 0 0 0 .5px rgba(0,0,0,.08);
+  --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --mono:ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#000000; --bg2:#1c1c1e; --bg3:#2c2c2e; --elev:#1c1c1e;
+  --label:#ffffff; --label2:rgba(235,235,245,.6); --label3:rgba(235,235,245,.3); --label4:rgba(235,235,245,.16);
+  --sep:rgba(84,84,88,.6); --fill:rgba(120,120,128,.36); --fill2:rgba(120,120,128,.32); --fill3:rgba(118,118,128,.24); --fill4:rgba(118,118,128,.18);
+  --blue:#0a84ff; --green:#30d158; --orange:#ff9f0a; --red:#ff453a; --purple:#bf5af2; --indigo:#5e5ce6; --teal:#40c8e0; --pink:#ff375f; --yellow:#ffd60a; --mint:#63e6e2; --gray:#8e8e93;
+  --ring1:#fa114f; --ring2:#a6ff00; --ring3:#00fff6;
+  --sidebar:rgba(28,28,30,.82); --toolbar:rgba(0,0,0,.72);
+  --card-shadow:none; --sheet-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 .5px rgba(255,255,255,.1);
+  color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#000000; --bg2:#1c1c1e; --bg3:#2c2c2e; --elev:#1c1c1e;
+  --label:#ffffff; --label2:rgba(235,235,245,.6); --label3:rgba(235,235,245,.3); --label4:rgba(235,235,245,.16);
+  --sep:rgba(84,84,88,.6); --fill:rgba(120,120,128,.36); --fill2:rgba(120,120,128,.32); --fill3:rgba(118,118,128,.24); --fill4:rgba(118,118,128,.18);
+  --blue:#0a84ff; --green:#30d158; --orange:#ff9f0a; --red:#ff453a; --purple:#bf5af2; --indigo:#5e5ce6; --teal:#40c8e0; --pink:#ff375f; --yellow:#ffd60a; --mint:#63e6e2; --gray:#8e8e93;
+  --ring1:#fa114f; --ring2:#a6ff00; --ring3:#00fff6;
+  --sidebar:rgba(28,28,30,.82); --toolbar:rgba(0,0,0,.72);
+  --card-shadow:none; --sheet-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 .5px rgba(255,255,255,.1);
+  color-scheme:dark; }
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--label);font:400 16px/1.42 var(--font);letter-spacing:-.011em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+button{cursor:pointer}
+svg.i{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px;border-radius:8px}
+[hidden]{display:none!important}
+
+/* ---------- App frame ---------- */
+.app{display:grid;grid-template-columns:268px minmax(0,1fr);min-height:100vh;min-height:100dvh}
+.sidebar{position:sticky;top:0;height:100vh;height:100dvh;overflow:auto;background:var(--sidebar);-webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px);border-right:.5px solid var(--sep);padding:18px 10px 16px;display:flex;flex-direction:column;gap:2px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 14px}
+.brand .appicon{width:30px;height:30px;border-radius:7px;background:linear-gradient(160deg,#ff5e3a,#ff2a68);display:grid;place-items:center;color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.brand b{font-size:15px;font-weight:600;letter-spacing:-.02em}
+.brand small{display:block;font-size:11px;color:var(--label2);font-weight:500;letter-spacing:0}
+.search{position:relative;margin:0 4px 12px}
+.search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--label2);width:15px;height:15px}
+.search input{width:100%;height:32px;border:0;border-radius:9px;background:var(--fill3);padding:0 10px 0 30px;font-size:14px;outline:none}
+.search input:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 40%,transparent)}
+.search input::placeholder{color:var(--label2)}
+.navhead{font-size:11px;font-weight:600;color:var(--label2);padding:12px 12px 4px;letter-spacing:.02em}
+.nav{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:6px 10px;border-radius:8px;font-size:14px;cursor:pointer;color:var(--label)}
+.nav:hover{background:var(--fill4)}
+.nav[aria-current="true"]{background:var(--fill2)}
+.nav .ic{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;flex:none}
+.nav .ic svg{width:13px;height:13px}
+.nav .cnt{margin-left:auto;font-size:12px;color:var(--label2);font-variant-numeric:tabular-nums}
+.nav .cnt.badge{background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-weight:600}
+.nav .meter{width:30px;height:4px;border-radius:2px;background:var(--fill2);overflow:hidden;margin-left:auto}
+.nav .meter i{display:block;height:100%;background:var(--green)}
+.nav .meter + .cnt{margin-left:8px;min-width:30px;text-align:right}
+.sidebar .grow{flex:1}
+
+main{min-width:0;display:flex;flex-direction:column}
+.toolbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px max(20px,env(safe-area-inset-right)) 8px max(20px,env(safe-area-inset-left));background:var(--toolbar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid transparent;transition:border-color .2s}
+.toolbar.scrolled{border-bottom-color:var(--sep)}
+.toolbar .ttl{font-size:15px;font-weight:600;opacity:0;transition:opacity .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.toolbar.scrolled .ttl{opacity:1}
+.toolbar .sp{flex:1}
+.tbtn{all:unset;box-sizing:border-box;cursor:pointer;height:30px;min-width:30px;padding:0 8px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--blue);font-size:14px;font-weight:500}
+.tbtn:hover{background:var(--fill4)}
+.tbtn svg{width:18px;height:18px}
+.content{width:100%;max-width:860px;margin:0 auto;padding:6px max(20px,env(safe-area-inset-left)) 96px}
+.largetitle{font-size:34px;line-height:41px;font-weight:700;letter-spacing:-.025em;margin:6px 0 2px}
+.subtitle{color:var(--label2);font-size:15px;margin:0 0 18px}
+
+/* ---------- Controls ---------- */
+.seg{display:inline-grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--fill3);border-radius:9px;padding:2px;gap:0;position:relative}
+.seg button{border:0;background:none;padding:5px 14px;font-size:13px;font-weight:500;border-radius:7px;white-space:nowrap;color:var(--label)}
+.seg button[aria-pressed="true"]{background:var(--elev);box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.04);font-weight:600}
+:root[data-theme="dark"] .seg button[aria-pressed="true"]{background:#636366}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .seg button[aria-pressed="true"]{background:#636366} }
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:10px;padding:9px 16px;font-size:15px;font-weight:600;background:var(--fill3);color:var(--blue);min-height:38px;transition:transform .1s,opacity .15s,filter .15s}
+.btn:active{transform:scale(.97)}
+.btn:hover{filter:brightness(.97)}
+.btn.fill{background:var(--blue);color:#fff}
+.btn.fill:hover{filter:brightness(1.08)}
+.btn.tint{background:color-mix(in srgb,var(--blue) 15%,transparent)}
+.btn.plain{background:none;padding-inline:8px}
+.btn.danger{color:var(--red)}
+.btn.lg{min-height:50px;border-radius:12px;font-size:17px;padding:12px 22px}
+.btn:disabled{opacity:.4;cursor:default;transform:none}
+.btn svg{width:17px;height:17px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.selectbtn{appearance:none;-webkit-appearance:none;border:0;background:var(--fill3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3.5 4.5 6 2l2.5 2.5M3.5 7.5 6 10l2.5-2.5' fill='none' stroke='%238e8e93' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center/11px;border-radius:8px;padding:6px 28px 6px 11px;font-size:13px;font-weight:500;max-width:100%}
+.switch{appearance:none;-webkit-appearance:none;width:51px;height:31px;border-radius:16px;background:var(--fill);position:relative;flex:none;cursor:pointer;transition:background .2s;margin:0}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06);transition:transform .2s cubic-bezier(.3,.7,.4,1)}
+.switch:checked{background:var(--green)}
+.switch:checked::after{transform:translateX(20px)}
+
+/* ---------- Cards & grouped lists ---------- */
+.card{background:var(--bg2);border-radius:14px;box-shadow:var(--card-shadow);padding:16px 18px;margin-bottom:16px}
+.card.flush{padding:0;overflow:hidden}
+.chead{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:600;margin-bottom:10px}
+.chead .lbl{display:inline-flex;align-items:center;gap:6px}
+.chead .aside{margin-left:auto;font-size:13px;color:var(--label2);font-weight:400}
+.sechead{font-size:20px;font-weight:700;letter-spacing:-.02em;margin:26px 2px 10px;display:flex;align-items:baseline;gap:8px}
+.sechead small{font-size:13px;font-weight:400;color:var(--label2);letter-spacing:0}
+.list{background:var(--bg2);border-radius:12px;box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px}
+.li{display:flex;gap:12px;align-items:flex-start;padding:11px 16px;position:relative;width:100%;text-align:left;border:0;background:none}
+.li + .li::before{content:"";position:absolute;top:0;right:0;left:52px;border-top:.5px solid var(--sep)}
+.list.noicon .li + .li::before{left:16px}
+button.li:hover{background:var(--fill4)}
+.li .lic{width:29px;height:29px;border-radius:7px;display:grid;place-items:center;color:#fff;flex:none;margin-top:1px}
+.li .lic svg{width:16px;height:16px}
+.li .lit{min-width:0;flex:1}
+.li .lit b{display:block;font-weight:600;font-size:15px}
+.li .lit span{display:block;font-size:14px;color:var(--label2);margin-top:1px}
+.li .trail{margin-left:auto;color:var(--label3);font-size:14px;display:flex;align-items:center;gap:6px;white-space:nowrap;align-self:center}
+.li .chev{width:8px;height:13px;color:var(--label3)}
+.c-blue{background:var(--blue)} .c-green{background:var(--green)} .c-orange{background:var(--orange)} .c-red{background:var(--red)} .c-purple{background:var(--purple)} .c-indigo{background:var(--indigo)} .c-teal{background:var(--teal)} .c-pink{background:var(--pink)} .c-gray{background:var(--gray)} .c-yellow{background:var(--yellow)} .c-mint{background:var(--mint)}
+.t-blue{color:var(--blue)} .t-green{color:var(--green)} .t-orange{color:var(--orange)} .t-red{color:var(--red)} .t-purple{color:var(--purple)} .t-pink{color:var(--pink)} .t-teal{color:var(--teal)} .t-indigo{color:var(--indigo)} .t-gray{color:var(--label2)}
+
+/* ---------- Question ---------- */
+.qmeta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--fill3);color:var(--label2)}
+.tag.accent{background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--blue)}
+.tag.firm{background:color-mix(in srgb,var(--indigo) 14%,transparent);color:var(--indigo)}
+.qtext{font-size:24px;line-height:1.28;font-weight:700;letter-spacing:-.022em;margin:2px 0 16px;text-wrap:pretty}
+.hint{background:color-mix(in srgb,var(--yellow) 18%,var(--bg2));border-radius:10px;padding:10px 14px;font-size:15px;margin-top:12px;display:flex;gap:10px}
+.hint svg{color:var(--orange);margin-top:2px}
+.mockbar{display:flex;gap:4px;margin:0 0 12px}
+.mockbar i{flex:1;height:4px;border-radius:2px;background:var(--fill2)}
+.mockbar i.done{background:var(--blue)} .mockbar i.cur{background:color-mix(in srgb,var(--blue) 45%,transparent)}
+
+/* ---------- Recorder (Voice Memos-style) ---------- */
+.rec{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:start}
+.recside{display:flex;flex-direction:column;align-items:center;gap:8px;width:118px}
+.recbtn{width:76px;height:76px;border-radius:50%;border:4px solid var(--fill);background:none;display:grid;place-items:center;padding:0;position:relative}
+.recbtn::before{content:"";width:58px;height:58px;border-radius:50%;background:var(--red);transition:all .25s cubic-bezier(.3,.7,.4,1)}
+.recbtn.on::before{width:28px;height:28px;border-radius:7px}
+.recbtn:active::before{filter:brightness(.9)}
+.clock{font:500 26px/1 var(--font);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.clock.over{color:var(--orange)}
+.reclabel{font-size:12px;color:var(--label2);text-align:center}
+.wave{display:flex;gap:2px;align-items:center;height:26px;width:100%;justify-content:center}
+.wave i{display:block;width:3px;border-radius:2px;background:var(--red);height:3px;opacity:.35;transition:height .08s}
+.wave.on i{opacity:1}
+textarea.ans{width:100%;min-height:168px;resize:vertical;border:0;border-radius:10px;background:var(--fill4);padding:12px 14px;font-size:16px;line-height:1.5;outline:none}
+textarea.ans:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 35%,transparent);background:var(--bg2)}
+.tafoot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;font-size:13px;color:var(--label2);margin:6px 2px 12px}
+.note{font-size:13px;color:var(--label2);background:var(--fill4);border-radius:10px;padding:9px 12px;margin-top:10px}
+@media (max-width:600px){ .rec{grid-template-columns:minmax(0,1fr)} .recside{width:100%;flex-direction:row;justify-content:center;gap:16px} .recside .wave{width:90px} }
+
+/* ---------- Report ---------- */
+.summary{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center}
+@media (max-width:560px){ .summary{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center} .legend{justify-content:center} }
+.rings{position:relative;width:150px;height:150px}
+.rings svg{width:150px;height:150px;transform:rotate(-90deg)}
+.rings circle{fill:none;stroke-linecap:round}
+.rings .big{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.rings .big b{font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.rings .big small{display:block;font-size:11px;color:var(--label2);font-weight:600;margin-top:2px}
+.verdict{font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.25;margin:4px 0 10px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+.legend span{display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.legend i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.legend b{font-variant-numeric:tabular-nums}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:16px}
+.metric{background:var(--fill4);border-radius:12px;padding:10px 12px}
+.metric .k{font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px}
+.metric .v{font-size:24px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:2px}
+.metric .v small{font-size:13px;font-weight:500;color:var(--label2);margin-left:3px;letter-spacing:0}
+.metric .s{font-size:12px;color:var(--label2)}
+.lengthbar{position:relative;height:6px;border-radius:3px;background:var(--fill2);margin-top:8px}
+.lengthbar .ok{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--green) 35%,transparent);border-radius:3px}
+.lengthbar .dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:var(--label);border:2px solid var(--bg2);transform:translate(-50%,-50%)}
+.pts .li .lit b{font-weight:500}
+.status{width:22px;height:22px;flex:none;margin-top:1px}
+.transcript{font-size:16px;line-height:1.75;white-space:pre-wrap;word-wrap:break-word}
+.transcript mark{background:none;color:inherit;border-radius:3px;padding:1px 0;cursor:help}
+.transcript mark.filler{background:color-mix(in srgb,var(--orange) 22%,transparent);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--orange) 70%,transparent)}
+.transcript mark.hedge{background:color-mix(in srgb,var(--purple) 18%,transparent);box-shadow:inset 0 -2px 0 var(--purple)}
+.transcript mark.word{background:color-mix(in srgb,var(--blue) 14%,transparent);box-shadow:inset 0 -2px 0 var(--blue)}
+.transcript mark.tangent{background:color-mix(in srgb,var(--gray) 20%,transparent);color:var(--label2)}
+.keys{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--label2);margin-top:12px}
+.keys span{display:inline-flex;align-items:center;gap:5px}
+.keys i{width:14px;height:10px;border-radius:3px;display:inline-block}
+.quote{font-size:16px;line-height:1.55;white-space:pre-wrap;background:var(--fill4);border-radius:10px;padding:12px 14px}
+.star{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.star div{border-radius:10px;padding:8px 6px;text-align:center;background:var(--fill4);font-size:12px;color:var(--label2)}
+.star div b{display:block;font-size:20px;font-weight:700;color:var(--label3)}
+.star div.on{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--label)}
+.star div.on b{color:var(--green)}
+.wordrow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
+.wordrow .said{color:var(--red);text-decoration:line-through;text-decoration-thickness:1px;font-weight:500}
+.wordrow .try{color:var(--green);font-weight:500}
+.wordrow + .why{font-size:13px;color:var(--label2);margin-top:2px}
+.thinking{display:flex;align-items:center;gap:10px;color:var(--label2);font-size:15px}
+.spinner{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--fill);border-top-color:var(--label2);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:linear-gradient(120deg,color-mix(in srgb,var(--purple) 20%,transparent),color-mix(in srgb,var(--pink) 20%,transparent));color:var(--purple)}
+.empty{color:var(--label2);font-size:15px;text-align:center;padding:30px 16px}
+.err{color:var(--red);font-size:14px}
+.fade-in{animation:fadein .35s ease both}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- Bank / progress ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.qrow .lit b{font-weight:500;font-size:15px}
+.qrow .lit span{font-size:13px}
+.score-chip{font-size:13px;font-weight:600;padding:2px 8px;border-radius:12px;font-variant-numeric:tabular-nums}
+.sc-g{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.sc-w{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)}
+.sc-b{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.tile{background:var(--bg2);border-radius:14px;box-shadow:var(--card-shadow);padding:14px 16px}
+.tile .k{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.tile .v{font-size:30px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:6px}
+.tile .v small{font-size:14px;color:var(--label2);font-weight:500;margin-left:3px;letter-spacing:0}
+.tile .s{font-size:13px;color:var(--label2)}
+.bar{height:6px;border-radius:3px;background:var(--fill2);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;border-radius:3px}
+.spark{width:100%;height:60px;display:block}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 6px;border-bottom:.5px solid var(--sep);vertical-align:top}
+th{font-size:12px;color:var(--label2);font-weight:600}
+
+/* ---------- Sheet (settings) ---------- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:50;display:grid;place-items:center;padding:16px;animation:fadein .2s}
+.sheet{background:var(--bg);border-radius:14px;box-shadow:var(--sheet-shadow);width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:0 0 18px}
+.sheethead{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:var(--bg);z-index:1}
+.sheethead b{font-size:17px;font-weight:600}
+.sheet .grp{margin:0 16px 8px}
+.sheet .grphead{font-size:13px;color:var(--label2);margin:16px 32px 6px;text-transform:uppercase;letter-spacing:.02em}
+.sheet .grpfoot{font-size:13px;color:var(--label2);margin:6px 32px 0}
+.setrow{display:flex;align-items:center;gap:12px;padding:8px 16px;min-height:46px;position:relative}
+.setrow + .setrow::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.setrow label{flex:1;font-size:16px}
+.setrow input[type=password],.setrow input[type=text]{flex:1;border:0;background:none;text-align:right;font-size:16px;outline:none;min-width:0}
+
+/* ---------- Account ---------- */
+.avatar{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff;font-size:10px;font-weight:700;background:linear-gradient(160deg,#a5a5ad,#76767e)}
+.avatar.big{width:84px;height:84px;font-size:32px;margin:6px auto 10px}
+.avatar.on{background:linear-gradient(160deg,#5ac8fa,#007aff)}
+.nav.acct{padding-block:8px}
+.nav.acct .who{min-width:0;line-height:1.2}
+.nav.acct .who b{display:block;font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav.acct .who small{display:block;font-size:11px;color:var(--label2)}
+.syncdot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:4px}
+.syncdot.pending,.syncdot.saving,.syncdot.loading{background:var(--orange)} .syncdot.error{background:var(--red)}
+.authhero{text-align:center;padding:4px 24px 8px}
+.authhero h2{font-size:24px;font-weight:700;letter-spacing:-.02em;margin:4px 0 6px}
+.authhero p{color:var(--label2);font-size:15px;margin:0}
+.field{display:block;width:100%;border:0;background:none;font-size:16px;padding:12px 16px;outline:none}
+.authform .list{margin:0 16px 10px}
+.authform .li + .li::before{left:16px}
+.authform .li{padding:0}
+.authmsg{font-size:14px;margin:4px 32px 0;min-height:20px}
+.authmsg.bad{color:var(--red)} .authmsg.good{color:var(--green)}
+.authactions{display:flex;flex-direction:column;gap:10px;margin:14px 16px 0}
+.authactions .btn{width:100%}
+
+/* ---------- Mobile: tab bar + drawer ---------- */
+.tabbar{display:none}
+.topics-strip{display:none}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .sidebar{position:fixed;inset:0 auto 0 0;width:min(300px,86vw);z-index:60;transform:translateX(-105%);transition:transform .3s cubic-bezier(.3,.7,.4,1);background:var(--bg2)}
+  .sidebar.open{transform:none;box-shadow:var(--sheet-shadow)}
+  .drawer-scrim{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:55}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--toolbar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--sep);padding:5px 0 max(6px,env(safe-area-inset-bottom))}
+  .tabbar button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:500;color:var(--gray);padding:2px 0}
+  .tabbar button svg{width:24px;height:24px}
+  .tabbar button[aria-current="true"]{color:var(--blue)}
+  .topics-strip{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 14px;padding:0 20px 2px;scrollbar-width:none}
+  .topics-strip::-webkit-scrollbar{display:none}
+  .topics-strip button{flex:none;border:0;border-radius:18px;padding:7px 14px;font-size:14px;font-weight:500;background:var(--bg2);box-shadow:var(--card-shadow)}
+  .topics-strip button[aria-pressed="true"]{background:var(--label);color:var(--bg)}
+  .largetitle{font-size:30px;line-height:36px}
+  .qtext{font-size:21px}
+  .content{padding-left:16px;padding-right:16px}
+  .toolbar{padding-left:12px;padding-right:12px}
+  .topics-strip{margin:0 -16px 14px;padding:0 16px 2px}
+}
+@media (min-width:901px){ #menuBtn{display:none} }
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebar" aria-label="Sidebar">
+    <div class="brand">
+      <div class="appicon"><svg class="i" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 1 0-7 0v6A3.5 3.5 0 0 0 12 15Zm6-3.6a.9.9 0 1 0-1.8 0 4.2 4.2 0 0 1-8.4 0 .9.9 0 1 0-1.8 0 6 6 0 0 0 5.1 5.9V20H8.8a.9.9 0 1 0 0 1.8h6.4a.9.9 0 1 0 0-1.8h-2.3v-2.7a6 6 0 0 0 5.1-5.9Z"/></svg></div>
+      <div><b>Superday Drill Room</b><small>Interview coach</small></div>
+    </div>
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/></svg>
+      <input id="sideSearch" type="search" placeholder="Search questions" aria-label="Search questions"></div>
+    <div class="navhead">Practice</div>
+    <div id="navMain"></div>
+    <div class="navhead">Topics</div>
+    <div id="navTopics"></div>
+    <div class="grow"></div>
+    <button class="nav acct" id="navAccount" hidden></button>
+    <button class="nav" id="navSettings"><span class="ic c-gray" data-icon="gear"></span>Settings</button>
+  </nav>
+
+  <main>
+    <div class="toolbar" id="toolbar">
+      <button class="tbtn" id="menuBtn" aria-label="Show sidebar"><span data-icon="sidebar"></span></button>
+      <div class="ttl" id="tbTitle"></div>
+      <div class="sp"></div>
+      <div id="tbRight" class="row" style="gap:4px"></div>
+    </div>
+    <div class="content" id="view"></div>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+<div id="layer"></div>
+
+<script>
+const TRACKS = [
+  {id:"acct", name:"Accounting"},
+  {id:"beh", name:"Behavioral"},
+  {id:"val", name:"Valuation"},
+  {id:"deal", name:"M&A and LBO"},
+  {id:"mkt", name:"Markets and brainteasers"},
+  {id:"sector", name:"Sector & product"},
+  {id:"mine", name:"My material"},
+];
+const BANK = [
+ // Accounting — basic
+ {id:"a1",t:"acct",l:"Basic",s:90,q:"Walk me through the 3 financial statements.",k:["Income Statement: revenue and expenses over a period, down to Net Income","Balance Sheet: Assets, Liabilities and Shareholders' Equity at a point in time; Assets = Liabilities + Equity","Cash Flow Statement: starts with Net Income, adjusts for non-cash items and changes in working capital, then Cash Flow from Investing and Financing; ends with net change in cash"]},
+ {id:"a2",t:"acct",l:"Basic",s:60,q:"Give me examples of major line items on each of the three financial statements.",k:["IS: Revenue, COGS, SG&A, Operating Income, Pre-Tax Income, Net Income","BS: Cash, Accounts Receivable, Inventory, PP&E, Accounts Payable, Accrued Expenses, Debt, Shareholders' Equity","CFS: CFO (Net Income, D&A, SBC, changes in operating assets and liabilities), CFI (CapEx, sale of PP&E, buying/selling investments), CFF (dividends, debt raised/repaid, shares issued/repurchased)"]},
+ {id:"a3",t:"acct",l:"Basic",s:90,q:"How do the 3 statements link together?",k:["Net Income from the IS becomes the top line of the CFS","Add back non-cash charges like D&A","Reflect changes in operational Balance Sheet items (working capital) to get CFO","Add investing and financing activities to get net change in cash","Ending cash = beginning cash + net change in cash, flows to top of the BS","Net Income flows into Retained Earnings in Shareholders' Equity; Assets = Liabilities + Equity"]},
+ {id:"a4",t:"acct",l:"Basic",s:60,q:"What are the criteria for an item to appear on the Income Statement?",k:["It must correspond only to the period shown (CapEx for a 10-20 year asset does not appear)","It must affect the company's taxes (interest is tax-deductible so it appears; repaying debt principal is not, so it doesn't)"]},
+ {id:"a5",t:"acct",l:"Basic",s:60,q:"Name items that never appear on the Income Statement, and explain why.",k:["CapEx, buying/selling investments and PP&E, dividends, issuing or repaying debt principal, issuing or repurchasing shares, changes in BS items like AR or AP","They either don't affect taxes (e.g. dividends, buying inventory) or don't correspond to the period (CapEx buys long-lived assets)"]},
+ {id:"a6",t:"acct",l:"Basic",s:45,q:"What's the difference between an Asset and a Liability?",k:["Asset: will result in more cash in the future, directly or indirectly","Liability: will result in less cash in the future; usually owed to external parties and used to fund the business","Equity is also funding but relates to the company's own internal operations / owners"]},
+ {id:"a7",t:"acct",l:"Basic",s:45,q:"Why might a company's Net Income differ from its cash flow?",k:["Non-cash expenses like Depreciation, Amortization and Stock-Based Compensation reduce NI but not cash","Revenue and expenses are recorded before cash is received or paid (AR, AP, accrued expenses, deferred revenue)","Cash items that never hit the IS: CapEx, dividends, debt and equity issuance or repayment"]},
+ {id:"a8",t:"acct",l:"Basic",s:60,q:"Explain the three sections of the Cash Flow Statement and why the 'current vs. long-term' rule of thumb isn't fully accurate.",k:["CFO: Net Income, non-cash adjustments, changes in operating assets and liabilities","CFI: investments, acquisitions, PP&E / CapEx","CFF: debt, dividends, issuing or repurchasing shares","Exceptions: Deferred Revenue can be long-term but sits in CFO; Short-Term Investments are current but sit in CFI; the Revolver is current but sits in CFF"]},
+ {id:"a9",t:"acct",l:"Basic",s:45,q:"What's the difference between Accounts Payable and Accrued Expenses?",k:["Both: expense recorded on the IS but not yet paid in cash; both liabilities","AP: one-time items with specific invoices (e.g. legal services)","Accrued Expenses: recurring monthly items without invoices (wages, utilities, rent)"]},
+ {id:"a10",t:"acct",l:"Basic",s:45,q:"What is Deferred Revenue, and is it an asset or a liability?",k:["Cash collected in advance from customers for products/services not yet delivered","It's a liability: the company owes the product/service","Recognized as real revenue over time as it is delivered"]},
+ {id:"a11",t:"acct",l:"Basic",s:45,q:"What are Goodwill and Other Intangible Assets, and how do they differ?",k:["Goodwill: premium paid over the target's Shareholders' Equity in an acquisition","Other Intangibles: patents, trademarks, IP, usually from acquisitions","Intangibles amortize (decrease) over time; Goodwill does not amortize (it can be impaired)"]},
+ {id:"a12",t:"acct",l:"Basic",s:45,q:"What is Treasury Stock and what is Common Stock and APIC?",k:["Common Stock & APIC: market value of shares at the time they were issued; doesn't change with later share price moves","Treasury Stock: cumulative value of shares the company has repurchased; shown as a negative in equity; also doesn't change with share price"]},
+ {id:"a13",t:"acct",l:"Basic",s:45,q:"What is a Deferred Tax Liability?",k:["The company has paid lower taxes than it really owes (book vs. tax differences, e.g. accelerated depreciation)","It must make up the difference with higher tax payments in the future"]},
+ // Accounting — changes
+ {id:"a20",t:"acct",l:"Intermediate",s:90,q:"Depreciation goes up by $10. Walk me through the three statements. Assume a 40% tax rate.",k:["IS: Operating Income down $10, Net Income down $6 (10 × (1 – 40%))","CFS: Net Income down $6, add back $10 Depreciation, so cash up $4","BS: Cash up $4, PP&E down $10, total Assets down $6","Retained Earnings / Shareholders' Equity down $6, so both sides down $6 and it balances"]},
+ {id:"a21",t:"acct",l:"Intermediate",s:90,q:"Accounts Receivable goes up by $100. Walk me through the statements, 40% tax rate.",k:["AR up means revenue recorded but not collected in cash","IS: Revenue up $100, Pre-Tax Income up $100, Net Income up $60","CFS: Net Income up $60, increase in AR is a –$100 cash flow, cash down $40","BS: Cash down $40, AR up $100, Assets up $60; Retained Earnings up $60; balances","AR going down instead = cash collection only: Cash up, AR down, no IS change"]},
+ {id:"a22",t:"acct",l:"Intermediate",s:90,q:"Prepaid Expenses goes down by $100. What happens on the statements? 40% tax rate.",k:["We now recognize on the IS an expense already paid in cash","IS: expense up $100, Pre-Tax Income down $100, Net Income down $60","CFS: Net Income down $60, decrease in Prepaid (an asset) is +$100, cash up $40","BS: Cash up $40, Prepaid down $100, Assets down $60; Retained Earnings down $60","Prepaid going up = paying cash in advance: Cash down, Prepaid up, no IS change"]},
+ {id:"a23",t:"acct",l:"Intermediate",s:90,q:"Inventory goes up by $100, paid for in cash. Then what if Inventory goes down by $100 because it's sold?",k:["Inventory up: Cash down $100, Inventory up $100, no IS change","Inventory down: COGS up $100 (ask whether there's revenue too), Pre-Tax Income down $100, Net Income down $60 at 40%","CFS: NI –$60, decrease in Inventory +$100, cash up $40","BS: Cash +$40, Inventory –$100, Assets –$60; Retained Earnings –$60"]},
+ {id:"a24",t:"acct",l:"Intermediate",s:90,q:"Accrued Expenses goes up by $100. Walk me through it, 40% tax rate.",k:["Expense recorded on the IS but not paid in cash yet (e.g. wages accrued weekly, paid monthly)","IS: Pre-Tax Income –$100, Net Income –$60","CFS: NI –$60, increase in Accrued Expenses (a liability) +$100, cash +$40","BS: Cash +$40; Accrued Expenses +$100, Retained Earnings –$60, L+E +$40; balances","When it goes down: cash payout only, Cash and Accrued Expenses both down"]},
+ {id:"a25",t:"acct",l:"Intermediate",s:90,q:"Deferred Revenue decreases by $100. Walk me through the statements at a 40% tax rate.",k:["Previously collected cash is now recognized as revenue","IS: Revenue +$100, Pre-Tax Income +$100, Net Income +$60","CFS: NI +$60, decrease in Deferred Revenue (liability) –$100, cash –$40","BS: Cash –$40; Deferred Revenue –$100, Retained Earnings +$60, L+E –$40","Deferred Revenue going up = cash collected in advance: Cash up, Deferred Revenue up, no IS change"]},
+ {id:"a26",t:"acct",l:"Intermediate",s:75,q:"Stock-Based Compensation goes up by $10. What happens, 40% tax rate?",k:["IS: Operating Income –$10, Net Income –$6","CFS: add back $10 SBC as non-cash, cash +$4","BS: Cash +$4; Common Stock & APIC +$10, Retained Earnings –$6, equity +$4; balances"]},
+ {id:"a27",t:"acct",l:"Intermediate",s:75,q:"A company raises $100 of debt and uses it to buy $100 of PP&E. Walk me through the statements.",k:["No IS change at the moment of the transaction","CFS: CapEx –$100 in CFI, debt issued +$100 in CFF, net change in cash $0","BS: PP&E +$100, Debt +$100; balances","Afterwards: depreciation and interest expense hit the IS in later periods"]},
+ {id:"a28",t:"acct",l:"Advanced",s:90,q:"A company sells PP&E with a book value of $100 for $120. Walk me through the statements at 40% tax.",k:["IS: $20 gain, Pre-Tax Income +$20, Net Income +$12","CFS: NI +$12, subtract the $20 gain in CFO (reclassify it), CFI +$120 for full sale proceeds, net cash +$112","BS: Cash +$112, PP&E –$100, Assets +$12; Retained Earnings +$12; balances","Gain is reclassified from CFO to CFI as part of the full sale price"]},
+ {id:"a29",t:"acct",l:"Intermediate",s:60,q:"The company issues $10 in dividends. What happens on the statements?",k:["No IS change: dividends are not tax-deductible","CFS: –$10 in Cash Flow from Financing","BS: Cash –$10, Retained Earnings –$10; balances"]},
+ {id:"a30",t:"acct",l:"Intermediate",s:60,q:"Why does the Revolver show up in Cash Flow from Financing even though it's a current liability?",k:["The Revolver is short-term borrowing like a company credit card","It relates to how the company finances itself, not its operations","So it goes in CFF, an exception to the current/long-term rule of thumb"]},
+ // Behavioral
+ {id:"b1",t:"beh",l:"Must know",s:120,q:"Walk me through your resume. Tell me about yourself.",k:["Clear chronological story in 90 seconds to 2 minutes, not a list","Hook: where you're from or what started your interest","2–3 key experiences with what you did and learned, each linked to finance","A turning point that explains why investment banking","Close with why you're here today / why this role now"]},
+ {id:"b2",t:"beh",l:"Must know",s:75,q:"Why investment banking?",k:["Specific, personal reasons, not just money or prestige","Learning curve: exposure to deals, modeling, valuation and senior clients early","Teamwork, intensity and transaction work you've seen or done (cite an experience)","Ties to long-term goals without sounding like you'll leave immediately"]},
+ {id:"b3",t:"beh",l:"Must know",s:60,q:"Why our bank in particular?",k:["Specific to the firm: groups, recent deals, culture, size of analyst classes","Mention people you've spoken with and what they said","Connect firm strengths to your interests","Avoid generic answers that fit any bank"]},
+ {id:"b4",t:"beh",l:"Must know",s:60,q:"What are your greatest strengths?",k:["2–3 strengths relevant to banking: work ethic, attention to detail, teamwork, quantitative skill","Each backed by a short concrete example","Concise and confident, not arrogant"]},
+ {id:"b5",t:"beh",l:"Must know",s:60,q:"What's your biggest weakness?",k:["A real weakness, not a disguised strength like 'I work too hard'","Not a core requirement of the job (e.g. not 'attention to detail')","Specific steps you've taken to improve, with evidence of progress"]},
+ {id:"b6",t:"beh",l:"Story",s:120,q:"Tell me about a time you led a team.",k:["STAR structure: Situation, Task, Action, Result","Specific actions you personally took","Quantified result if possible","What you learned and how it applies to an analyst role"]},
+ {id:"b7",t:"beh",l:"Story",s:120,q:"Tell me about a time you had a conflict with a teammate and how you resolved it.",k:["STAR structure","Show empathy and you understood the other side","Constructive resolution focused on the team goal","Positive outcome and lesson; don't blame the other person"]},
+ {id:"b8",t:"beh",l:"Story",s:120,q:"Tell me about a time you failed.",k:["A real failure with real stakes","Own it; don't blame others","What you changed afterwards","Evidence the lesson stuck (a later success)"]},
+ {id:"b9",t:"beh",l:"Story",s:120,q:"Tell me about a deal you've been following.",k:["Name the buyer, target, size, multiple and date","Strategic rationale: why the buyer did it (synergies, growth, market share)","How it was financed (cash, stock, debt) and premium paid","Your view: was it a good deal and why; risks"]},
+ {id:"b10",t:"beh",l:"Must know",s:60,q:"Where do you see yourself in five years?",k:["Shows commitment to banking / finance and growth into associate-level responsibilities","Realistic and humble","Doesn't signal leaving for buy-side immediately"]},
+ {id:"b11",t:"beh",l:"Must know",s:60,q:"Why should we hire you over the other candidates?",k:["2–3 differentiators with proof","Link to what analysts actually do: detail, hard work, quick learning, teamwork","Confident close"]},
+ // Valuation
+ {id:"v1",t:"val",l:"Must know",s:120,q:"Walk me through a DCF.",k:["Project the company's unlevered free cash flow for 5–10 years (EBIT × (1 – tax rate) + D&A – CapEx – change in working capital)","Calculate a discount rate, usually WACC","Calculate Terminal Value with the Multiples Method or Gordon Growth Method","Discount the FCFs and Terminal Value to present value and sum them to get Enterprise Value","Bridge to Equity Value and divide by diluted shares for implied share price"]},
+ {id:"v2",t:"val",l:"Must know",s:75,q:"What's the difference between Enterprise Value and Equity Value?",k:["Equity Value: value of the whole company to common shareholders only (market cap)","Enterprise Value: value of core operations to all investors (debt, preferred, equity)","EV = Equity Value + Debt + Preferred Stock + Noncontrolling Interest – Cash"]},
+ {id:"v3",t:"val",l:"Must know",s:60,q:"Why do you subtract cash when going from Equity Value to Enterprise Value?",k:["Cash is a non-operating asset; EV reflects core operations only","An acquirer effectively gets the cash back, so it reduces the net cost","Equity Value already includes the cash"]},
+ {id:"v4",t:"val",l:"Must know",s:75,q:"What are the three main valuation methodologies, and which gives the highest value?",k:["Comparable public companies, precedent transactions, DCF","Precedent transactions usually highest because of the control premium","DCF is most variable and sensitive to assumptions; trading comps often lowest","Mention 'it depends' with reasons"]},
+ {id:"v5",t:"val",l:"Must know",s:75,q:"How do you calculate WACC?",k:["WACC = Cost of Equity × % Equity + Cost of Debt × (1 – tax rate) × % Debt + Cost of Preferred × % Preferred","Cost of Equity from CAPM: Risk-free rate + Beta × Equity Risk Premium","Cost of Debt is tax-effected because interest is deductible","Use market values for the weights"]},
+ {id:"v6",t:"val",l:"Intermediate",s:75,q:"How do you calculate Terminal Value, and which method is better?",k:["Multiples Method: final-year EBITDA × an exit multiple","Gordon Growth: final-year FCF × (1 + g) / (discount rate – g)","Use one to cross-check the other (implied growth rate / implied multiple)","Gordon Growth is more theoretical; multiples more market-based"]},
+ {id:"v7",t:"val",l:"Intermediate",s:60,q:"How do you get from EBITDA to Unlevered Free Cash Flow?",k:["EBITDA – D&A = EBIT","EBIT × (1 – tax rate) = NOPAT","+ D&A (and other non-cash charges) – CapEx – increase in Net Working Capital"]},
+ // M&A / LBO
+ {id:"d1",t:"deal",l:"Must know",s:120,q:"Walk me through a basic LBO model.",k:["Make assumptions for purchase price, debt and equity funding, interest rates, operations","Create Sources and Uses: how much equity the PE firm contributes","Adjust the Balance Sheet for the new debt and equity","Project the statements and use cash flow to pay down debt","Assume an exit after 3–5 years at a multiple; calculate IRR and money-on-money multiple"]},
+ {id:"d2",t:"deal",l:"Must know",s:60,q:"Why do private equity firms use leverage in an LBO?",k:["Reduces the equity check, which magnifies returns (IRR)","Interest is tax-deductible","Debt paydown increases equity value over time","Downside: more risk of default"]},
+ {id:"d3",t:"deal",l:"Must know",s:60,q:"What makes a good LBO candidate?",k:["Stable, predictable cash flows","Low CapEx needs","Opportunities to cut costs / improve operations","Strong management team","Reasonable valuation and a credible exit path","Assets that can serve as collateral"]},
+ {id:"d4",t:"deal",l:"Must know",s:90,q:"Walk me through a basic merger model, an accretion/dilution analysis.",k:["Project both companies' financials","Determine purchase price and financing mix (cash, debt, stock)","Combine income statements, adding foregone interest on cash, new interest on debt, and synergies","Divide combined Net Income by the new share count (including new shares issued)","Compare combined EPS to buyer's standalone EPS: higher = accretive, lower = dilutive"]},
+ {id:"d5",t:"deal",l:"Must know",s:60,q:"Why would a company want to acquire another company?",k:["Growth: faster than organic","Synergies: revenue and cost","Gain market share, eliminate a competitor","Acquire technology, IP, talent or customers","Undervalued target"]},
+ {id:"d6",t:"deal",l:"Intermediate",s:60,q:"Shortcut: when is an all-stock deal accretive?",k:["Compare the buyer's P/E to the seller's P/E (at the purchase price)","If buyer's P/E is higher than the seller's, the deal is accretive","Equivalently compare cost of acquisition (seller earnings yield) to cost of stock"]},
+ // Markets / brainteasers
+ {id:"m1",t:"mkt",l:"Must know",s:120,q:"Pitch me a stock.",k:["Name, ticker, price and a one-line thesis","2–3 specific reasons with numbers (growth, margins, catalysts)","Valuation: why it's mispriced vs. comps or history","Key risks and what would make you wrong","Price target or expected return"]},
+ {id:"m2",t:"mkt",l:"Must know",s:60,q:"Where are interest rates and the S&P 500 roughly right now, and what's been moving them?",k:["Approximate current levels (Fed funds, 10-year Treasury, S&P 500)","Recent drivers: inflation data, Fed policy, earnings, macro","Show you follow the markets daily"]},
+ {id:"m3",t:"mkt",l:"Brainteaser",s:60,q:"What's the angle between the hour and minute hands at 3:15?",k:["Minute hand at 90 degrees","Hour hand moves 0.5 degrees per minute: 90 + 7.5 = 97.5 degrees","Answer: 7.5 degrees","Talk through the reasoning out loud"]},
+ {id:"m4",t:"mkt",l:"Brainteaser",s:60,q:"What's 15% of 360? And what's 1.08 to the 3rd power, roughly?",k:["15% of 360 = 54 (10% = 36, 5% = 18)","1.08³ ≈ 1.26 (1.08 × 1.08 = 1.1664, × 1.08 ≈ 1.2597)","Show quick mental math steps"]},
+ {id:"m5",t:"mkt",l:"Must know",s:60,q:"If rates go up, what happens to a company's valuation in a DCF?",k:["Higher risk-free rate raises cost of equity and cost of debt, so WACC rises","Higher discount rate lowers present value, so valuation falls","Also mention possible effects on multiples and growth"]},
+];
+
+const VINE_BANK = [];
+
+</script>
+<script>
+/* ==========================================================================
+   Interview Coach engine — runs fully offline.
+   analyze(question, answer, seconds) -> report
+   Scores content against the answer key, catches common factual mistakes,
+   and coaches delivery: filler, hedging, rambling, structure, wording, STAR.
+   ========================================================================== */
+const Coach = (() => {
+
+/* ---------- Normalisation ---------- */
+// Finance phrases -> one canonical token, so "PP and E", "PP&E" and
+// "property plant and equipment" all match each other.
+const PHRASES = [
+  [/\bdepreciation (?:and|&) amortization\b|\bd ?(?:&|and|n) ?a\b/g, " da "],
+  [/\bproperty,? plant,? (?:and|&) equipment\b|\bpp ?(?:&|and|n) ?e\b|\bppe\b/g, " ppe "],
+  [/\baccounts receivables?\b|\ba\/r\b|\breceivables\b/g, " ar "],
+  [/\baccounts payables?\b|\ba\/p\b|\bpayables\b/g, " ap "],
+  [/\baccrued (?:expenses|liabilities)\b|\baccruals\b/g, " accrued "],
+  [/\bdeferred revenues?\b|\bunearned revenues?\b/g, " deferredrevenue "],
+  [/\bdeferred tax liabilit(?:y|ies)\b|\bdtls?\b/g, " dtl "],
+  [/\bdeferred tax assets?\b|\bdtas?\b/g, " dta "],
+  [/\bnet operating loss(?:es)?\b|\bnols?\b/g, " nol "],
+  [/\bnet income\b|\bnet earnings\b|\bbottom line\b/g, " netincome "],
+  [/\bincome statement\b|\bp ?(?:&|and|n) ?l\b|\bprofit and loss(?: statement)?\b/g, " incomestatement "],
+  [/\bbalance sheet\b/g, " balancesheet "],
+  [/\bcash flow statement\b|\bstatement of cash flows\b|\bcfs\b/g, " cfs "],
+  [/\bcash flow from operations\b|\bcash flows? from operating(?: activities)?\b|\boperating cash flow\b|\bcfo\b/g, " cfo "],
+  [/\bcash flow from investing(?: activities)?\b|\binvesting cash flow\b|\bcfi\b/g, " cfi "],
+  [/\bcash flow from financing(?: activities)?\b|\bfinancing cash flow\b|\bcff\b/g, " cff "],
+  [/\bshareholders'? equity\b|\bstockholders'? equity\b|\bowners'? equity\b|\bbook value of equity\b/g, " shequity "],
+  [/\bretained earnings\b/g, " retainedearnings "],
+  [/\badditional paid[- ]in capital\b|\bapic\b/g, " apic "],
+  [/\btreasury stock\b|\bshare (?:buybacks?|repurchases?)\b|\bstock buybacks?\b/g, " treasury "],
+  [/\bstock[- ]based comp(?:ensation)?\b|\bsbc\b/g, " sbc "],
+  [/\bcapital expenditures?\b|\bcap ?ex\b/g, " capex "],
+  [/\bnet working capital\b|\bworking capital\b|\bnwc\b/g, " nwc "],
+  [/\bcost of goods sold\b|\bcogs\b|\bcost of sales\b/g, " cogs "],
+  [/\bselling,? general (?:and|&) administrative\b|\bsg ?(?:&|and) ?a\b/g, " sga "],
+  [/\bearnings before interest,? taxes,? depreciation,? (?:and|&) amortization\b|\be ?bit ?da\b|\bebitda\b/g, " ebitda "],
+  [/\bearnings before interest (?:and|&) taxes\b|\boperating income\b|\boperating profit\b|\bebit\b/g, " ebit "],
+  [/\benterprise value\b|\bev\b|\bfirm value\b|\btransaction value\b/g, " ev "],
+  [/\bequity value\b|\bmarket cap(?:italization)?\b|\bmarket value of equity\b/g, " equityvalue "],
+  [/\bweighted average cost of capital\b|\bwacc\b|\bwhack\b/g, " wacc "],
+  [/\bcost of equity\b/g, " costequity "],
+  [/\bcost of debt\b/g, " costdebt "],
+  [/\bcapital asset pricing model\b|\bcapm\b|\bcap m\b/g, " capm "],
+  [/\bequity risk premium\b|\bmarket risk premium\b|\berp\b/g, " erp "],
+  [/\brisk[- ]free rate\b/g, " riskfree "],
+  [/\bfree cash flow\b|\bfcf\b|\bufcf\b|\blfcf\b/g, " fcf "],
+  [/\bterminal value\b|\bexit value\b/g, " terminalvalue "],
+  [/\bperpetuity growth\b|\bgordon growth\b|\bperpetual growth\b/g, " gordon "],
+  [/\bexit multiples?\b|\bmultiples method\b/g, " exitmultiple "],
+  [/\bdiscounted cash flows?\b|\bdcf\b/g, " dcf "],
+  [/\bleveraged buy ?outs?\b|\blbos?\b/g, " lbo "],
+  [/\binternal rate of return\b|\birr\b/g, " irr "],
+  [/\bmultiple of (?:invested capital|money)\b|\bmoic\b|\bcash[- ]on[- ]cash\b/g, " moic "],
+  [/\bmergers? (?:and|&) acquisitions?\b|\bm ?(?:&|and|n) ?a\b/g, " mna "],
+  [/\bprice[- ]to[- ]earnings\b|\bp ?\/ ?e\b|\bpe ratio\b|\bp e\b/g, " pe "],
+  [/\bearnings per share\b|\beps\b/g, " eps "],
+  [/\bnet operating profit after tax(?:es)?\b|\bnopat\b/g, " nopat "],
+  [/\bcomparable compan(?:y|ies)\b|\btrading comps?\b|\bpublic comps?\b|\bcomps\b/g, " comps "],
+  [/\bprecedent transactions?\b|\bprecedents\b|\btransaction comps\b|\bdeal comps\b/g, " precedents "],
+  [/\bsources (?:and|&) uses\b/g, " sourcesuses "],
+  [/\bnon[- ]?controlling interests?\b|\bminority interests?\b|\bnci\b/g, " nci "],
+  [/\bpreferred (?:stock|equity|shares)\b/g, " preferred "],
+  [/\bgoodwill\b/g, " goodwill "],
+  [/\bintangible assets?\b|\bintangibles\b/g, " intangibles "],
+  [/\binterest expense\b/g, " interestexpense "],
+  [/\bdividends?\b/g, " dividend "],
+  [/\brevolving credit facility\b|\brevolver\b/g, " revolver "],
+  [/\bsynerg(?:y|ies)\b/g, " synergy "],
+  [/\baccretive\b|\baccretion\b/g, " accretive "],
+  [/\bdilutive\b|\bdilution\b/g, " dilutive "],
+  [/\bpre[- ]?tax income\b|\bearnings before tax(?:es)?\b|\bebt\b/g, " pretax "],
+  [/\bfederal reserve\b|\bthe fed\b/g, " fed "],
+  [/\binterest rates?\b/g, " rates "],
+  [/\bper ?cent\b|%/g, " percent "],
+  // behavioral concepts
+  [/\bempath\w*|\blisten\w*|\b(?:their|his|her|the other) (?:side|perspective|point of view)\b|\bunderstood (?:why|what|that|where)\b|\bperspective\b/g, " empathy "],
+  [/\blessons?\b|\bi learned\b|\blearned\b|\btakeaways?\b|\btaught me\b/g, " lesson "],
+  [/\bas a result\b|\boutcomes?\b|\bin the end\b|\bended up\b/g, " outcome "],
+  [/\bresolv\w*|\bresolution\b|\bcompromis\w*|\bworked it out\b/g, " resolve "],
+];
+const DIR_UP = /^(?:up|increase[sd]?|increasing|rise[sn]?|rising|rose|grow[sn]?|grew|growing|higher|goes up|gain|gains|plus|positive|add|adds|added|boost)$/;
+const DIR_DOWN = /^(?:down|decrease[sd]?|decreasing|fall[sn]?|falling|fell|decline[sd]?|declining|drop[sp]?(?:ed)?|lower|reduce[sd]?|reducing|minus|negative|subtract(?:s|ed)?|less|loss|losses|shrink[s]?)$/;
+const NUMWORDS = {zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,hundred:100};
+const STOP = new Set(("a an the and or but if then so of to in on at by for with from as is are was were be been being it its it's this that these those there their they them we our you your i me my he she his her not no do does did done have has had will would can could should may might also just than too very more most such into over under about out up down off per via each any all both some other own same only i'm we're you're it'll which who whom what when where why how while because also e.g eg i.e ie etc vs versus like using use used one".split(" ")).filter(w=>w!=="up"&&w!=="down"&&w!=="not"&&w!=="no"));
+
+function wordsToNumbers(s){
+  // "forty" -> 40, "a hundred" -> 100, "one point five" -> 1.5, "ten dollars" -> 10
+  return s.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[- ](one|two|three|four|five|six|seven|eight|nine)\b/g,(m,a,b)=>String(NUMWORDS[a]+NUMWORDS[b]))
+          .replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|a) hundred\b/g,(m,a)=>String((a==="a"?1:NUMWORDS[a])*100))
+          .replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred)\b/g,m=>String(NUMWORDS[m]))
+          .replace(/\b(\d+) point (\d+)\b/g,"$1.$2");
+}
+function normalize(text){
+  let s = " " + String(text||"")
+    .replace(/\bIS\b/g," income statement ").replace(/\bBS\b/g," balance sheet ")
+    .replace(/\bNI\b/g," net income ").replace(/\bOI\b/g," operating income ")
+    .replace(/\bTV\b/g," terminal value ").replace(/\bCF\b/g," cash flow ")
+    .toLowerCase()
+    .replace(/[’‘]/g,"'").replace(/[–—−]/g," - ")
+    .replace(/\$\s?(\d)/g,"$1").replace(/(\d),(\d{3})/g,"$1$2")
+    .replace(/(\d)\s?(k|m|mm|bn|b)\b/g,"$1 $2")
+    .replace(/\bdollars?\b|\bbucks?\b|\busd\b/g," ") + " ";
+  s = wordsToNumbers(s);
+  for (const [re, rep] of PHRASES) s = s.replace(re, rep);
+  return s.replace(/[^a-z0-9.%\s]/g," ").replace(/(\D)\.|\.(\D)/g,"$1 $2").replace(/\s+/g," ").trim();
+}
+function stem(w){
+  if (/^\d/.test(w) || w.length <= 4) return w;
+  return w.replace(/(?:ational|ization|ations|ation|ingly|ments|ment|ness|ities|ity|ings|ing|edly|ies|ied|ed|es|ly|s)$/,"")
+          .replace(/(.)\1$/,"$1");
+}
+const DOMAIN = new Set(["da","ppe","ar","ap","accrued","deferredrevenue","dtl","dta","nol","netincome","incomestatement","balancesheet","cfs","cfo","cfi","cff","shequity","retainedearnings","apic","treasury","sbc","capex","nwc","cogs","sga","ebitda","ebit","ev","equityvalue","wacc","costequity","costdebt","capm","erp","riskfree","fcf","terminalvalue","gordon","exitmultiple","dcf","lbo","irr","moic","mna","pe","eps","nopat","comps","precedents","sourcesuses","nci","preferred","goodwill","intangibles","interestexpense","dividend","revolver","synergy","accretive","dilutive","pretax","beta","inventory","cash","debt","equity","revenue","tax","taxes","interest","depreciation","amortization","impairment","premium","leverage","multiple","discount","growth","margin","valuation","asset","liability","liabilities","assets","fed","rates","inflation","yield","spread","bond","coupon","duration","convexity"]);
+function tokens(text){ return normalize(text).split(" ").filter(Boolean); }
+function sigTokens(text){
+  return tokens(text).filter(w => !STOP.has(w) && (w.length > 2 || DOMAIN.has(w) || /^\d/.test(w))).map(stem);
+}
+
+/* ---------- Answer-key parsing ---------- */
+function keyPoints(q){
+  const raw = (q.k || []).map(x => String(x).trim()).filter(Boolean);
+  const pts = [];
+  for (let i = 0; i < raw.length; i++){
+    const line = raw[i];
+    // "The three statements are:" style lead-ins carry no content of their own.
+    if (/:$/.test(line) && line.split(/\s+/).length <= 10) continue;
+    const toks = [...new Set(sigTokens(line))];
+    if (!toks.length) continue;
+    pts.push({text: line, toks, label: shortLabel(line)});
+  }
+  return pts;
+}
+function shortLabel(line){
+  const head = line.split(/[:–—]| - /)[0].trim();
+  return head.length > 4 && head.length < 60 ? head : line.slice(0, 70) + (line.length > 70 ? "…" : "");
+}
+const META = new Set(["star","structur","structure","show","specific","concret","concrete","exampl","example","avoid","mention","answer","clear","strong","good","candidat","interview","interviewer","explain","demonstr","highlight","discuss","brief","briefly","emphas","ensur","focus","includ","situat","task","action","result","quantifi","possibl","sound","real","genuin","persona","relev","relevant","detail","short","long","generic","answers"].map(stem));
+const GENERIC = new Set(["detail","details","compan","company","show","shows","present","presents","categoriz","categorized","includ","includes","typic","typically","general","main","key","overall","firm","business","busines","provid","provides","certain","various","specif","specific","particular","usual","usually","differ","different","import","important","term","terms","way","ways","make","makes","impact","affect","affects","help","helps"].map(stem));
+function weightOf(t){ return DOMAIN.has(t) || /^\d/.test(t) ? 2 : GENERIC.has(t) ? 0.35 : 1; }
+
+/* ---------- Content coverage ---------- */
+function lev1(a,b){ // edit distance <= 1, cheap
+  if (Math.abs(a.length-b.length) > 1) return false;
+  let i=0,j=0,e=0;
+  while(i<a.length && j<b.length){ if(a[i]===b[j]){i++;j++;continue;} if(++e>1) return false; if(a.length>b.length) i++; else if(b.length>a.length) j++; else {i++;j++;} }
+  return e + (a.length-i) + (b.length-j) <= 1;
+}
+function hasTok(set, arr, t){
+  if (set.has(t)) return true;
+  if (t.length >= 6 && !/^\d/.test(t)) return arr.some(x => x.length >= 5 && lev1(x, t));
+  return false;
+}
+function coverage(points, ansToks){
+  const set = new Set(ansToks), arr = [...set];
+  return points.map(p => {
+    let tot = 0, got = 0; const hit = [], miss = [];
+    for (const t of p.toks){ const w = weightOf(t); tot += w; if (hasTok(set, arr, t)){ got += w; hit.push(t); } else miss.push(t); }
+    const ratio = tot ? got / tot : 0;
+    const need = p.toks.length <= 3 ? 0.99 : p.toks.length <= 6 ? 0.6 : 0.5;
+    const status = ratio >= need ? "hit" : ratio >= need * 0.5 ? "partial" : "miss";
+    return {...p, ratio, status, hit, miss};
+  });
+}
+
+/* ---------- Sentences ---------- */
+function sentences(text){
+  const t = String(text).replace(/\s+/g," ").trim();
+  if (!t) return [];
+  let parts = t.split(/(?<=[.!?])\s+(?=[A-Z0-9"'])/);
+  // Speech-to-text often has no punctuation: chunk on discourse markers instead.
+  if (parts.length === 1 && t.split(" ").length > 35){
+    parts = t.split(/\s+(?=(?:so|and then|then|next|after that|finally|also|but|because|which means|that means|first|second|third|lastly)\b)/i);
+    const merged = []; let buf = "";
+    for (const p of parts){ buf = buf ? buf + " " + p : p; if (buf.split(" ").length >= 10){ merged.push(buf); buf = ""; } }
+    if (buf) merged.length ? merged[merged.length-1] += " " + buf : merged.push(buf);
+    parts = merged;
+  }
+  return parts.map(s => s.trim()).filter(Boolean);
+}
+const wc = s => (String(s).match(/\S+/g) || []).length;
+
+/* ---------- Delivery patterns ---------- */
+const FILLERS = [
+  {re:/\b(?:um+|uh+|uhm+|erm+|er|ah+|hmm+|mm+)\b/gi, label:"um / uh"},
+  {re:/\byou know\b(?! (?:what|how|that|the|if|when|why|where))/gi, label:"you know"},
+  {re:/\bi mean\b/gi, label:"I mean"},
+  {re:/\bbasically\b/gi, label:"basically"},
+  {re:/\bliterally\b/gi, label:"literally"},
+  {re:/\bactually\b/gi, label:"actually"},
+  {re:/\b(?:kind|sort) of\b(?= (?:like|a|an|the|just|\w+(?:ing|ed)\b))/gi, label:"kind of / sort of"},
+  {re:/(?:^|[,.]\s*|\b(?:and|so|but|was|is|it's|were|just|um|uh)\s+)like\b(?!\s+(?:to|the way|this|that|a|an|it|them|him|her|me|us|you|i|we|they)\b)/gi, label:"like"},
+  {re:/\bso yeah\b|\byeah so\b/gi, label:"so yeah"},
+  {re:/\bor something(?: like that)?\b|\band stuff\b|\band things like that\b|\bor whatever\b|\bblah blah\b/gi, label:"or something / and stuff"},
+  {re:/\bright\?/gi, label:"right?"},
+  {re:/\bokay so\b|\balright so\b/gi, label:"okay so"},
+  {re:/\bpretty much\b/gi, label:"pretty much"},
+];
+const HEDGES = [
+  {re:/\bi think\b/gi, label:"I think"}, {re:/\bi guess\b/gi, label:"I guess"},
+  {re:/\bi believe\b/gi, label:"I believe"}, {re:/\bi feel like\b/gi, label:"I feel like"},
+  {re:/\bmaybe\b/gi, label:"maybe"}, {re:/\bprobably\b/gi, label:"probably"},
+  {re:/\bi'?m not (?:100% |a hundred percent |totally |completely |really )?sure\b|\bnot sure\b/gi, label:"I'm not sure"},
+  {re:/\bi don'?t (?:really )?know\b/gi, label:"I don't know"},
+  {re:/\bmight be\b|\bcould be\b/gi, label:"might / could be"},
+  {re:/\bif (?:that|this) makes sense\b|\bdoes (?:that|this) make sense\b/gi, label:"if that makes sense"},
+  {re:/\bhopefully\b/gi, label:"hopefully"}, {re:/\bi would say\b|\bi'd say\b/gi, label:"I'd say"},
+  {re:/\bsomewhat\b|\bkinda\b|\bsorta\b/gi, label:"somewhat / kinda"},
+];
+const WORDING = [
+  {re:/\b(?:a lot of|lots of|tons of|a bunch of)\b/gi, from:"a lot of", to:"a number: “three”, “40%”, “$2M”", why:"Vague quantity. Bankers trust numbers."},
+  {re:/\bstuff\b|\bthings\b/gi, from:"stuff / things", to:"name the item: “working capital”, “the debt schedule”", why:"Generic nouns sound like you don't know the specific term."},
+  {re:/\bgonna\b/gi, from:"gonna", to:"going to / will", why:"Too casual for a superday."},
+  {re:/\bwanna\b/gi, from:"wanna", to:"want to", why:"Too casual for a superday."},
+  {re:/\bgotta\b/gi, from:"gotta", to:"have to / need to", why:"Too casual for a superday."},
+  {re:/\byou guys\b/gi, from:"you guys", to:"your team / the firm", why:"Too casual for an interviewer."},
+  {re:/\bobviously\b/gi, from:"obviously", to:"(cut it)", why:"Can sound condescending, and if it were obvious they wouldn't ask."},
+  {re:/\bjust\b/gi, from:"just", to:"(cut it)", why:"Minimises what you did or said."},
+  {re:/\breally\b|\bvery\b|\bsuper\b/gi, from:"really / very / super", to:"a stronger single word or a number", why:"Intensifiers add length, not meaning."},
+  {re:/\btry(?:ing)? to\b/gi, from:"try to", to:"state what you do or did", why:"Signals you didn't follow through."},
+  {re:/\bhelped (?:with|out)\b/gi, from:"helped with", to:"a concrete verb: built, led, analysed, drafted", why:"Says nothing about what YOU did."},
+  {re:/\bworked on\b/gi, from:"worked on", to:"built / modelled / owned / delivered", why:"Weak verb; it hides your contribution."},
+  {re:/\bresponsible for\b/gi, from:"responsible for", to:"what you actually did and the result", why:"Duties aren't results."},
+  {re:/\bpassionate\b/gi, from:"passionate", to:"proof: what you did because you cared", why:"Every candidate says it; show it instead."},
+  {re:/\bthat'?s a (?:great|good) question\b|\bgreat question\b|\bgood question\b/gi, from:"great question", to:"(start with the answer)", why:"Stalling filler. Interviewers notice."},
+  {re:/\bsorry\b/gi, from:"sorry", to:"(drop it; pause, then restate)", why:"Apologising undercuts confidence."},
+  {re:/\bto be honest\b|\bhonestly\b|\bto tell (?:you )?the truth\b/gi, from:"honestly", to:"(cut it)", why:"Implies your other answers weren't honest."},
+  {re:/\bin order to\b/gi, from:"in order to", to:"to", why:"Same meaning, fewer words."},
+  {re:/\bdue to the fact that\b/gi, from:"due to the fact that", to:"because", why:"Same meaning, fewer words."},
+  {re:/\bat the end of the day\b/gi, from:"at the end of the day", to:"ultimately / (cut it)", why:"Cliché."},
+  {re:/\bgoes away\b|\bdisappears\b/gi, from:"goes away", to:"flows to / is offset by / decreases by $X", why:"Name exactly where it moves on the statements."},
+];
+const RESTARTS = /\b(?:wait|no wait|let me (?:rephrase|restart|start over|think)|scratch that|actually no|i mean no|hold on|where was i)\b/gi;
+const TRAIL = /(?:so yeah|and stuff|or something|i guess|etc\.?|and so on|whatever|yeah)\W*$/i;
+const OPENER_WEAK = /^(?:\W*(?:um+|uh+|so+|well|okay|ok|alright|yeah|hmm+|great question|good question|that'?s a (?:great|good) question|basically|i think|i guess|let me think)\b)+/i;
+
+function findAll(text, list){
+  const out = [];
+  for (const f of list){ f.re.lastIndex = 0; let m; while ((m = f.re.exec(text))){ out.push({i:m.index, len:m[0].length, text:m[0], label:f.label || f.from, rule:f}); if (!f.re.global) break; } }
+  return out.sort((a,b)=>a.i-b.i);
+}
+function repeatedPhrases(text){
+  const w = tokens(text).filter(x=>!STOP.has(x));
+  const seen = {}, rep = new Set();
+  for (let i = 0; i + 3 <= w.length; i++){ const g = w.slice(i,i+3).join(" "); if (/\d/.test(g)) continue; seen[g] = (seen[g]||0)+1; if (seen[g] === 2) rep.add(g); }
+  return [...rep];
+}
+
+/* ---------- Common factual mistakes (technical) ---------- */
+// Each rule: pattern in the normalised answer, optional "unless" (negation
+// present nearby means they said it correctly), and the correction.
+const NEG = "(?:not|n't|never|no|doesn t|don t|isn t|aren t|won t|cannot|can t)";
+const M = (re, fix, opts={}) => ({re: new RegExp(re), fix, ...opts});
+const MISTAKES = [
+  M("goodwill (?:\\w+ ){0,4}(?:amortiz|gets amortiz|is amortiz)", "Goodwill is NOT amortized under US GAAP. It stays on the balance sheet and is tested for impairment.", {unless:new RegExp("goodwill (?:\\w+ ){0,5}"+NEG+"|"+NEG+" (?:\\w+ ){0,3}amortiz")}),
+  M("deferredrevenue (?:\\w+ ){0,4}(?:is|as|counts as)(?: \\w+){0,2} (?:current )?asset", "Deferred revenue is a LIABILITY. The company owes the customer a product or service it was already paid for."),
+  M("(?:ar|inventory|prepaid) (?:\\w+ ){0,3}(?:is|are) (?:a |an )?liabilit", "AR, inventory and prepaid expenses are ASSETS."),
+  M("(?:ap|accrued) (?:\\w+ ){0,3}(?:is|are) (?:a |an )?(?:current )?asset", "Accounts payable and accrued expenses are LIABILITIES."),
+  M("dividend (?:\\w+ ){0,5}(?:incomestatement|tax deductible|reduce (?:\\w+ )?tax|lower (?:\\w+ )?tax|expense)", "Dividends don't touch the income statement and aren't tax-deductible. They hit CFF and retained earnings.", {unless:new RegExp("dividend (?:\\w+ ){0,5}"+NEG)}),
+  M("(?:capex|purchase of ppe|buy(?:ing)? ppe) (?:\\w+ ){0,4}(?:on|hits|appears on|goes on|shows up on) (?:the )?incomestatement", "CapEx does NOT go on the income statement. It is in CFI and only hits the income statement over time through depreciation.", {unless:new RegExp("capex (?:\\w+ ){0,6}"+NEG)}),
+  M("(?:repay|pay(?:ing)? (?:back|down|off)|issu\\w*) (?:\\w+ ){0,3}debt (?:principal )?(?:\\w+ ){0,3}(?:on|hits|appears on) (?:the )?incomestatement", "Issuing or repaying debt principal never hits the income statement. Only interest expense does.", {unless:new RegExp(NEG+" (?:\\w+ ){0,4}incomestatement")}),
+  M("interest (?:expense )?(?:\\w+ ){0,2}(?:is )?"+NEG+" (?:\\w+ )?tax deductible", "Interest expense IS tax-deductible. That's the tax shield on debt."),
+  M("(?:depreciation|da) (?:\\w+ ){0,3}(?:is|as)(?: \\w+){0,2} cash (?:expense|cost|charge|item|outflow)", "Depreciation is a NON-cash expense. It only affects cash through the lower tax bill.", {unless:new RegExp(NEG+" (?:\\w+ ){0,2}cash|non ?cash")}),
+  M("ev (?:\\w+ ){0,6}(?:subtract|minus|less|take away|deduct)\\w* (?:\\w+ ){0,2}(?:debt|preferred|nci)", "To get from equity value to EV, you ADD debt, preferred stock and noncontrolling interest, and SUBTRACT cash.", {group:"ev", unless:/equityvalue (?:\w+ ){0,3}(?:from|to get) /}),
+  M("(?:equityvalue|ev) (?:\\w+ ){0,6}(?:add|plus)\\w* (?:\\w+ ){0,2}cash", "When you go from equity value to EV, you SUBTRACT cash (it's non-operating). You'd add cash only going EV → equity value.", {group:"ev", unless:/(?:ev to equityvalue|from ev|ev back|bridge back)/}),
+  M("precedents (?:\\w+ ){0,4}(?:lowest|lower|cheapest|smallest)", "Precedent transactions usually give the HIGHEST value because they include a control premium.", {unless:new RegExp("precedents (?:\\w+ ){0,4}"+NEG)}),
+  M("wacc (?:\\w+ ){0,8}book (?:value|weights)", "Use MARKET values (not book values) for the WACC weights.", {unless:new RegExp(NEG+" (?:\\w+ ){0,3}book|instead of book|rather than book")}),
+  M("(?:higher|increase\\w*|rais\\w*) (?:\\w+ ){0,2}(?:wacc|discount rate) (?:\\w+ ){0,6}(?:higher|increase\\w*|rais\\w*|more) (?:\\w+ ){0,2}(?:valuation|value|price|ev|dcf)", "A higher WACC / discount rate LOWERS the present value, so valuation goes DOWN."),
+  M("(?:leverage|more debt) (?:\\w+ ){0,4}(?:lower|reduce|decrease|hurt)\\w* (?:\\w+ ){0,2}(?:irr|returns)", "More leverage usually INCREASES IRR because the equity check is smaller (with more risk).", {unless:/too much|interest (?:\w+ )?(?:exceed|too high)|default/}),
+  M("buyer\\w* (?:\\w+ ){0,3}(?:lower|smaller) pe (?:\\w+ ){0,6}accretive", "In an all-stock deal, it's accretive when the BUYER's P/E is HIGHER than the seller's."),
+  M("terminalvalue (?:\\w+ ){0,5}(?:small|tiny|minor|little) (?:portion|part|percent|share)", "Terminal value is usually the MAJORITY of a DCF, often 60–80% of the total."),
+  M("beta (?:\\w+ ){0,4}(?:total|overall|all) (?:\\w+ )?risk", "Beta measures SYSTEMATIC (market) risk, not total risk."),
+  M("treasury (?:\\w+ ){0,3}(?:is|as) (?:an |a )?asset", "Treasury stock is a CONTRA-EQUITY account (negative in shareholders' equity), not an asset."),
+  M("dtl (?:\\w+ ){0,6}(?:paid|pay|paying) (?:\\w+ )?(?:more|too much|higher)", "A DTL means the company has paid LESS tax than its book tax expense; it pays more later."),
+  M("(?:ebitda) (?:\\w+ ){0,2}(?:is|equals|same as|=) (?:\\w+ )?(?:cash flow|fcf|cfo)", "EBITDA is NOT cash flow. It ignores CapEx, working capital, interest and taxes.", {unless:new RegExp(NEG+" (?:\\w+ ){0,2}(?:cash|fcf)|proxy|rough")}),
+  M("sbc (?:\\w+ ){0,3}(?:is|as)(?: \\w+){0,2} cash (?:expense|cost)", "Stock-based compensation is a NON-cash expense, added back on the CFS (though it dilutes shareholders).", {unless:new RegExp(NEG+" (?:\\w+ ){0,2}cash|non ?cash")}),
+  M("(?:netincome) (?:\\w+ ){0,3}(?:top|first) (?:line|item) (?:\\w+ ){0,3}(?:balancesheet)", "Net income flows to the top of the CFS and into retained earnings on the balance sheet, not to the top of the balance sheet."),
+];
+
+/* ---------- Direction / number checks against the key ---------- */
+const ITEM_TOKS = ["netincome","cash","ar","ap","inventory","ppe","accrued","deferredrevenue","debt","retainedearnings","shequity","apic","ebit","pretax","tax","taxes","revenue","cogs","da","dtl","dta","goodwill","assets","liabilities","eps","ev","equityvalue","wacc","irr","fcf","cfo","cfi","cff","interestexpense","prepaid","sbc"];
+function dirFacts(toks){
+  // (item, direction, number) triples: "netincome down 6", "cash up 4"
+  const out = [];
+  for (let i = 0; i < toks.length; i++){
+    if (!ITEM_TOKS.includes(toks[i])) continue;
+    let dir = null, num = null;
+    for (let j = i+1; j < Math.min(toks.length, i+6); j++){
+      const t = toks[j];
+      if (ITEM_TOKS.includes(t) && j > i+1) break;
+      if (!dir && DIR_UP.test(t)) dir = "up";
+      else if (!dir && DIR_DOWN.test(t)) dir = "down";
+      else if (num === null && /^\d+(?:\.\d+)?$/.test(t)) num = t;
+      if (dir && num !== null) break;
+    }
+    if (dir || num !== null) out.push({item:toks[i], dir, num});
+  }
+  return out;
+}
+const NICE = {netincome:"Net Income", cash:"Cash", ar:"AR", ap:"AP", inventory:"Inventory", ppe:"PP&E", accrued:"Accrued Expenses", deferredrevenue:"Deferred Revenue", debt:"Debt", retainedearnings:"Retained Earnings", shequity:"Shareholders' Equity", apic:"Common Stock & APIC", ebit:"Operating Income", pretax:"Pre-Tax Income", tax:"Taxes", taxes:"Taxes", revenue:"Revenue", cogs:"COGS", da:"D&A", dtl:"DTL", dta:"DTA", goodwill:"Goodwill", assets:"Assets", liabilities:"Liabilities", eps:"EPS", ev:"Enterprise Value", equityvalue:"Equity Value", wacc:"WACC", irr:"IRR", fcf:"FCF", cfo:"Cash Flow from Operations", cfi:"Cash Flow from Investing", cff:"Cash Flow from Financing", interestexpense:"Interest Expense", prepaid:"Prepaid Expenses", sbc:"SBC"};
+function factChecks(q, answer){
+  const keyText = (q.k || []).join(". ");
+  const kf = dirFacts(tokens(keyText)), af = dirFacts(tokens(answer));
+  const wrong = [];
+  const keyBy = {};
+  kf.forEach(f => { (keyBy[f.item] = keyBy[f.item] || []).push(f); });
+  for (const a of af){
+    const ks = keyBy[a.item]; if (!ks) continue;
+    // Only flag when every key mention agrees and the answer contradicts it.
+    const dirs = [...new Set(ks.map(k=>k.dir).filter(Boolean))];
+    if (a.dir && dirs.length === 1 && dirs[0] !== a.dir){
+      const k = ks.find(k=>k.dir);
+      wrong.push(`You said ${NICE[a.item]||a.item} goes ${a.dir}. It goes ${k.dir}${k.num?` by ${k.num}`:""}.`);
+      continue;
+    }
+    const nums = [...new Set(ks.map(k=>k.num).filter(n=>n!==null))];
+    if (a.num !== null && nums.length === 1 && nums[0] !== a.num && Number(a.num) > 0 && Number(nums[0]) > 0){
+      wrong.push(`Check your number: you said ${NICE[a.item]||a.item} ${a.dir?`goes ${a.dir} `:""}by ${a.num}. The key has ${nums[0]}.`);
+    }
+  }
+  return [...new Set(wrong)];
+}
+
+/* ---------- Behavioral checks ---------- */
+const STORY_Q = /tell me about a time|describe a (?:time|situation)|give (?:me )?an example|example of a time|walk me through a time|a time when|have you ever|biggest (?:challenge|failure|mistake|accomplishment)|proudest|most difficult|toughest/i;
+function behavioralChecks(q, answer, norm){
+  const out = {flags:[], star:null, praise:[]};
+  const qq = q.q.toLowerCase();
+  const isStory = STORY_Q.test(q.q);
+  if (isStory){
+    const s = {
+      situation: /\b(?:when i was|while i was|last (?:year|summer|semester|spring|fall)|during (?:my|the|our)|at my|in my (?:role|job|internship|freshman|sophomore|junior|senior|first)|back in|in 20\d\d|my (?:freshman|sophomore|junior|senior) year|this (?:past )?(?:summer|semester))\b/i.test(answer),
+      task: /\b(?:my (?:role|job|task|goal|responsibility)|i was (?:responsible|tasked|asked|in charge)|we needed to|i needed to|the goal was|the problem was|the challenge was|had to)\b/i.test(answer),
+      action: (answer.match(/\bi (?:decided|built|created|led|organized|organised|reached out|proposed|set up|started|designed|analy[sz]ed|scheduled|called|wrote|met|talked|spoke|took|made|pushed|restructured|delegated|trained|negotiated|launched|figured|asked|stepped|coordinated|researched|modeled|modelled|presented|implemented|fixed|changed|focused|split|broke)\b/gi) || []).length,
+      result: /\b(?:as a result|in the end|ended up|result(?:ed)? (?:was|in)|outcome|we (?:won|finished|delivered|raised|grew|cut|saved|hit|closed)|which (?:led|meant)|increased|decreased|reduced|saved|grew|improved|\d+ ?(?:%|percent)|\$ ?\d)/i.test(answer),
+      lesson: /\b(?:i learned|taught me|lesson|takeaway|now i|since then|going forward|next time|i realized|i realised)\b/i.test(answer),
+    };
+    out.star = s;
+    if (!s.situation) out.flags.push({sev:2, title:"Set the scene in one line", body:"Open with where and when (\"Last spring, as treasurer of…\"). Without it the story floats."});
+    if (!s.task) out.flags.push({sev:2, title:"State the stakes or your goal", body:"Say what had to happen and why it mattered. That's what makes the action impressive."});
+    if (s.action < 2) out.flags.push({sev:3, title:"Show what YOU did", body:"Use 2–3 \"I + strong verb\" actions (\"I rebuilt the schedule\", \"I called each member\"). This is the part interviewers score."});
+    if (!s.result) out.flags.push({sev:3, title:"Land a concrete result", body:"Finish with an outcome, ideally a number: \"we raised $4,000\", \"cut turnaround from 5 days to 2\"."});
+    if (!s.lesson && /fail|mistake|weak|conflict|challenge|wrong/i.test(qq)) out.flags.push({sev:2, title:"Close with the lesson", body:"For failure and conflict questions, end with what you changed afterwards and proof it stuck."});
+    const iCount = (answer.match(/\bi\b/gi)||[]).length, weCount = (answer.match(/\bwe\b/gi)||[]).length;
+    if (weCount > iCount && weCount >= 4) out.flags.push({sev:2, title:"Too much \"we\", not enough \"I\"", body:`You said "we" ${weCount}× and "I" ${iCount}×. Credit the team once, then own your actions with "I".`});
+    if (s.action >= 2 && s.result) out.praise.push("Clear actions and a result. That's the core of a good story.");
+  }
+  if (/\b(?:lazy|stupid|idiot|incompetent|useless|annoying|hated|his fault|her fault|their fault|didn'?t do anything|did nothing|blame)\b/i.test(answer))
+    out.flags.push({sev:3, title:"Don't blame or criticise others", body:"Negativity about a teammate reads as a red flag. Describe the situation neutrally and focus on what you did."});
+  if (/why (?:investment banking|ib|banking|finance)|why do you want to|why this (?:role|job)/i.test(qq) && /\b(?:money|salary|pay(?:s|ing)? (?:well|a lot)|compensation|bonus|rich|prestig|exit opp|exit opportunit)/i.test(answer))
+    out.flags.push({sev:3, title:"Money, prestige or exit opps", body:"Leave them out. Lead with the learning curve, deal exposure and a real experience that pulled you in."});
+  if (/five years|5 years|long[- ]term|future goals|career goals/i.test(qq) && /\b(?:private equity|hedge fund|buy[- ]side|business school|mba|start (?:my own|a) (?:company|business)|leave)\b/i.test(answer))
+    out.flags.push({sev:2, title:"Don't signal you'll leave", body:"Mentioning PE, a hedge fund or business school suggests you're using banking as a stepping stone. Talk about growing into associate-level work."});
+  if (/weakness/i.test(qq)){
+    if (/\b(?:perfectionist|work too hard|care too much|too detail|too dedicated|overachiev|too hard on myself)\b/i.test(answer))
+      out.flags.push({sev:3, title:"That's a disguised strength", body:"\"Perfectionist\" and \"I work too hard\" are the answers interviewers hear most and trust least. Pick a real, fixable weakness."});
+    if (/\b(?:attention to detail|careless|excel|math|numbers|time management|deadlines|organi[sz]ation|work ethic)\b/i.test(answer) && !/\bimprov|working on|fixed|now i\b/i.test(answer))
+      out.flags.push({sev:3, title:"Weakness hits a core banking skill", body:"Detail, Excel, deadlines and work ethic are the job. If you use one, show the system you built that fixed it."});
+    if (!/\b(?:improv|working on|i now|now i|started|began|use|built|system|habit|checklist|since then)\b/i.test(answer))
+      out.flags.push({sev:2, title:"Show the fix", body:"After naming the weakness, spend most of the answer on the concrete steps you took and the evidence it's improving."});
+  }
+  if (/why (?:our|this) (?:bank|firm|company)|why (?:us|here)/i.test(qq)){
+    if (/\b(?:great culture|good culture|prestig|best bank|top bank|great reputation|reputation|big name|well known)\b/i.test(answer) && !/\b(?:spoke|talked|met|coffee|call|chat)\b/i.test(answer))
+      out.flags.push({sev:3, title:"Too generic for \"why us\"", body:"\"Great culture\" and \"reputation\" fit any bank. Name a group, a recent deal and a person you spoke with."});
+    if (!/\b(?:spoke|talked|met|coffee|call|chat|conversation)\b/i.test(answer))
+      out.flags.push({sev:2, title:"Mention who you spoke with", body:"\"When I spoke with [name] in the industrials group…\" is the strongest signal of genuine interest."});
+  }
+  if (/about yourself|walk me through your (?:resume|background)/i.test(qq)){
+    if (!/\b(?:why|that'?s why|which is why|led me|brought me|now i'?m|today|here|this role|banking)\b/i.test(answer.slice(-220)))
+      out.flags.push({sev:2, title:"End on why you're here", body:"Your story should finish with what brought you to banking and to this interview."});
+  }
+  if (/deal|transaction|acquisition/i.test(qq) && /follow|recent|tell me about a deal/i.test(qq)){
+    const need = [[/\b(?:billion|million|\$|\bbn\b|\d)/i,"the deal size"],[/\b(?:multiple|x ebitda|times|premium)\b/i,"the multiple or premium"],[/\b(?:synerg|rationale|because|strategic|why)\b/i,"the strategic rationale"],[/\b(?:risk|concern|downside|worry|challenge)\b/i,"a risk"]];
+    const miss = need.filter(([re]) => !re.test(answer)).map(x=>x[1]);
+    if (miss.length) out.flags.push({sev:2, title:"Add the deal facts", body:"A strong deal answer includes " + miss.join(", ") + "."});
+  }
+  return out;
+}
+
+/* ---------- Model answer from the key ---------- */
+function modelAnswer(q, points){
+  if (!points.length) return "";
+  const beh = q.t === "beh";
+  const lines = points.map(p => p.text.replace(/\s+/g," ").replace(/[;]\s*/g,", ").replace(/\.$/,""));
+  if (beh) return lines.map(l => "• " + l).join("\n");
+  const joiners = ["", "Then ", "Next, ", "On top of that, ", "Also, ", "Finally, "];
+  return lines.map((l,i) => {
+    const j = i === 0 ? "" : i === lines.length-1 && lines.length > 2 ? "Finally, " : joiners[Math.min(i, joiners.length-2)];
+    const body = j ? l.charAt(0).toLowerCase() + l.slice(1) : l;
+    return (j + (/^[A-Z]{2,}/.test(l) ? l : body)) + ".";
+  }).join(" ");
+}
+
+/* ---------- Tightened version of their own answer ---------- */
+function tighten(answer){
+  let s = " " + answer + " ";
+  const cut = [/\b(?:um+|uh+|uhm+|erm+|er|ah+|hmm+)\b[,.]?/gi, /\byou know,?\s/gi, /\bi mean,?\s/gi, /\bbasically,?\s/gi, /\bliterally\s/gi, /\bactually,?\s/gi,
+               /\b(?:kind|sort) of\s/gi, /,?\s*like,\s/gi, /\bso yeah\b[,.]?/gi, /\s*(?:or something(?: like that)?|and stuff|and things like that|or whatever)\b/gi,
+               /\bpretty much\s/gi, /\bi think (?:that )?/gi, /\bi guess,?\s/gi, /\bi feel like\s/gi, /\bjust\s/gi, /\b(?:really|very|super)\s(?=\w)/gi,
+               /\b(?:that'?s a (?:great|good) question|great question|good question)[,.!]?\s*/gi, /\bto be honest,?\s|\bhonestly,?\s/gi, /,?\s*if (?:that|this) makes sense\??/gi, /\bobviously,?\s/gi,
+               /^\s*(?:so|okay so|well|alright),?\s/i, /\bokay so,?\s/gi, /,?\s*\b(?:and )?yeah\b,?(?: so\b)?/gi, /,?\s*\bi'?m not (?:really |totally )?sure\b,?/gi];
+  for (const re of cut) s = s.replace(re, " ");
+  s = s.replace(/\bin order to\b/gi,"to").replace(/\bdue to the fact that\b/gi,"because").replace(/\bgonna\b/gi,"going to").replace(/\bwanna\b/gi,"want to")
+       .replace(/\s+([,.!?])/g,"$1").replace(/([,.]){2,}/g,"$1").replace(/\s{2,}/g," ").trim();
+  return s.replace(/(^|[.!?]\s+)([a-z])/g,(m,a,b)=>a+b.toUpperCase());
+}
+
+/* ---------- Main ---------- */
+function clamp(x, a=0, b=10){ return Math.max(a, Math.min(b, x)); }
+function analyze(q, answer, seconds){
+  answer = String(answer || "").trim();
+  const beh = q.t === "beh";
+  const words = wc(answer);
+  const target = q.s || 60;                      // seconds
+  const targetWords = Math.round(target * 2.2);  // ~130 wpm with natural pauses
+  const lenRatio = words / targetWords;
+  const secs = seconds && seconds >= 5 ? seconds : null;
+  const wpm = secs ? Math.round(words / (secs / 60)) : null;
+  const sents = sentences(answer);
+  const norm = normalize(answer);
+  const ansToks = sigTokens(answer);
+
+  /* content */
+  const points = keyPoints(q).map(p => beh ? {...p, toks: p.toks.filter(t => !META.has(t))} : p).filter(p => p.toks.length);
+  const cov = coverage(points, ansToks).map(p => {
+    if (!beh) return p;
+    // guidance points are satisfied loosely
+    const status = p.ratio >= 0.34 ? "hit" : p.ratio >= 0.15 ? "partial" : "miss";
+    return {...p, status};
+  });
+  const contentRatio = cov.length ? cov.reduce((s,p)=>s + (p.status==="hit"?1:p.status==="partial"?0.5:0), 0) / cov.length : null;
+
+  /* accuracy */
+  const corrections = [];
+  if (!beh){
+    const groups = new Set();
+    for (const m of MISTAKES){
+      if (m.re.test(norm) && !(m.unless && m.unless.test(norm)) && !(m.group && groups.has(m.group))){ corrections.push(m.fix); if (m.group) groups.add(m.group); }
+    }
+    corrections.push(...factChecks(q, answer));
+  }
+  const uniqCorr = [...new Set(corrections)];
+
+  /* delivery */
+  const fillers = findAll(answer, FILLERS);
+  const hedges = findAll(answer, HEDGES);
+  const wording = findAll(answer, WORDING);
+  const restarts = (answer.match(RESTARTS) || []).length;
+  const fillerRate = words ? fillers.length / words * 100 : 0;     // per 100 words
+  const hedgeRate = words ? hedges.length / words * 100 : 0;
+  const reps = repeatedPhrases(answer);
+
+  /* relevance: sentences that share nothing with the question or key */
+  const vocab = new Set([...sigTokens(q.q), ...points.flatMap(p=>p.toks)]);
+  const offTopic = beh ? [] : sents.filter(s => { const t = sigTokens(s); return t.length >= 6 && !t.some(x => vocab.has(x)); });
+  const longSents = sents.filter(s => wc(s) > 40);
+  const andChains = sents.filter(s => (s.match(/\band\b/gi)||[]).length >= 4);
+
+  /* structure */
+  const first = sents[0] || "";
+  const weakOpen = OPENER_WEAK.test(answer);
+  const firstToks = new Set(sigTokens(first));
+  const bluf = beh ? true : points.length ? [...firstToks].some(t => vocab.has(t) && (DOMAIN.has(t) || points[0].toks.includes(t))) : true;
+  const signposts = (answer.match(/\b(?:first(?:ly)?|second(?:ly)?|third(?:ly)?|finally|lastly|next|then|to start|to begin|there are (?:two|three|four|\d) (?:main |key )?(?:ways|reasons|things|steps|parts|methods)|in summary|overall|bottom line)\b/gi) || []).length;
+  const trails = TRAIL.test(answer);
+  const itDepends = /\bit depends\b/i.test(answer) && !/\bit depends (?:on|whether|if)\b/i.test(answer);
+  const behx = beh ? behavioralChecks(q, answer, norm) : {flags:[], star:null, praise:[]};
+
+  /* ---------- scores (0–10) ---------- */
+  let content;
+  if (beh){
+    // Behavioral keys are guidance ("use STAR", "show empathy"), so blend
+    // key coverage with a rubric for what actually persuades a banker.
+    const s = behx.star;
+    const numbers = (answer.match(/\b\d[\d,.]*\s?(?:%|percent|k|million|billion|people|members|teams|hours|days|weeks)?\b|\$\s?\d/gi) || []).length;
+    const proper = (answer.slice(1).match(/(?<![.!?]\s)\b[A-Z][a-z]{2,}/g) || []).filter(w => !/^(?:I|The|This|That|When|While|After|Before|Then|And|But|So|My|We|Our|Last|First|Second|Finally|Also|It|In|At|On|For|As)$/.test(w)).length;
+    const example = /\b(?:for example|for instance|when i|at my|in my|during my|last (?:year|summer|spring|fall|semester)|i (?:led|built|started|worked|interned|founded|managed|organized))\b/i.test(answer);
+    let rub;
+    if (s) rub = ((s.situation?1:0) + (s.task?1:0) + Math.min(s.action,3)/3*2 + (s.result?2:0) + (s.lesson?1:0) + (numbers?1:0)) / 8;
+    else rub = ((example?1:0) + Math.min(numbers,2)/2 + Math.min(proper,3)/3 + (lenRatio >= 0.3 ? 1 : lenRatio/0.3)) / 4;
+    rub -= behx.flags.filter(f => f.sev >= 3).length * 0.12;
+    const blended = contentRatio === null ? rub : rub * 0.7 + contentRatio * 0.3;
+    content = clamp(Math.round(Math.max(0, blended) * 10));
+  } else {
+    content = contentRatio === null ? 5 : clamp(Math.round(contentRatio * 10 + (contentRatio > 0.85 ? 0.5 : 0)));
+  }
+  const accuracy = beh ? null : clamp(10 - uniqCorr.length * 3);
+  let structure = 10;
+  if (weakOpen) structure -= 1.5;
+  if (!bluf) structure -= 2;
+  if (!beh && points.length >= 3 && signposts === 0 && words > 60) structure -= 1.5;
+  if (trails) structure -= 1;
+  if (longSents.length) structure -= Math.min(2, longSents.length);
+  if (behx.star){ const s = behx.star; structure -= (!s.situation?1:0) + (!s.task?1:0) + (s.action<2?2:0) + (!s.result?2:0); }
+  structure = clamp(Math.round(structure));
+  let concision = 10;
+  if (lenRatio > 1.25) concision -= Math.min(5, (lenRatio - 1.25) * 6 + 1);
+  if (lenRatio < 0.3 && !(contentRatio >= 0.8)) concision -= Math.min(5, (0.3 - lenRatio) * 15 + 1);
+  concision -= Math.min(3, offTopic.length * 1.5);
+  concision -= Math.min(2, reps.length * 0.7);
+  concision -= Math.min(1.5, andChains.length * 0.75);
+  concision = clamp(Math.round(concision));
+  let delivery = 10;
+  delivery -= Math.min(4, fillerRate * 0.9);
+  delivery -= Math.min(3, hedgeRate * 1.1);
+  delivery -= Math.min(2, restarts * 0.8);
+  if (wpm && (wpm > 185 || wpm < 105)) delivery -= 1.5;
+  delivery -= Math.min(1.5, wording.length * 0.25);
+  delivery = clamp(Math.round(delivery));
+
+  let overall = beh
+    ? content*0.30 + structure*0.30 + concision*0.15 + delivery*0.25
+    : content*0.50 + accuracy*0.20 + structure*0.10 + concision*0.10 + delivery*0.10;
+  if (uniqCorr.length) overall = Math.min(overall, 6 - (uniqCorr.length-1));
+  if (words < 12) overall = Math.min(overall, 2);
+  if (beh){
+    const red = behx.flags.filter(f => f.sev >= 3).length;
+    if (red) overall = Math.min(overall, 6 - red);
+    if (words < 30) overall = Math.min(overall, 4);
+  }
+  if (!beh && contentRatio !== null && contentRatio < 0.25) overall = Math.min(overall, 4);
+  overall = clamp(Math.round(overall));
+
+  /* ---------- coaching list ---------- */
+  const fixes = [];
+  const add = (sev, title, body, tag) => fixes.push({sev, title, body, tag});
+  uniqCorr.forEach(c => add(5, "Factual error", c, "Accuracy"));
+  const missed = cov.filter(p=>p.status==="miss"), partial = cov.filter(p=>p.status==="partial");
+  if (missed.length) add(4, `You missed ${missed.length} key point${missed.length>1?"s":""}`, missed.slice(0,3).map(p=>p.label).join(" · "), "Content");
+  if (partial.length) add(2, "Go one level deeper", `You touched on ${partial.slice(0,2).map(p=>"“"+p.label+"”").join(" and ")} but left out the specifics.`, "Content");
+  if (!bluf && !beh) add(3, "Lead with the answer", "Your first sentence should answer the question directly. Context comes after. Interviewers decide in the first 10 seconds.", "Structure");
+  if (weakOpen) add(2, "Cut the warm-up", `You opened with “${(answer.match(OPENER_WEAK)||[""])[0].trim()}”. Pause silently for a second instead, then start with the answer.`, "Structure");
+  if (!beh && points.length >= 3 && signposts === 0 && words > 60) add(2, "Signpost your structure", `Say how many parts there are (“There are ${Math.min(points.length,3)} main pieces…”) and number them. It makes long answers easy to follow.`, "Structure");
+  behx.flags.forEach(f => add(f.sev, f.title, f.body, beh ? "Story" : "Structure"));
+  if (lenRatio > 1.25) add(lenRatio > 1.8 ? 4 : 3, "You're rambling", `About ${words} words for a ~${target}s answer (aim for ${Math.round(targetWords*0.45)}–${Math.round(targetWords*1.1)}). Cut background and stop once you've made your last key point.`, "Concision");
+  if (lenRatio < 0.3 && words >= 12 && !(contentRatio >= 0.8)) add(3, "Too thin", `Only ${words} words. A strong answer here runs about ${Math.round(targetWords*0.45)}–${Math.round(targetWords*1.1)} words. Add the missing points${beh ? " and a concrete example" : ""}.`, "Concision");
+  if (offTopic.length) add(3, "Tangent detected", `This doesn't connect to the question: “${offTopic[0].slice(0,110)}${offTopic[0].length>110?"…":""}”. Cut anything that doesn't answer what was asked.`, "Concision");
+  if (reps.length) add(2, "You repeated yourself", `“${reps[0]}” came up more than once. Say each point once, clearly.`, "Concision");
+  if (longSents.length) add(2, "Break up long sentences", `One sentence ran ${wc(longSents[0])} words. Spoken answers land better in short sentences with a pause between them.`, "Delivery");
+  if (andChains.length) add(1, "Too many “and”s", "Chaining ideas with “and… and… and” sounds like stream of consciousness. Finish the sentence and start a new one.", "Delivery");
+  if (fillers.length >= 2) add(fillerRate > 4 ? 3 : 2, `${fillers.length} filler words`, `${countLabels(fillers)}. Replace each with a silent pause; pauses sound confident, fillers don't.`, "Delivery");
+  if (hedges.length >= 1 && !beh) add(hedges.length >= 3 ? 3 : 2, "Hedging", `${countLabels(hedges)}. On technical questions, state facts directly. If you're unsure, say “I'd assume X because Y” once, not throughout.`, "Delivery");
+  if (hedges.length >= 3 && beh) add(2, "Hedging", `${countLabels(hedges)}. Own your story. You were there, so say it with certainty.`, "Delivery");
+  if (restarts) add(2, "Restarts", "You stopped and restarted. If you lose your place, pause, then say “Let me take that from the top” once and give the clean version.", "Delivery");
+  if (wpm && wpm > 185) add(2, "Slow down", `About ${wpm} words per minute. Aim for 130–165. Speed reads as nerves.`, "Delivery");
+  if (wpm && wpm < 105 && words > 30) add(2, "Pick up the pace", `About ${wpm} words per minute. Aim for 130–165. Too slow sounds like you're unsure.`, "Delivery");
+  if (trails) add(1, "Finish strong", "You trailed off at the end. Close with a one-line summary, then stop talking.", "Structure");
+  if (itDepends) add(2, "“It depends” on what?", "Never leave “it depends” hanging. Say what it depends on and give the answer for the most common case.", "Structure");
+  if (wording.length) add(1, "Word choice", `${wording.length} phrase${wording.length>1?"s":""} to upgrade. See the wording section below.`, "Wording");
+  fixes.sort((a,b)=>b.sev-a.sev);
+
+  /* ---------- strengths ---------- */
+  const strengths = [];
+  const hits = cov.filter(p=>p.status==="hit");
+  if (hits.length) strengths.push(`Covered ${hits.length} of ${cov.length} key points.`);
+  if (!beh && bluf && words > 15 && !uniqCorr.length && contentRatio > 0.3) strengths.push("Led with a direct answer.");
+  if (signposts >= 2) strengths.push("Clear signposting made it easy to follow.");
+  if (words >= 12 && fillerRate < 1.5) strengths.push("Very few filler words.");
+  if (words >= 12 && !hedges.length) strengths.push("Confident: no hedging.");
+  if (!beh && !uniqCorr.length && words >= 25 && contentRatio > 0.4) strengths.push("No factual errors caught.");
+  if (lenRatio >= 0.35 && lenRatio <= 1.15) strengths.push("Good length for the question.");
+  if (wpm && wpm >= 125 && wpm <= 170) strengths.push(`Good pace (${wpm} wpm).`);
+  strengths.push(...behx.praise);
+
+  const verdict = overall >= 9 ? "Interview-ready. This would pass on a superday."
+    : overall >= 7 ? "Solid. A couple of fixes make this a top answer."
+    : overall >= 5 ? "Getting there, but an interviewer would push you on what's missing."
+    : overall >= 3 ? "This wouldn't pass yet. Focus on the top fixes below."
+    : "Start over with the structure below and aim for the key points.";
+
+  return {
+    overall, verdict, beh,
+    scores: {content, accuracy, structure, concision, delivery},
+    coverage: cov, corrections: uniqCorr, fixes, strengths,
+    stats: {words, targetWords, target, secs, wpm, fillers: fillers.length, hedges: hedges.length, fillerRate: +fillerRate.toFixed(1), sentences: sents.length, longest: Math.max(0, ...sents.map(wc))},
+    marks: {fillers, hedges, wording, offTopic, reps},
+    star: behx.star,
+    wording: dedupeWording(wording),
+    tightened: tighten(answer),
+    model: modelAnswer(q, points),
+  };
+}
+function countLabels(list){
+  const c = {}; list.forEach(x => { const k = x.label; c[k] = (c[k]||0)+1; });
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,n]) => `“${k}” ×${n}`).join(", ");
+}
+function dedupeWording(list){
+  const seen = new Map();
+  for (const w of list){ const k = w.rule.from; if (!seen.has(k)) seen.set(k, {...w.rule, said: w.text, n:1}); else seen.get(k).n++; }
+  return [...seen.values()];
+}
+
+/* Highlight ranges for the transcript view. */
+function highlights(answer, report){
+  const r = [];
+  report.marks.fillers.forEach(m => r.push({i:m.i, j:m.i+m.len, kind:"filler", tip:"Filler: replace with a pause"}));
+  report.marks.hedges.forEach(m => r.push({i:m.i, j:m.i+m.len, kind:"hedge", tip:"Hedge: state it directly"}));
+  report.marks.wording.forEach(m => r.push({i:m.i, j:m.i+m.len, kind:"word", tip:`${m.rule.why} Try: ${m.rule.to}`}));
+  report.marks.offTopic.forEach(s => { const i = answer.indexOf(s); if (i >= 0) r.push({i, j:i+s.length, kind:"tangent", tip:"Tangent: doesn't answer the question"}); });
+  r.sort((a,b)=>a.i-b.i || (b.j-b.i)-(a.j-a.i));
+  // drop overlaps, keeping the first/longest
+  const out = []; let end = -1;
+  for (const x of r){ if (x.i >= end){ out.push(x); end = x.j; } else if (x.kind === "tangent") continue; }
+  return out;
+}
+
+return {analyze, highlights, normalize, keyPoints, tighten};
+})();
+if (typeof module !== "undefined") module.exports = Coach;
+
+</script>
+<script>
+/* ==========================================================================
+   Cloud accounts (Supabase). Optional: without window.SDR_CONFIG the app
+   runs exactly as before, saving to this browser only.
+   One row per user in public.progress holds {progress, history, custom}.
+   ========================================================================== */
+const Cloud = (() => {
+  const cfg = window.SDR_CONFIG || {};
+  const enabled = !!(cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase && window.supabase.createClient);
+  const client = enabled ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}}) : null;
+  let user = null, status = "idle", lastSync = 0, timer = null, pulledAt = null;
+  const listeners = new Set();
+  const emit = (evt) => listeners.forEach(fn => { try{ fn(evt); }catch(e){ console.error(e); } });
+
+  // Merge two snapshots so nothing is lost when the same account is used on two devices.
+  function merge(a, b){
+    a = a || {}; b = b || {};
+    const progress = {...(a.progress||{})};
+    for (const [id, p] of Object.entries(b.progress||{})){
+      const cur = progress[id];
+      if (!cur || (p.last||0) > (cur.last||0)) progress[id] = p;
+    }
+    const seen = new Set(), history = [];
+    for (const x of [...(a.history||[]), ...(b.history||[])].sort((x,y) => x.ts - y.ts)){
+      const k = x.id + "@" + x.ts; if (seen.has(k)) continue; seen.add(k); history.push(x);
+    }
+    const custom = [...(a.custom||[])];
+    for (const q of (b.custom||[])) if (!custom.some(c => c.id === q.id)) custom.push(q);
+    return {progress, history: history.slice(-500), custom};
+  }
+
+  async function pull(){
+    if (!client || !user) return null;
+    const {data, error} = await client.from("progress").select("data, updated_at").eq("user_id", user.id).maybeSingle();
+    if (error) throw error;
+    pulledAt = data ? data.updated_at : null;
+    return data ? data.data : null;
+  }
+  async function push(snapshot){
+    if (!client || !user) return;
+    status = "saving"; emit({type:"status"});
+    const {error} = await client.from("progress").upsert({user_id:user.id, data:snapshot, updated_at:new Date().toISOString()});
+    if (error){ status = "error"; emit({type:"status", error}); return; }
+    status = "saved"; lastSync = Date.now(); emit({type:"status"});
+  }
+
+  let getSnapshot = () => ({});
+  function queueSave(){
+    if (!user) return;
+    clearTimeout(timer);
+    status = "pending"; emit({type:"status"});
+    timer = setTimeout(() => push(getSnapshot()), 1200);
+  }
+  function flush(){ if (user && timer){ clearTimeout(timer); timer = null; push(getSnapshot()); } }
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flush(); else refresh(); });
+
+  // Pick up changes made on another device when this tab comes back into focus.
+  async function refresh(){
+    if (!client || !user) return;
+    try{
+      const {data} = await client.from("progress").select("updated_at").eq("user_id", user.id).maybeSingle();
+      if (data && data.updated_at !== pulledAt && Date.now() - lastSync > 3000){
+        const remote = await pull();
+        emit({type:"remote", data: remote});
+      }
+    }catch{}
+  }
+
+  async function onSession(session, event){
+    const prev = user;
+    user = session ? session.user : null;
+    if (event === "PASSWORD_RECOVERY"){ emit({type:"recovery"}); }
+    if (user && (!prev || prev.id !== user.id)){
+      status = "loading"; emit({type:"signin", user});
+      try{ const remote = await pull(); emit({type:"remote", data: remote, first:true}); status = "saved"; lastSync = Date.now(); }
+      catch(e){ status = "error"; emit({type:"status", error:e}); }
+      emit({type:"status"});
+    }
+    if (!user && prev) emit({type:"signout"});
+    if (event === "INITIAL") emit({type:"ready"});
+  }
+  if (client){
+    client.auth.getSession().then(({data}) => onSession(data.session, "INITIAL"));
+    client.auth.onAuthStateChange((event, session) => onSession(session, event));
+  }
+
+  const redirect = () => location.origin + location.pathname;
+  return {
+    enabled, merge, queueSave, flush,
+    on: fn => listeners.add(fn),
+    setSnapshot: fn => { getSnapshot = fn; },
+    get user(){ return user; }, get status(){ return status; }, get lastSync(){ return lastSync; },
+    name(){ return user ? (user.user_metadata && user.user_metadata.name) || user.email.split("@")[0] : ""; },
+    async signUp(email, password, name){
+      const {data, error} = await client.auth.signUp({email, password, options:{data:{name}, emailRedirectTo: redirect()}});
+      if (error) throw error;
+      return {needsConfirm: !data.session};
+    },
+    async signIn(email, password){ const {error} = await client.auth.signInWithPassword({email, password}); if (error) throw error; },
+    async reset(email){ const {error} = await client.auth.resetPasswordForEmail(email, {redirectTo: redirect()}); if (error) throw error; },
+    async setPassword(password){ const {error} = await client.auth.updateUser({password}); if (error) throw error; },
+    async updateName(name){ const {data, error} = await client.auth.updateUser({data:{name}}); if (error) throw error; user = data.user; emit({type:"status"}); },
+    async signOut(){ flush(); await client.auth.signOut(); },
+  };
+})();
+
+</script>
+<script>
+/* ==========================================================================
+   Superday Drill Room — app
+   Views: Drill · Mock interview · Mastery · Question bank · Progress
+   ========================================================================== */
+(() => {
+"use strict";
+
+/* ---------- Icons (SF Symbols-style) ---------- */
+const P = {
+  mic:'<path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 1 0-7 0v6A3.5 3.5 0 0 0 12 15Z" fill="currentColor"/><path d="M18 11.4a6 6 0 0 1-12 0M12 17.4V21M8.8 21h6.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  person2:'<circle cx="9" cy="8" r="3.4" fill="currentColor"/><path d="M2.8 19.5c.6-3.6 3.1-5.6 6.2-5.6s5.6 2 6.2 5.6Z" fill="currentColor"/><circle cx="16.6" cy="8.8" r="2.7" fill="currentColor" opacity=".7"/><path d="M15.6 13.6c3.1-.3 5.3 1.6 5.7 4.9h-4.4c-.2-1.9-.6-3.4-1.3-4.9Z" fill="currentColor" opacity=".7"/>',
+  target:'<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/>',
+  books:'<rect x="3.5" y="4" width="4.5" height="16" rx="1.2" fill="currentColor"/><rect x="9.5" y="4" width="4.5" height="16" rx="1.2" fill="currentColor" opacity=".75"/><path d="m15.6 5.6 4.2-1.2 3 14.3-4.3 1.1Z" fill="currentColor" opacity=".55"/>',
+  chart:'<rect x="4" y="12" width="3.6" height="8" rx="1" fill="currentColor"/><rect x="10.2" y="7" width="3.6" height="13" rx="1" fill="currentColor"/><rect x="16.4" y="3.5" width="3.6" height="16.5" rx="1" fill="currentColor"/>',
+  gear:'<path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8Zm8.4 4.6-1.8-.4a6.8 6.8 0 0 0-.6-1.5l1-1.5a.9.9 0 0 0-.1-1.2l-1.1-1.1a.9.9 0 0 0-1.2-.1l-1.5 1a6.8 6.8 0 0 0-1.5-.6l-.4-1.8a.9.9 0 0 0-.9-.7h-1.6a.9.9 0 0 0-.9.7l-.4 1.8a6.8 6.8 0 0 0-1.5.6l-1.5-1a.9.9 0 0 0-1.2.1L4.1 8.6a.9.9 0 0 0-.1 1.2l1 1.5a6.8 6.8 0 0 0-.6 1.5l-1.8.4a.9.9 0 0 0-.7.9v1.6c0 .4.3.8.7.9l1.8.4c.1.5.3 1 .6 1.5l-1 1.5a.9.9 0 0 0 .1 1.2l1.1 1.1c.3.3.8.4 1.2.1l1.5-1c.5.3 1 .5 1.5.6l.4 1.8c.1.4.5.7.9.7h1.6c.4 0 .8-.3.9-.7l.4-1.8c.5-.1 1-.3 1.5-.6l1.5 1c.4.3.9.2 1.2-.1l1.1-1.1c.3-.3.4-.8.1-1.2l-1-1.5c.3-.5.5-1 .6-1.5l1.8-.4c.4-.1.7-.5.7-.9v-1.6a.9.9 0 0 0-.7-.9Z" fill="currentColor" transform="translate(0 -1.2)"/>',
+  sidebar:'<rect x="3" y="4.5" width="18" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 8h2M5.5 11h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  speaker:'<path d="M4 9.5h3l4.4-3.7c.5-.4 1.1 0 1.1.6v11.2c0 .6-.7 1-1.1.6L7 14.5H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z" fill="currentColor"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  bulb:'<path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z" fill="currentColor"/><path d="M9.6 18.4h4.8M10.4 21h3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  forward:'<path d="M4 6.3v11.4c0 .8.9 1.3 1.5.8L12 13.3v4.4c0 .8.9 1.3 1.5.8l7.2-5.7a1 1 0 0 0 0-1.6l-7.2-5.7c-.6-.5-1.5 0-1.5.8v4.4L5.5 5.5C4.9 5 4 5.5 4 6.3Z" fill="currentColor"/>',
+  retry:'<path d="M5 12a7 7 0 1 0 2.2-5.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5.2 3.6v4.2h4.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+  sparkles:'<path d="M10 3.5c.4 3.6 2.5 5.9 6 6.4-3.5.6-5.6 2.8-6 6.4-.4-3.6-2.5-5.8-6-6.4 3.5-.5 5.6-2.8 6-6.4Z" fill="currentColor"/><path d="M17.5 13.5c.2 1.8 1.2 2.9 3 3.2-1.8.3-2.8 1.4-3 3.2-.2-1.8-1.2-2.9-3-3.2 1.8-.3 2.8-1.4 3-3.2ZM18 3c.15 1.2.8 1.9 2 2.1-1.2.2-1.85.9-2 2.1-.15-1.2-.8-1.9-2-2.1 1.2-.2 1.85-.9 2-2.1Z" fill="currentColor" opacity=".75"/>',
+  check:'<circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m7.5 12.3 3 3 6-6.3" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+  half:'<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/>',
+  xmark:'<circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m8.5 8.5 7 7m0-7-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>',
+  warn:'<path d="M10.3 4.2a2 2 0 0 1 3.4 0l7.5 13a2 2 0 0 1-1.7 3H4.5a2 2 0 0 1-1.7-3Z" fill="currentColor"/><path d="M12 9v4.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.7" r="1.3" fill="#fff"/>',
+  wand:'<path d="m4 20 10.5-10.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="m14.5 9.5 2-2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".5"/><path d="M17.5 2.5l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6ZM20.5 9.5l.4 1.2 1.2.4-1.2.4-.4 1.2-.4-1.2-1.2-.4 1.2-.4ZM10.5 3.5l.4 1.2 1.2.4-1.2.4-.4 1.2-.4-1.2-1.2-.4 1.2-.4Z" fill="currentColor"/>',
+  quote:'<path d="M5 6h5v5c0 3.5-1.6 6-4.8 7l-.7-1.4c1.6-.8 2.4-2 2.5-3.6H5Zm9 0h5v5c0 3.5-1.6 6-4.8 7l-.7-1.4c1.6-.8 2.4-2 2.5-3.6H14Z" fill="currentColor"/>',
+  scissors:'<circle cx="6" cy="7" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 8.8 20 17M8.5 15.2 20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  text:'<path d="M4 5.5h16M4 10h16M4 14.5h10M4 19h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  bubble:'<path d="M12 4c4.7 0 8.5 3 8.5 6.8s-3.8 6.8-8.5 6.8c-.9 0-1.8-.1-2.6-.3L5 19.5l1-3.6C4.4 14.7 3.5 12.9 3.5 10.8 3.5 7 7.3 4 12 4Z" fill="currentColor"/>',
+  thumbs:'<path d="M7 10.5v9H4.5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Zm2 9h7.6a2 2 0 0 0 2-1.6l1.2-6a2 2 0 0 0-2-2.4h-4.2l.6-3.3a1.8 1.8 0 0 0-3.4-1.1L9 10.5Z" fill="currentColor"/>',
+  list:'<circle cx="5" cy="6.5" r="1.6" fill="currentColor"/><circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="5" cy="17.5" r="1.6" fill="currentColor"/><path d="M9.5 6.5H20M9.5 12H20M9.5 17.5H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  stopwatch:'<circle cx="12" cy="13.5" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 13.5V9.5M10 2.8h4M18.5 6.5l1.2-1.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  gauge:'<path d="M3.5 16a8.5 8.5 0 1 1 17 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m12 16 4-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16" r="1.8" fill="currentColor"/>',
+  flame:'<path d="M12 2.5c.6 3.2 4.8 5.3 4.8 10.2A4.8 4.8 0 0 1 12 17.5a4.8 4.8 0 0 1-4.8-4.8c0-2.2 1.2-3.6 2.2-4.7.2 1.5 1 2.4 2 2.7-.5-3.6.3-5.8.6-8.2Z" fill="currentColor"/><path d="M8 21h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".5"/>',
+  calc:'<rect x="5" y="3" width="14" height="18" rx="2.5" fill="currentColor"/><rect x="7.5" y="5.5" width="9" height="3.5" rx="1" fill="#fff" opacity=".9"/><g fill="#fff"><circle cx="8.8" cy="12.5" r="1.1"/><circle cx="12" cy="12.5" r="1.1"/><circle cx="15.2" cy="12.5" r="1.1"/><circle cx="8.8" cy="16.5" r="1.1"/><circle cx="12" cy="16.5" r="1.1"/><circle cx="15.2" cy="16.5" r="1.1"/></g>',
+  dollar:'<circle cx="12" cy="12" r="9.5" fill="currentColor"/><path d="M14.8 9c-.4-1-1.4-1.6-2.8-1.6-1.6 0-2.7.8-2.7 2s1 1.7 2.7 2.1c1.8.4 2.9 1 2.9 2.3s-1.2 2.2-2.9 2.2c-1.5 0-2.6-.6-3-1.8M12 6v1.4M12 16v1.6" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>',
+  merge:'<path d="M6 4v5.5c0 2 1.2 3.5 3.3 4.2l2.7 1V20M18 4v5.5c0 2-1.2 3.5-3.3 4.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="6" cy="4" r="2" fill="currentColor"/><circle cx="18" cy="4" r="2" fill="currentColor"/>',
+  globe:'<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c2.5 2.5 3.6 5.4 3.6 9S14.5 18.5 12 21c-2.5-2.5-3.6-5.4-3.6-9S9.5 5.5 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8"/>',
+  person:'<circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20.5c.8-4 4-6.5 8-6.5s7.2 2.5 8 6.5Z" fill="currentColor"/>',
+  building:'<path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h8A1.5 1.5 0 0 1 15 5.5V9h3.5A1.5 1.5 0 0 1 20 10.5V21Z" fill="currentColor"/><g fill="#fff" opacity=".9"><rect x="7" y="7" width="2" height="2" rx=".4"/><rect x="10.5" y="7" width="2" height="2" rx=".4"/><rect x="7" y="11" width="2" height="2" rx=".4"/><rect x="10.5" y="11" width="2" height="2" rx=".4"/><rect x="16" y="12" width="2" height="2" rx=".4"/><rect x="16" y="16" width="2" height="2" rx=".4"/><rect x="8.5" y="16" width="3" height="5" rx=".4"/></g>',
+  note:'<path d="M6 3h8l5 5v11.5A1.5 1.5 0 0 1 17.5 21h-11A1.5 1.5 0 0 1 5 19.5v-15A1.5 1.5 0 0 1 6 3Z" fill="currentColor"/><path d="M14 3v5h5" fill="#fff" opacity=".5"/><path d="M8.5 12.5h7M8.5 16h5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>',
+  chevron:'<path d="m1.5 1.5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+  close:'<path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 5.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h.5" fill="none" stroke="currentColor" stroke-width="2"/>',
+  star:'<path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8Z" fill="currentColor"/>',
+  play:'<path d="M7 4.8v14.4c0 .8.9 1.3 1.6.8l11-7.2a1 1 0 0 0 0-1.6l-11-7.2C7.9 3.5 7 4 7 4.8Z" fill="currentColor"/>',
+  key:'<circle cx="8" cy="15.5" r="4.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m11.3 12.2 8.7-8.7M17 6.5l2.5 2.5M14.5 9l2 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+};
+const ic = (name, cls="i") => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[name]||""}</svg>`;
+const chevEl = () => h("span", {style:{display:"inline-flex"}, html:`<svg class="chev" viewBox="0 0 8 13" aria-hidden="true">${P.chevron}</svg>`});
+document.querySelectorAll("[data-icon]").forEach(e => e.innerHTML = ic(e.dataset.icon));
+
+/* ---------- Tiny DOM helper ---------- */
+function h(tag, props, ...kids){
+  const e = document.createElement(tag);
+  if (props) for (const [k,v] of Object.entries(props)){
+    if (v == null || v === false) continue;
+    if (k === "class") e.className = v;
+    else if (k === "html") e.innerHTML = v;
+    else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (k === "style" && typeof v === "object") Object.assign(e.style, v);
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()){ if (c == null || c === false) continue; e.append(c.nodeType ? c : document.createTextNode(String(c))); }
+  return e;
+}
+const $ = id => document.getElementById(id);
+
+/* ---------- Storage adapter ----------
+   Everything goes through `store`, so a remote backend (accounts) can be
+   dropped in later without touching the views. */
+// Account data (progress, history, custom) lives under a per-user prefix when
+// signed in, and is mirrored to the cloud. Device preferences stay global.
+const ACCOUNT_KEYS = new Set(["progress","history","custom"]);
+let acctPrefix = "sdr:";
+const store = {
+  key(k){ return (ACCOUNT_KEYS.has(k) ? acctPrefix : "sdr:") + k; },
+  get(k, d){ try{ const v = localStorage.getItem(this.key(k)); return v ? JSON.parse(v) : d; }catch{ return d; } },
+  set(k, v){ try{ localStorage.setItem(this.key(k), JSON.stringify(v)); }catch{} if (ACCOUNT_KEYS.has(k) && typeof Cloud !== "undefined") Cloud.queueSave(); },
+};
+let progress = store.get("progress", {});   // id -> {scores:[], q, t, last, flag}
+let history = store.get("history", []);     // graded attempts with sub-scores
+let custom = store.get("custom", []);
+function loadAccountData(){ progress = store.get("progress", {}); history = store.get("history", []); custom = store.get("custom", []); }
+function writeAccountData(d){
+  try{ for (const k of ACCOUNT_KEYS) localStorage.setItem(store.key(k), JSON.stringify(d[k] || (k === "progress" ? {} : []))); }catch{}
+  loadAccountData();
+}
+if (typeof Cloud !== "undefined") Cloud.setSnapshot(() => ({progress, history, custom}));
+const settings = Object.assign({autoGrade:false, voice:"", strict:"standard", theme:"system", aiMode:"auto", aiModel:"claude-opus-5-5", order:"smart"}, store.get("settings", {}));
+const saveSettings = () => store.set("settings", settings);
+const bankFilter = Object.assign({source:"vine", topic:"", level:"", search:""}, store.get("bankFilter", {}));
+const HAS_VINE = typeof VINE_BANK !== "undefined" && VINE_BANK.length > 0;
+const VINE = HAS_VINE ? VINE_BANK : [];
+if (!HAS_VINE && bankFilter.source === "vine") bankFilter.source = "original";
+let apiKey = (() => { try{ return localStorage.getItem("sdr:apikey") || ""; }catch{ return ""; } })();
+
+function applyTheme(){ if (settings.theme === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = settings.theme; }
+applyTheme();
+
+/* ---------- Question pool ---------- */
+const allQs = () => BANK.concat(VINE, custom);
+function filtered(){
+  const query = (bankFilter.search||"").trim().toLowerCase();
+  return allQs().filter(q =>
+    (bankFilter.source === "all" || (bankFilter.source === "vine" ? q.source === "vine" : q.source !== "vine")) &&
+    (!bankFilter.topic || q.topic === bankFilter.topic) &&
+    (!bankFilter.level || q.l === bankFilter.level) &&
+    (!query || [q.q, q.topic, ...(q.tags||[])].join(" ").toLowerCase().includes(query)));
+}
+const TRACK_STYLE = {acct:["calc","c-blue"], beh:["person","c-orange"], val:["dollar","c-green"], deal:["merge","c-purple"], mkt:["globe","c-teal"], sector:["building","c-indigo"], mine:["note","c-pink"]};
+const trackName = id => (TRACKS.find(t=>t.id===id)||{name:"Follow-up"}).name;
+const firmTag = q => (q.tags||[]).map(t => (t.match(/Reported in (.+?) Interview/)||[])[1]).find(Boolean);
+
+/* ---------- Mastery ---------- */
+const LEVELS = [
+  {id:"mastered", name:"Mastered", color:"green", short:"Mastered"},
+  {id:"close", name:"Getting there", color:"blue", short:"Close"},
+  {id:"work", name:"Needs work", color:"orange", short:"Work"},
+  {id:"redo", name:"Really needs work", color:"red", short:"Redo"},
+  {id:"new", name:"Not started", color:"gray", short:"New"},
+];
+const LV = Object.fromEntries(LEVELS.map(l=>[l.id,l]));
+function levelOf(id){
+  const p = progress[id];
+  if (!p || !p.scores.length) return p && p.flag ? p.flag : "new";
+  if (p.flag) return p.flag;
+  const s = p.scores, last = s.at(-1), prev = s.at(-2);
+  if (last >= 8 && (prev === undefined ? last >= 9 : prev >= 7)) return "mastered";
+  if (last >= 6) return "close";
+  if (last >= 4) return "work";
+  return "redo";
+}
+function mix(qs){
+  const c = {mastered:0, close:0, work:0, redo:0, new:0};
+  qs.forEach(q => c[levelOf(q.id)]++);
+  return c;
+}
+function mixBar(c, total){
+  const bar = h("div", {class:"bar", style:{display:"flex", height:"8px", borderRadius:"4px"}});
+  ["mastered","close","work","redo"].forEach(k => { if (c[k]) bar.append(h("i", {style:{width:(c[k]/total*100)+"%", background:`var(--${LV[k].color})`, borderRadius:0}})); });
+  return bar;
+}
+function topicLevel(c){
+  const tried = c.mastered + c.close + c.work + c.redo;
+  if (!tried) return "new";
+  const score = (c.mastered*4 + c.close*3 + c.work*2 + c.redo*1) / tried;
+  return score >= 3.5 ? "mastered" : score >= 2.75 ? "close" : score >= 2 ? "work" : "redo";
+}
+const SKILLS = [
+  {k:"content", name:"Content", icon:"list", color:"pink", tip:"Covering the key points interviewers listen for."},
+  {k:"accuracy", name:"Technical accuracy", icon:"calc", color:"red", tip:"No wrong numbers, directions or definitions."},
+  {k:"structure", name:"Structure", icon:"text", color:"green", tip:"Answer first, signposts, clean close, STAR for stories."},
+  {k:"concision", name:"Concision", icon:"scissors", color:"teal", tip:"Right length, no tangents, no repeating yourself."},
+  {k:"delivery", name:"Delivery", icon:"bubble", color:"indigo", tip:"Few fillers and hedges, steady pace, no restarts."},
+];
+function skillStats(){
+  const recent = history.slice(-20);
+  return SKILLS.map(s => {
+    const v = recent.map(x => x.sub && x.sub[s.k]).filter(x => typeof x === "number");
+    const avg = v.length ? v.reduce((a,b)=>a+b,0)/v.length : null;
+    const lvl = avg === null ? "new" : avg >= 8.5 ? "mastered" : avg >= 6.5 ? "close" : avg >= 4.5 ? "work" : "redo";
+    return {...s, avg, n:v.length, lvl};
+  });
+}
+
+/* ---------- Claude (optional) ---------- */
+let sample = null;
+setTimeout(async () => { if (!window.claude) return; try{ sample = await window.claude.use("sample"); }catch{ sample = null; } render(); });
+const aiAvailable = () => !!(sample || apiKey);
+const STYLE = {
+  standard:"a first-round investment banking analyst interviewer: fair, direct, specific",
+  tough:"a tough managing director at a top investment bank: strict and blunt, with zero credit for vague or rambling answers",
+  coach:"a supportive interview coach: encouraging, but honest about every mistake",
+};
+const AI_SCHEMA = {type:"object", additionalProperties:false,
+  required:["score","verdict","got_right","missed","corrections","wording","rambling","structure","improved_version","model_answer","follow_up","follow_up_keys"],
+  properties:{
+    score:{type:"integer"}, verdict:{type:"string"},
+    got_right:{type:"array", items:{type:"string"}}, missed:{type:"array", items:{type:"string"}}, corrections:{type:"array", items:{type:"string"}},
+    wording:{type:"array", items:{type:"object", additionalProperties:false, required:["said","better","why"], properties:{said:{type:"string"}, better:{type:"string"}, why:{type:"string"}}}},
+    rambling:{type:"string"}, structure:{type:"string"}, improved_version:{type:"string"}, model_answer:{type:"string"},
+    follow_up:{type:"string"}, follow_up_keys:{type:"array", items:{type:"string"}},
+  }};
+function aiPrompt(q, answer, secs, local){
+  const beh = q.t === "beh";
+  return `You are ${STYLE[settings.strict]}. Grade a candidate's SPOKEN answer to an investment banking interview question and coach them to a better answer.
+The answer came from speech-to-text, so ignore spelling and punctuation and obvious mis-transcriptions ("a R" = AR, "PP and E" = PP&E). Do judge content, accuracy, filler, rambling, structure, length and word choice, because they matter when spoken.
+
+QUESTION (${q.l || "general"}, ${beh ? "behavioral/fit" : "technical"}): ${q.q}
+ANSWER KEY (points a strong answer covers):
+${(q.k||[]).map(k=>"- "+k).join("\n") || "- (none given; use expert judgment)"}
+TARGET LENGTH: about ${q.s||60} seconds. ACTUAL: ${secs ? secs+" seconds" : "unknown"}, ${local.stats.words} words.
+AUTOMATED DELIVERY CHECK: ${local.stats.fillers} filler words, ${local.stats.hedges} hedges${local.stats.wpm ? ", "+local.stats.wpm+" wpm" : ""}.
+${beh ? "For behavioral answers judge structure (STAR for stories), specificity, ownership (\"I\" not \"we\"), authenticity, concision and whether it would persuade a banker. The candidate's personal facts are theirs; don't penalize what you can't verify, and don't invent facts in rewrites." : "For technical answers any factual error or wrong number is a major deduction. Check every number and direction (up/down) they say."}
+
+CANDIDATE ANSWER:
+"""${answer.slice(0, 6000)}"""
+
+Return JSON:
+- score: integer 0-10, the score a real interviewer would give
+- verdict: one sentence spoken directly to the candidate
+- got_right: short points they nailed
+- missed: key points they left out
+- corrections: anything they said that is WRONG, as "what they said -> what's correct" (empty if none)
+- wording: up to 5 specific phrases from their answer to upgrade: {said, better, why}
+- rambling: one or two sentences on what to cut or tighten (empty string if concise)
+- structure: one or two sentences on how to order the answer better
+- improved_version: their own answer rewritten to a 9/10, keeping their voice and facts, sized to the target length
+- model_answer: an ideal spoken answer, natural style, sized to the target length
+- follow_up: one realistic follow-up question an interviewer would ask next, based on their answer
+- follow_up_keys: 2-4 points a strong follow-up answer covers`;
+}
+async function callClaude(prompt, signal){
+  if (sample) return sample.json(prompt + "\n\nReply with only the JSON object.", {signal, cache:false});
+  if (!apiKey) throw {code:"no_ai"};
+  const body = {model: settings.aiModel || "claude-opus-5-5", max_tokens: 8000,
+    messages:[{role:"user", content: prompt}],
+    output_config:{format:{type:"json_schema", schema: AI_SCHEMA}}};
+  const headers = {"content-type":"application/json", "x-api-key":apiKey, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true"};
+  const r = await fetch("https://api.anthropic.com/v1/messages", {method:"POST", headers, body: JSON.stringify(body), signal});
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw {code: r.status === 401 ? "bad_key" : r.status === 429 ? "rate_limited" : "api_error", message: data.error && data.error.message};
+  if (data.stop_reason === "refusal") throw {code:"refusal"};
+  const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+  try { return JSON.parse(text); } catch { throw {code:"invalid_json"}; }
+}
+
+/* No spoken audio: the app never talks. */
+const synth = null;
+
+/* ---------- Speech in + level meter ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const mic = {rec:null, on:false, base:"", final:"", stream:null, ctx:null, raf:0};
+const DICTATE = "Tip: click in the answer box and use your keyboard's dictation (Win+H on Windows, press Fn twice on Mac). It works the same way.";
+function setMicNote(t){ const n = $("micNote"); if (n){ n.textContent = t || ""; n.hidden = !t; } }
+async function startMeter(){
+  const wave = $("wave"); if (!wave) return;
+  wave.classList.add("on");
+  const bars = [...wave.children];
+  try{
+    mic.stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    mic.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const an = mic.ctx.createAnalyser(); an.fftSize = 64;
+    mic.ctx.createMediaStreamSource(mic.stream).connect(an);
+    const buf = new Uint8Array(an.frequencyBinCount);
+    const loop = () => { an.getByteFrequencyData(buf); bars.forEach((b,i) => { const v = buf[(i*2+2) % buf.length] / 255; b.style.height = (3 + v*23) + "px"; }); mic.raf = requestAnimationFrame(loop); };
+    loop();
+  }catch{
+    const loop = () => { bars.forEach(b => b.style.height = (4 + Math.random()*18) + "px"); mic.raf = setTimeout(loop, 110); };
+    loop();
+  }
+}
+function stopMeter(){
+  cancelAnimationFrame(mic.raf); clearTimeout(mic.raf);
+  try{ mic.stream && mic.stream.getTracks().forEach(t => t.stop()); }catch{}
+  try{ mic.ctx && mic.ctx.close(); }catch{}
+  mic.stream = mic.ctx = null;
+  const wave = $("wave"); if (wave){ wave.classList.remove("on"); [...wave.children].forEach(b => b.style.height = "3px"); }
+}
+function startMic(){
+  if (synth) synth.cancel();
+  timer.start();
+  if (!SR){ $("ans").focus(); setMicNote("This browser can't transcribe from the page. " + DICTATE); return; }
+  const rec = mic.rec = new SR(); rec.continuous = true; rec.interimResults = true; rec.lang = "en-US";
+  mic.base = $("ans").value.trim() ? $("ans").value.trim() + " " : ""; mic.final = "";
+  rec.onresult = e => {
+    let interim = "";
+    for (let i = e.resultIndex; i < e.results.length; i++){ const r = e.results[i]; if (r.isFinal) mic.final += r[0].transcript.trim() + " "; else interim += r[0].transcript; }
+    $("ans").value = mic.base + mic.final + interim; updateWC();
+  };
+  rec.onerror = e => { if (/not-allowed|service-not-allowed|audio-capture/.test(e.error)){ mic.on = false; setMicUI(false); stopMeter(); setMicNote("The page couldn't use the microphone. " + DICTATE); $("ans").focus(); } };
+  rec.onend = () => { if (mic.on){ try{ rec.start(); }catch{} } };
+  try{ rec.start(); mic.on = true; setMicUI(true); setMicNote(""); startMeter(); }catch{ setMicNote("The microphone didn't start. " + DICTATE); }
+}
+function stopMic(auto=true){
+  mic.on = false; try{ mic.rec && mic.rec.stop(); }catch{}
+  setMicUI(false); timer.stop(); stopMeter();
+  if (auto && settings.autoGrade && $("ans") && $("ans").value.trim().length > 15) setTimeout(grade, 700);
+}
+function setMicUI(on){
+  const b = $("recBtn"); if (!b) return;
+  b.classList.toggle("on", on);
+  b.setAttribute("aria-label", on ? "Stop recording" : "Start recording");
+  $("recLabel").textContent = on ? "Listening… tap to stop" : "Tap to answer out loud";
+}
+
+/* ---------- Timer ---------- */
+const timer = {t0:0, id:null, el:0,
+  start(){ if (this.id) return; this.t0 = Date.now() - this.el*1000; this.id = setInterval(() => this.tick(), 250); },
+  stop(){ clearInterval(this.id); this.id = null; },
+  reset(){ this.stop(); this.el = 0; this.paint(); },
+  tick(){ this.el = Math.floor((Date.now()-this.t0)/1000); this.paint(); },
+  paint(){ const c = $("clock"); if (!c) return; c.textContent = Math.floor(this.el/60) + ":" + String(this.el%60).padStart(2,"0"); c.classList.toggle("over", !!(state.current && this.el > (state.current.s||90)*1.4)); },
+};
+function updateWC(){ const n = (($("ans")||{}).value || "").trim().match(/\S+/g)?.length || 0; const w = $("wc"); if (w) w.textContent = n + (n===1?" word":" words"); }
+
+/* ---------- App state ---------- */
+const state = {view:"drill", track: store.get("track","acct"), current:null, report:null, ai:null, aiBusy:false, mock:null, answer:"", bankShown:150};
+const NAV = [
+  {id:"drill", name:"Drill", icon:"mic", color:"c-red"},
+  {id:"mock", name:"Mock interview", icon:"person2", color:"c-indigo"},
+  {id:"mastery", name:"Mastery", icon:"target", color:"c-green"},
+  {id:"bank", name:"Question bank", icon:"books", color:"c-orange"},
+  {id:"progress", name:"Progress", icon:"chart", color:"c-blue"},
+];
+
+function go(view){
+  if (mic.on) stopMic(false);
+  if (view === "mock" && (!state.mock || state.mock.done)) startMock();
+  state.view = view;
+  closeDrawer();
+  render();
+  window.scrollTo({top:0});
+}
+
+/* ---------- Sidebar + tab bar ---------- */
+function renderNav(){
+  const m = $("navMain"); m.replaceChildren();
+  const redo = allQs().filter(q => ["work","redo"].includes(levelOf(q.id)) && progress[q.id]).length;
+  NAV.forEach(n => m.append(h("button", {class:"nav", "aria-current": String(state.view===n.id), onclick:() => go(n.id)},
+    h("span", {class:"ic "+n.color, html:ic(n.icon)}), n.name,
+    n.id === "mastery" && redo ? h("span", {class:"cnt badge", text:String(redo)}) : null)));
+  const t = $("navTopics"); t.replaceChildren();
+  const pool = filtered();
+  TRACKS.forEach(tr => {
+    const qs = pool.filter(q => q.t === tr.id); if (!qs.length) return;
+    const c = mix(qs); const done = c.mastered;
+    const [icon, col] = TRACK_STYLE[tr.id] || ["list","c-gray"];
+    t.append(h("button", {class:"nav", "aria-current": String(state.view==="drill" && state.track===tr.id), title:`${done} of ${qs.length} mastered`, onclick:() => { setTrack(tr.id); go("drill"); }},
+      h("span", {class:"ic "+col, html:ic(icon)}), tr.name,
+      h("span", {class:"meter"}, h("i", {style:{width: (done/qs.length*100)+"%"}})),
+      h("span", {class:"cnt", text:String(qs.length)})));
+  });
+  const tb = $("tabbar"); tb.replaceChildren();
+  NAV.forEach(n => tb.append(h("button", {"aria-current": String(state.view===n.id), onclick:() => go(n.id)}, h("span", {html:ic(n.icon)}), n.id==="mock" ? "Mock" : n.id==="bank" ? "Bank" : n.name)));
+}
+function setTrack(id){ state.track = id; store.set("track", id); pickNext(); }
+$("sideSearch").addEventListener("input", debounce(e => { bankFilter.search = e.target.value; store.set("bankFilter", bankFilter); state.bankShown = 150; if (state.view !== "bank") state.view = "bank"; render(); const s = $("sideSearch"); s.focus(); }, 250));
+$("navSettings").onclick = openSettings;
+$("menuBtn").onclick = () => { const s = $("sidebar"); s.classList.add("open"); const sc = h("div", {class:"drawer-scrim", id:"drawerScrim", onclick: closeDrawer}); document.body.append(sc); };
+function closeDrawer(){ $("sidebar").classList.remove("open"); const s = $("drawerScrim"); if (s) s.remove(); }
+window.addEventListener("scroll", () => $("toolbar").classList.toggle("scrolled", window.scrollY > 30), {passive:true});
+function debounce(fn, ms){ let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+/* ---------- Picking questions ---------- */
+function pickNext(opts={}){
+  const pool = filtered().filter(q => q.t === state.track);
+  if (!pool.length){ state.current = null; return; }
+  const cand = pool.filter(q => !state.current || q.id !== state.current.id);
+  const list = cand.length ? cand : pool;
+  const w = q => {
+    const lv = levelOf(q.id);
+    if (settings.order === "weak") return {redo:8, work:6, close:2, new:1, mastered:0.1}[lv];
+    if (settings.order === "new") return lv === "new" ? 10 : 0.2;
+    if (settings.order === "random") return 1;
+    return {new:3, redo:4, work:3, close:1.5, mastered:0.3}[lv];
+  };
+  let r = Math.random() * list.reduce((s,q)=>s+w(q),0);
+  for (const q of list){ r -= w(q); if (r <= 0) return showQuestion(q, opts); }
+  showQuestion(list[list.length-1], opts);
+}
+function showQuestion(q, opts={}){
+  if (mic.on) stopMic(false);
+  state.current = q; state.report = null; state.ai = null; state.answer = "";
+  timer.reset();
+  if (opts.render !== false) render();
+}
+
+/* ---------- Grading ---------- */
+let aiCtl = null;
+function grade(){
+  const q = state.current; if (!q) return;
+  const ta = $("ans"); const answer = (ta ? ta.value : state.answer).trim();
+  state.answer = answer;
+  if (mic.on) stopMic(false);
+  if (answer.split(/\s+/).length < 3){ setMicNote("Say or type an answer first, then tap Analyze."); ta && ta.focus(); return; }
+  const secs = timer.el || null;
+  const rep = Coach.analyze(q, answer, secs);
+  state.report = rep; state.ai = null;
+  record(q, rep.overall, rep);
+  if (state.mock) state.mock.results[state.mock.i] = {q, score: rep.overall, verdict: rep.verdict};
+  render();
+  requestAnimationFrame(() => { const r = $("report"); r && r.scrollIntoView({behavior:"smooth", block:"start"}); });
+  if (aiAvailable() && settings.aiMode === "auto") runAI();
+}
+async function runAI(){
+  const q = state.current, rep = state.report; if (!q || !rep || state.aiBusy) return;
+  state.aiBusy = true; state.aiErr = null; paintAI();
+  aiCtl = new AbortController();
+  try{
+    const r = await callClaude(aiPrompt(q, state.answer, timer.el || null, rep), aiCtl.signal);
+    if (state.current !== q) return;
+    const s = Math.max(0, Math.min(10, Math.round(Number(r.score) || 0)));
+    r.score = s;
+    state.ai = r;
+    const blended = Math.round(s*0.7 + rep.overall*0.3);
+    rep.blended = blended;
+    record(q, blended, rep, true);
+    if (state.mock) state.mock.results[state.mock.i] = {q, score: blended, verdict: r.verdict};
+  }catch(e){
+    state.aiErr = ({cancelled:"Stopped.", no_ai:"", bad_key:"Your API key was rejected. Check it in Settings.", rate_limited:"Usage limit hit. Try again in a minute.", refusal:"Claude declined to grade this one.", not_granted:"Claude isn't enabled for this page.", sampling_disabled:"Claude isn't available on this account."})[e && e.code] ?? ("Claude review failed" + (e && e.message ? ": " + e.message : ". Check your connection."));
+    if (e && e.name === "AbortError") state.aiErr = "Stopped.";
+  }finally{ state.aiBusy = false; }
+  if (state.view === "drill" || state.view === "mock") render();
+}
+function record(q, score, rep, replaceLast){
+  if (q.followup) return;
+  const p = progress[q.id] || {scores:[], q:q.q, t:q.t};
+  if (replaceLast && p.scores.length) p.scores[p.scores.length-1] = score; else p.scores.push(score);
+  p.scores = p.scores.slice(-10); p.last = Date.now();
+  if (p.flag && !replaceLast) delete p.flag;   // a fresh attempt replaces a manual mark
+  progress[q.id] = p; store.set("progress", progress);
+  const entry = {id:q.id, t:q.t, topic:q.topic||trackName(q.t), ts:Date.now(), score, sub:rep.scores, words:rep.stats.words, wpm:rep.stats.wpm, fillers:rep.stats.fillers, hedges:rep.stats.hedges};
+  if (replaceLast && history.length && history.at(-1).id === q.id) history[history.length-1] = entry; else history.push(entry);
+  history = history.slice(-500); store.set("history", history);
+  renderNav();
+}
+function setFlag(id, flag){
+  const q = allQs().find(x => x.id === id);
+  const p = progress[id] || {scores:[], q: q ? q.q : "", t: q ? q.t : ""};
+  if (flag) p.flag = flag; else delete p.flag;
+  progress[id] = p; store.set("progress", progress);
+}
+
+/* ---------- Views ---------- */
+function render(){
+  renderNav();
+  if (typeof renderAccountRow === "function") renderAccountRow();
+  const v = $("view"); v.replaceChildren();
+  $("tbRight").replaceChildren();
+  const views = {drill:viewDrill, mock:viewDrill, mastery:viewMastery, bank:viewBank, progress:viewProgress};
+  (views[state.view] || viewDrill)(v);
+  $("tbTitle").textContent = state.view === "drill" ? trackName(state.track) : (NAV.find(n=>n.id===state.view)||{}).name || "";
+}
+
+/* ----- Drill / Mock ----- */
+function viewDrill(v){
+  const isMock = state.view === "mock";
+  const m = state.mock;
+  if (isMock && m && m.done) return viewMockDone(v);
+  if (!state.current && !isMock) pickNext({render:false, speak:false});
+  const q = state.current;
+
+  v.append(h("h1", {class:"largetitle", text: isMock ? "Mock interview" : trackName(state.track)}));
+  v.append(h("p", {class:"subtitle", text: isMock ? `Question ${m.i+1} of ${m.qs.length}. Answer each one like it's the real thing.` : subtitleFor(state.track)}));
+
+  if (!isMock){
+    const strip = h("div", {class:"topics-strip", role:"group", "aria-label":"Topic"});
+    TRACKS.forEach(t => { const n = filtered().filter(q=>q.t===t.id).length; if (n) strip.append(h("button", {"aria-pressed":String(t.id===state.track), onclick:() => { setTrack(t.id); render(); }, text:t.name})); });
+    v.append(strip);
+    const tb = $("tbRight");
+    const ord = h("select", {class:"selectbtn", "aria-label":"Question order", onchange:e => { settings.order = e.target.value; saveSettings(); }},
+      ...[["smart","Smart order"],["weak","Needs work first"],["new","New questions first"],["random","Random"]].map(([k,n]) => h("option", {value:k, selected: settings.order===k, text:n})));
+    tb.append(ord);
+  }
+  if (!q){ v.append(h("div", {class:"card empty", text:"No questions match. Change the filters in Question bank."})); return; }
+
+  /* question card */
+  const card = h("section", {class:"card", "aria-labelledby":"qText"});
+  if (isMock){ const bar = h("div", {class:"mockbar"}); m.qs.forEach((_,i) => bar.append(h("i", {class: i < m.i ? "done" : i === m.i ? "cur" : ""}))); card.append(bar); }
+  const lv = levelOf(q.id), p = progress[q.id];
+  const meta = h("div", {class:"qmeta"},
+    h("span", {class:"tag accent", text: q.topic || trackName(q.t)}),
+    q.l ? h("span", {class:"tag", text:q.l}) : null,
+    firmTag(q) ? h("span", {class:"tag firm", text: firmTag(q)}) : null,
+    h("span", {class:"tag", style:{color:`var(--${LV[lv].color})`}, text: p && p.scores.length ? `${LV[lv].name} · best ${Math.max(...p.scores)}/10` : LV[lv].name}));
+  card.append(meta, h("h2", {class:"qtext", id:"qText", text:q.q}));
+  const hintBox = h("div", {class:"hint", hidden:true});
+  card.append(h("div", {class:"row"},
+    h("button", {class:"btn tint", disabled: !(q.k && q.k.length), onclick:() => { hintBox.hidden = !hintBox.hidden; }, html: ic("bulb") + "Hint"}),
+    h("button", {class:"btn tint", onclick:() => isMock ? mockAdvance() : pickNext(), html: ic("forward") + (isMock ? "Skip" : "Next")})));
+  const pts = Coach.keyPoints(q);
+  hintBox.append(h("span", {html:ic("bulb")}), h("div", null, h("b", {text:"Structure to hit: "}), pts.map(p => p.label).join("  →  ")));
+  card.append(hintBox);
+  v.append(card);
+
+  /* recorder */
+  const rc = h("section", {class:"card", "aria-label":"Your answer"});
+  const wave = h("div", {class:"wave", id:"wave"}); for (let i=0;i<18;i++) wave.append(h("i"));
+  const ta = h("textarea", {class:"ans", id:"ans", placeholder:"Tap the red button and answer out loud. Your words appear here, and you can edit them or type instead.", "aria-label":"Your answer"});
+  ta.value = state.answer;
+  ta.addEventListener("input", () => { state.answer = ta.value; updateWC(); if (!timer.id && !mic.on && ta.value.length === 1) timer.start(); });
+  ta.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter"){ e.preventDefault(); grade(); } });
+  const tgt = q.s <= 45 ? "30–45 sec" : q.s <= 60 ? "45–60 sec" : q.s <= 90 ? "60–90 sec" : "90 sec–2 min";
+  rc.append(h("div", {class:"rec"},
+    h("div", {class:"recside"},
+      h("button", {class:"recbtn", id:"recBtn", "aria-label":"Start recording", onclick:() => mic.on ? stopMic() : startMic()}),
+      h("div", {class:"clock", id:"clock", text:"0:00"}),
+      wave,
+      h("div", {class:"reclabel", id:"recLabel", text:"Tap to answer out loud"})),
+    h("div", {style:{minWidth:0}},
+      ta,
+      h("div", {class:"tafoot"}, h("span", {id:"wc", text:"0 words"}), h("span", {text:"Target " + tgt + " · ⌘/Ctrl+Enter to analyze"})),
+      h("div", {class:"row"},
+        h("button", {class:"btn fill lg", onclick: grade, html: ic("wand") + "Analyze answer"}),
+        h("button", {class:"btn plain", onclick:() => { state.answer = ""; ta.value = ""; updateWC(); timer.reset(); state.report = null; state.ai = null; render(); }, text:"Clear"})),
+      h("div", {class:"note", id:"micNote", hidden:true}))));
+  v.append(rc);
+  if (!SR) setTimeout(() => setMicNote("This browser can't transcribe from the page. " + DICTATE));
+  updateWC(); timer.paint();
+
+  if (state.report) v.append(viewReport(q, state.report));
+}
+function subtitleFor(t){
+  return {acct:"The three statements, how they link, and what changes when one line moves.", beh:"Your story, why banking, and STAR answers that prove it.", val:"DCF, multiples, EV vs. equity value, WACC.", deal:"Merger models, accretion/dilution, LBOs.", mkt:"Markets, rates, pitches and mental math.", sector:"Industry groups and product knowledge.", mine:"Questions from your own material."}[t] || "";
+}
+
+/* ----- Report ----- */
+function ringSVG(vals){
+  const R = [66, 50, 34], W = 13, C = r => 2*Math.PI*r;
+  const cols = ["var(--ring1)","var(--ring2)","var(--ring3)"];
+  let s = `<svg viewBox="0 0 150 150" aria-hidden="true">`;
+  vals.forEach((v,i) => {
+    const r = R[i], c = C(r), off = c * (1 - Math.max(0.02, v/10));
+    s += `<circle cx="75" cy="75" r="${r}" stroke="${cols[i]}" stroke-opacity=".2" stroke-width="${W}"/>`;
+    s += `<circle cx="75" cy="75" r="${r}" stroke="${cols[i]}" stroke-width="${W}" stroke-dasharray="${c}" stroke-dashoffset="${c}" style="transition:stroke-dashoffset .9s cubic-bezier(.3,.7,.4,1) ${i*.12}s" data-off="${off}"/>`;
+  });
+  return s + "</svg>";
+}
+function band(s){ return s >= 8 ? "g" : s >= 6 ? "w" : "b"; }
+function viewReport(q, rep){
+  const ai = state.ai;
+  const wrap = h("div", {id:"report", class:"fade-in"});
+  const score = rep.blended ?? rep.overall;
+  const sc = rep.scores;
+  const structureRing = Math.round((sc.structure + sc.concision)/2);
+  const contentRing = sc.accuracy == null ? sc.content : Math.round(sc.content*0.7 + sc.accuracy*0.3);
+
+  /* summary */
+  const rings = h("div", {class:"rings", html: ringSVG([contentRing, structureRing, sc.delivery])},
+    h("div", {class:"big"}, h("div", null, h("b", {text:String(score)}), h("small", {text:"OUT OF 10"}))));
+  setTimeout(() => rings.querySelectorAll("circle[data-off]").forEach(c => c.style.strokeDashoffset = c.dataset.off), 30);
+  const lv = levelOf(q.id);
+  const sum = h("section", {class:"card"},
+    h("div", {class:"summary"}, rings,
+      h("div", {style:{minWidth:0}},
+        h("div", {class:"row", style:{gap:"6px"}},
+          h("span", {class:`score-chip sc-${band(score)}`, text: score >= 8 ? "Interview-ready" : score >= 6 ? "Close" : "Needs work"}),
+          h("span", {class:"tag", style:{color:`var(--${LV[lv].color})`}, text: LV[lv].name}),
+          ai ? h("span", {class:"ai-badge", html: ic("sparkles") + "Claude reviewed"}) : null),
+        h("p", {class:"verdict", text: ai ? ai.verdict : rep.verdict}),
+        h("div", {class:"legend"},
+          h("span", null, h("i", {style:{background:"var(--ring1)"}}), "Content ", h("b", {text: contentRing + "/10"})),
+          h("span", null, h("i", {style:{background:"var(--ring2)"}}), "Structure ", h("b", {text: structureRing + "/10"})),
+          h("span", null, h("i", {style:{background:"var(--ring3)"}}), "Delivery ", h("b", {text: sc.delivery + "/10"})),
+          sc.accuracy != null ? h("span", {class:"t-gray"}, "Accuracy ", h("b", {text: sc.accuracy + "/10"})) : null))),
+    metricsRow(rep));
+  wrap.append(sum);
+
+  /* AI layer */
+  const aiBox = h("div", {id:"aiBox"}); wrap.append(aiBox); paintAI(aiBox);
+
+  /* corrections */
+  const corr = ai && ai.corrections && ai.corrections.length ? ai.corrections : rep.corrections;
+  if (corr.length){
+    wrap.append(h("h3", {class:"sechead"}, "What you got wrong"));
+    wrap.append(h("div", {class:"list"}, corr.map(c => h("div", {class:"li"}, h("span", {class:"lic c-red", html:ic("xmark")}), h("div", {class:"lit"}, h("b", {text:c}))))));
+  }
+
+  /* top fixes */
+  const fixes = rep.fixes.filter(f => f.tag !== "Accuracy");
+  if (fixes.length){
+    wrap.append(h("h3", {class:"sechead"}, "How to improve ", h("small", {text: fixes.length + " fixes, most important first"})));
+    const sevCol = s => s >= 4 ? "c-red" : s === 3 ? "c-orange" : s === 2 ? "c-yellow" : "c-gray";
+    const tagIcon = {Content:"list", Structure:"text", Story:"person", Concision:"scissors", Delivery:"bubble", Wording:"quote"};
+    wrap.append(h("div", {class:"list"}, fixes.slice(0, 8).map(f => h("div", {class:"li"},
+      h("span", {class:"lic " + sevCol(f.sev), html: ic(tagIcon[f.tag] || "warn")}),
+      h("div", {class:"lit"}, h("b", {text:f.title}), h("span", {text:f.body})),
+      h("span", {class:"trail", text:f.tag})))));
+  }
+
+  /* key points */
+  if (rep.coverage.length){
+    const hit = rep.coverage.filter(p => p.status === "hit").length;
+    wrap.append(h("h3", {class:"sechead"}, "Key points ", h("small", {text:`${hit} of ${rep.coverage.length} covered`})));
+    const icons = {hit:["check","t-green","Covered"], partial:["half","t-orange","Partly covered"], miss:["xmark","t-red","Missed"]};
+    wrap.append(h("div", {class:"list noicon pts"}, rep.coverage.map(p => { const [i,c,lbl] = icons[p.status];
+      return h("div", {class:"li"}, h("span", {class:"status "+c, title:lbl, html: ic(i, "status")}), h("div", {class:"lit"}, h("b", {text:p.text}), p.status === "partial" ? h("span", {text: missingText(p)}) : null)); })));
+  }
+
+  /* strengths */
+  const good = ai && ai.got_right && ai.got_right.length ? ai.got_right : rep.strengths;
+  if (good.length){
+    wrap.append(h("h3", {class:"sechead"}, "What you did well"));
+    wrap.append(h("div", {class:"list"}, good.map(s => h("div", {class:"li"}, h("span", {class:"lic c-green", html:ic("thumbs")}), h("div", {class:"lit"}, h("b", {style:{fontWeight:500}, text:s}))))));
+  }
+
+  /* STAR */
+  if (rep.star){
+    const s = rep.star;
+    const parts = [["S","Situation",s.situation],["T","Task",s.task],["A","Action",s.action>=2],["R","Result",s.result],["L","Lesson",s.lesson]];
+    wrap.append(h("h3", {class:"sechead"}, "Story structure"));
+    wrap.append(h("section", {class:"card"}, h("div", {class:"star"}, parts.map(([k,n,on]) => h("div", {class: on ? "on" : ""}, h("b", {text:k}), n)))));
+  }
+
+  /* transcript */
+  wrap.append(h("h3", {class:"sechead"}, "Your transcript"));
+  const tr = h("div", {class:"transcript"});
+  const marks = Coach.highlights(state.answer, rep); let pos = 0;
+  marks.forEach(mk => { if (mk.i > pos) tr.append(state.answer.slice(pos, mk.i)); tr.append(h("mark", {class:mk.kind, title:mk.tip, tabindex:"0"}, state.answer.slice(mk.i, mk.j))); pos = mk.j; });
+  tr.append(state.answer.slice(pos));
+  wrap.append(h("section", {class:"card"}, tr, h("div", {class:"keys"},
+    h("span", null, h("i", {style:{background:"color-mix(in srgb,var(--orange) 30%,transparent)"}}), `Filler (${rep.stats.fillers})`),
+    h("span", null, h("i", {style:{background:"color-mix(in srgb,var(--purple) 30%,transparent)"}}), `Hedge (${rep.stats.hedges})`),
+    h("span", null, h("i", {style:{background:"color-mix(in srgb,var(--blue) 25%,transparent)"}}), "Word choice"),
+    h("span", null, h("i", {style:{background:"color-mix(in srgb,var(--gray) 30%,transparent)"}}), "Tangent"),
+    SR ? h("span", {text:"Chrome's transcription may drop “um” and “uh”."}) : null)));
+
+  /* wording */
+  const words = ai && ai.wording && ai.wording.length ? ai.wording.map(w => ({said:w.said, to:w.better, why:w.why})) : rep.wording.map(w => ({said:w.said + (w.n > 1 ? `  ×${w.n}` : ""), to:w.to, why:w.why}));
+  if (words.length){
+    wrap.append(h("h3", {class:"sechead"}, "Wording"));
+    wrap.append(h("div", {class:"list noicon"}, words.map(w => h("div", {class:"li"}, h("div", {class:"lit"},
+      h("div", {class:"wordrow"}, h("span", {class:"said", text:w.said}), h("span", {class:"t-gray", text:"→"}), h("span", {class:"try", text:w.to})),
+      h("div", {class:"why", text:w.why}))))));
+  }
+
+  /* rewrites */
+  const improved = ai ? ai.improved_version : rep.tightened;
+  wrap.append(h("h3", {class:"sechead"}, ai ? "Your answer at a 9/10" : "Your answer, tightened", h("small", {text: ai ? "Your facts, rewritten" : "Fillers and hedges removed"})));
+  wrap.append(h("section", {class:"card"}, h("div", {class:"quote", text: improved}), h("div", {class:"row", style:{marginTop:"10px"}},
+    h("button", {class:"btn tint", onclick:e => copyText(improved, e.currentTarget), html: ic("copy") + "Copy"}))));
+  const model = ai ? ai.model_answer : rep.model;
+  if (model){
+    wrap.append(h("h3", {class:"sechead"}, rep.beh && !ai ? "What a strong answer includes" : "Model answer"));
+    wrap.append(h("section", {class:"card"}, h("div", {class:"quote", text:model})));
+  }
+
+  /* mastery override + actions */
+  const seg = h("div", {class:"seg", role:"group", "aria-label":"Mark this question"});
+  [["mastered","Mastered"],["work","Needs work"],["redo","Really needs work"]].forEach(([k,n]) => seg.append(h("button", {"aria-pressed": String((progress[q.id]||{}).flag === k), onclick:() => { setFlag(q.id, (progress[q.id]||{}).flag === k ? null : k); render(); }, text:n})));
+  wrap.append(h("h3", {class:"sechead"}, "Mark this question ", h("small", {text:"Overrides the automatic level"})));
+  wrap.append(h("div", {style:{marginBottom:"18px", overflowX:"auto"}}, seg));
+  const act = h("div", {class:"row"});
+  act.append(h("button", {class:"btn lg tint", onclick:() => { state.answer = ""; state.report = null; state.ai = null; timer.reset(); render(); window.scrollTo({top:0, behavior:"smooth"}); }, html: ic("retry") + "Try again"}));
+  if (ai && ai.follow_up && state.view === "drill"){
+    const parent = q;
+    act.append(h("button", {class:"btn lg tint", onclick:() => { showQuestion({id:"fu-"+Date.now(), t:parent.t, l:"Follow-up", topic:parent.topic, s:60, q:ai.follow_up, k:ai.follow_up_keys||[], followup:true}); window.scrollTo({top:0, behavior:"smooth"}); }, html: ic("bubble") + "Answer the follow-up"}));
+  }
+  act.append(h("button", {class:"btn lg fill", onclick:() => { state.view === "mock" ? mockAdvance() : pickNext(); window.scrollTo({top:0, behavior:"smooth"}); }, html: ic("forward") + (state.view === "mock" ? (state.mock.i >= state.mock.qs.length-1 ? "Finish interview" : "Next question") : "Next question")}));
+  wrap.append(act);
+  return wrap;
+}
+const TERM = {da:"D&A", ppe:"PP&E", ar:"accounts receivable", ap:"accounts payable", accrued:"accrued expenses", deferredrevenue:"deferred revenue", dtl:"deferred tax liability", dta:"deferred tax asset", nol:"NOLs", netincome:"net income", incomestatement:"income statement", balancesheet:"balance sheet", cfs:"cash flow statement", cfo:"cash flow from operations", cfi:"cash flow from investing", cff:"cash flow from financing", shequity:"shareholders' equity", retainedearnings:"retained earnings", apic:"APIC", treasury:"treasury stock", sbc:"stock-based comp", capex:"CapEx", nwc:"working capital", cogs:"COGS", sga:"SG&A", ebitda:"EBITDA", ebit:"EBIT / operating income", ev:"enterprise value", equityvalue:"equity value", wacc:"WACC", costequity:"cost of equity", costdebt:"cost of debt", capm:"CAPM", erp:"equity risk premium", riskfree:"risk-free rate", fcf:"free cash flow", terminalvalue:"terminal value", gordon:"perpetuity growth", exitmultiple:"exit multiple", dcf:"DCF", lbo:"LBO", irr:"IRR", moic:"MoIC", mna:"M&A", pe:"P/E", eps:"EPS", nopat:"NOPAT", comps:"comparable companies", precedents:"precedent transactions", sourcesuses:"sources & uses", nci:"noncontrolling interest", preferred:"preferred stock", goodwill:"goodwill", intangibles:"intangibles", interestexpense:"interest expense", dividend:"dividends", revolver:"revolver", synergy:"synergies", accretive:"accretion", dilutive:"dilution", pretax:"pre-tax income"};
+function missingText(p){
+  const terms = p.miss.filter(t => TERM[t] || /^\d/.test(t)).map(t => TERM[t] || t);
+  return terms.length ? "Missing: " + [...new Set(terms)].slice(0,5).join(", ") : "Add the specifics from this point.";
+}
+function metricsRow(rep){
+  const s = rep.stats;
+  const lo = Math.round(s.targetWords*0.45), hi = Math.round(s.targetWords*1.1), max = Math.max(hi*1.6, s.words*1.05);
+  const lenTile = h("div", {class:"metric"},
+    h("div", {class:"k t-teal", html: ic("text") + "Length"}),
+    h("div", {class:"v"}, String(s.words), h("small", {text:"words"})),
+    h("div", {class:"lengthbar"}, h("div", {class:"ok", style:{left:(lo/max*100)+"%", width:((hi-lo)/max*100)+"%"}}), h("div", {class:"dot", style:{left: Math.min(100, s.words/max*100)+"%"}})),
+    h("div", {class:"s", text:`Aim ${lo}–${hi}`}));
+  return h("div", {class:"metrics"},
+    lenTile,
+    h("div", {class:"metric"}, h("div", {class:"k t-orange", html: ic("bubble") + "Fillers"}), h("div", {class:"v"}, String(s.fillers)), h("div", {class:"s", text: s.fillerRate + " per 100 words"})),
+    h("div", {class:"metric"}, h("div", {class:"k t-purple", html: ic("gauge") + "Hedges"}), h("div", {class:"v"}, String(s.hedges)), h("div", {class:"s", text: s.hedges ? "State facts directly" : "Confident"})),
+    h("div", {class:"metric"}, h("div", {class:"k t-blue", html: ic("stopwatch") + "Pace"}), h("div", {class:"v"}, s.wpm ? String(s.wpm) : "–", h("small", {text: s.wpm ? "wpm" : ""})), h("div", {class:"s", text: s.wpm ? (s.wpm > 185 ? "Too fast" : s.wpm < 105 ? "Too slow" : "Aim 130–165") : "Use the mic to time it"})));
+}
+function paintAI(box){
+  box = box || $("aiBox"); if (!box) return;
+  box.replaceChildren();
+  if (state.aiBusy){
+    box.append(h("section", {class:"card"}, h("div", {class:"thinking"}, h("span", {class:"spinner"}), h("span", {text:"Claude is reviewing your answer like an interviewer…"}), h("button", {class:"btn plain", style:{marginLeft:"auto"}, onclick:() => aiCtl && aiCtl.abort(), text:"Stop"}))));
+    return;
+  }
+  const ai = state.ai;
+  if (ai){
+    const extra = [];
+    if (ai.missed && ai.missed.length) extra.push(["xmark","c-red","What you missed", ai.missed.join(" · ")]);
+    if (ai.rambling) extra.push(["scissors","c-teal","What to cut", ai.rambling]);
+    if (ai.structure) extra.push(["text","c-green","Structure", ai.structure]);
+    if (extra.length){
+      box.append(h("h3", {class:"sechead"}, "Interviewer notes ", h("span", {class:"ai-badge", html: ic("sparkles") + "Claude · " + ai.score + "/10"})));
+      box.append(h("div", {class:"list"}, extra.map(([i,c,t,b]) => h("div", {class:"li"}, h("span", {class:"lic "+c, html:ic(i)}), h("div", {class:"lit"}, h("b", {text:t}), h("span", {text:b}))))));
+    }
+    return;
+  }
+  if (state.aiErr) box.append(h("p", {class:"err", text: state.aiErr}));
+  if (aiAvailable() && settings.aiMode !== "auto")
+    box.append(h("div", {class:"row", style:{margin:"0 0 16px"}}, h("button", {class:"btn tint", onclick: runAI, html: ic("sparkles") + "Get Claude's interviewer review"})));
+  else if (!aiAvailable())
+    box.append(h("p", {class:"note", style:{margin:"0 0 16px"}}, "Graded on this device by the built-in coach. For a deeper review with a rewritten answer and follow-up questions, add a Claude API key in ", h("a", {href:"#", onclick:e => { e.preventDefault(); openSettings(); }, text:"Settings"}), "."));
+}
+function copyText(t, btn){
+  const done = () => { const o = btn.innerHTML; btn.textContent = "Copied"; setTimeout(() => btn.innerHTML = o, 1200); };
+  try{ navigator.clipboard.writeText(t).then(done, () => {}); }catch{}
+}
+
+/* ----- Mock ----- */
+function shuffle(a){ a = a.slice(); for (let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+function startMock(){
+  const pool = filtered();
+  const take = (t,n) => shuffle(pool.filter(q=>q.t===t)).slice(0,n);
+  let qs = [...take("beh",1), ...take("acct",2), ...take("val",1), ...take("deal",1), ...take("beh",1)];
+  const intro = BANK.find(q => q.id === "b1");
+  if (intro && bankFilter.source !== "vine") qs.unshift(intro);
+  qs = qs.filter((q,i,a) => q && a.findIndex(x => x.id === q.id) === i).slice(0,7);
+  if (qs.length < 2) qs = shuffle(pool).slice(0,6);
+  state.mock = {qs, i:0, results:[], done:false};
+  state.current = null;
+  showQuestion(qs[0], {render:false});
+}
+function mockAdvance(){
+  const m = state.mock;
+  if (m.i < m.qs.length-1){ m.i++; showQuestion(m.qs[m.i]); window.scrollTo({top:0}); return; }
+  m.done = true; if (mic.on) stopMic(false); render();
+  const res = m.results.filter(Boolean);
+}
+function viewMockDone(v){
+  const m = state.mock, res = m.results.filter(Boolean);
+  const a = res.length ? res.reduce((s,r)=>s+r.score,0)/res.length : null;
+  v.append(h("h1", {class:"largetitle", text:"Interview complete"}));
+  v.append(h("p", {class:"subtitle", text: a === null ? "You skipped every question. Answer at least one to get a result." : `${res.filter(r=>r.score>=7).length} of ${res.length} answers were at the bar.`}));
+  const s = a === null ? 0 : Math.round(a);
+  const rings = h("div", {class:"rings", html: ringSVG([s, res.length/m.qs.length*10, res.filter(r=>r.score>=7).length/Math.max(1,res.length)*10])}, h("div", {class:"big"}, h("div", null, h("b", {text: a === null ? "–" : a.toFixed(1)}), h("small", {text:"AVERAGE"}))));
+  setTimeout(() => rings.querySelectorAll("circle[data-off]").forEach(c => c.style.strokeDashoffset = c.dataset.off), 30);
+  v.append(h("section", {class:"card"}, h("div", {class:"summary"}, rings, h("div", null,
+    h("p", {class:"verdict", text: a === null ? "No grades yet." : s >= 8 ? "Strong interview. You'd likely advance." : s >= 6 ? "Borderline. Tighten the weak answers below." : "Not there yet. Drill the red ones and run it again."}),
+    h("div", {class:"legend"}, h("span", null, h("i", {style:{background:"var(--ring1)"}}), "Average score"), h("span", null, h("i", {style:{background:"var(--ring2)"}}), "Answered"), h("span", null, h("i", {style:{background:"var(--ring3)"}}), "At the bar"))))));
+  v.append(h("div", {class:"list"}, m.qs.map((q,i) => { const r = m.results[i];
+    return h("button", {class:"li qrow", onclick:() => { state.track = q.t; state.view = "drill"; showQuestion(q); }},
+      h("span", {class:"lic " + (r ? (r.score >= 7 ? "c-green" : r.score >= 5 ? "c-orange" : "c-red") : "c-gray"), html: ic(r ? (r.score >= 7 ? "check" : "warn") : "forward")}),
+      h("div", {class:"lit"}, h("b", {text:q.q}), h("span", {text: r ? r.verdict : "Skipped"})),
+      h("span", {class:"trail"}, r ? h("span", {class:`score-chip sc-${band(r.score)}`, text: r.score + "/10"}) : null, chevEl())); })));
+  v.append(h("div", {class:"row"}, h("button", {class:"btn lg fill", onclick:() => { startMock(); render(); }, html: ic("retry") + "Run another mock"}), h("button", {class:"btn lg tint", onclick:() => { state.mock = null; go("drill"); }, text:"Back to drills"})));
+}
+
+/* ----- Mastery ----- */
+let masteryOpen = null, masteryLevel = "all";
+function viewMastery(v){
+  const pool = filtered();
+  const c = mix(pool), tried = pool.length - c.new;
+  v.append(h("h1", {class:"largetitle", text:"Mastery"}));
+  v.append(h("p", {class:"subtitle", text:"Where you stand on every concept. Levels update after each answer; you can also mark them yourself."}));
+
+  /* overall */
+  const tiles = h("div", {class:"tiles"});
+  LEVELS.forEach(l => tiles.append(h("button", {class:"tile", style:{border:0, textAlign:"left", cursor:"pointer", outline: masteryLevel===l.id ? `2px solid var(--${l.color})` : "none"}, onclick:() => { masteryLevel = masteryLevel === l.id ? "all" : l.id; render(); }},
+    h("div", {class:"k", style:{color:`var(--${l.color})`}, html: ic(l.id==="mastered"?"check":l.id==="close"?"half":l.id==="new"?"list":"warn") + l.name}),
+    h("div", {class:"v", text:String(c[l.id])}),
+    h("div", {class:"s", text: pool.length ? Math.round(c[l.id]/pool.length*100) + "% of questions" : ""}))));
+  v.append(tiles);
+
+  /* skills */
+  v.append(h("h3", {class:"sechead"}, "Interview skills ", h("small", {text:"From your last 20 answers"})));
+  const sk = skillStats();
+  v.append(h("div", {class:"list"}, sk.map(s => h("div", {class:"li"},
+    h("span", {class:"lic c-"+s.color, html:ic(s.icon)}),
+    h("div", {class:"lit"}, h("b", {text:s.name}), h("span", {text:s.tip}),
+      s.avg !== null ? h("div", {class:"bar"}, h("i", {style:{width:(s.avg*10)+"%", background:`var(--${LV[s.lvl].color})`}})) : null),
+    h("span", {class:"trail"}, h("span", {style:{color:`var(--${LV[s.lvl].color})`, fontWeight:600}, text: s.avg === null ? "Not started" : LV[s.lvl].name}), s.avg !== null ? h("span", {text: s.avg.toFixed(1)}) : null)))));
+
+  /* concepts (topics) */
+  v.append(h("h3", {class:"sechead"}, "Concepts ", h("small", {text: tried ? `${tried} of ${pool.length} questions attempted` : "Answer questions to start tracking"})));
+  const groups = {};
+  pool.forEach(q => { const k = q.topic || trackName(q.t); (groups[k] = groups[k] || []).push(q); });
+  const order = ["redo","work","close","new","mastered"];
+  const rows = Object.entries(groups).map(([name, qs]) => ({name, qs, c: mix(qs), lvl: topicLevel(mix(qs))}))
+    .filter(r => masteryLevel === "all" || r.c[masteryLevel] > 0)
+    .sort((a,b) => order.indexOf(a.lvl) - order.indexOf(b.lvl) || b.qs.length - a.qs.length);
+  const list = h("div", {class:"list"});
+  rows.forEach(r => {
+    const open = masteryOpen === r.name;
+    const t = r.qs[0].t; const [icon, col] = TRACK_STYLE[t] || ["list","c-gray"];
+    list.append(h("button", {class:"li", "aria-expanded": String(open), onclick:() => { masteryOpen = open ? null : r.name; render(); }},
+      h("span", {class:"lic "+col, html:ic(icon)}),
+      h("div", {class:"lit"}, h("b", {text:r.name}),
+        h("span", {text: `${r.c.mastered} mastered · ${r.c.close} close · ${r.c.work + r.c.redo} need work · ${r.c.new} new`}),
+        mixBar(r.c, r.qs.length)),
+      h("span", {class:"trail"}, h("span", {style:{color:`var(--${LV[r.lvl].color})`, fontWeight:600}, text: LV[r.lvl].name}), chevEl())));
+    if (open){
+      const qs = r.qs.filter(q => masteryLevel === "all" || levelOf(q.id) === masteryLevel)
+        .sort((a,b) => order.indexOf(levelOf(a.id)) - order.indexOf(levelOf(b.id))).slice(0, 60);
+      qs.forEach(q => list.append(questionRow(q, true)));
+      list.append(h("div", {class:"li"}, h("div", {class:"lit"}), h("button", {class:"btn tint", onclick:() => { drillConcept(r.name, r.qs); }, html: ic("mic") + "Drill this concept"})));
+    }
+  });
+  if (!rows.length) list.append(h("div", {class:"empty", text:"Nothing at this level yet."}));
+  v.append(list);
+}
+function drillConcept(name, qs){
+  const vine = qs.some(q => q.source === "vine");
+  if (vine && qs[0].topic){ bankFilter.topic = qs[0].topic; store.set("bankFilter", bankFilter); }
+  state.track = qs[0].t; store.set("track", state.track);
+  settings.order = "weak"; saveSettings();
+  state.view = "drill"; pickNext(); render();
+}
+function questionRow(q, withFlag){
+  const lv = levelOf(q.id), p = progress[q.id];
+  const last = p && p.scores.length ? p.scores.at(-1) : null;
+  const row = h("div", {class:"li qrow"},
+    h("span", {class:"status", style:{color:`var(--${LV[lv].color})`}, title: LV[lv].name, html: ic(lv==="mastered"?"check":lv==="close"?"half":lv==="new"?"list":"warn", "status")}),
+    h("button", {class:"lit", style:{all:"unset", cursor:"pointer", flex:1, minWidth:0}, onclick:() => { state.track = q.t; store.set("track", q.t); state.view = "drill"; showQuestion(q); window.scrollTo({top:0}); }},
+      h("b", {style:{display:"block", fontWeight:500, fontSize:"15px"}, text:q.q}),
+      h("span", {style:{display:"block", fontSize:"13px", color:"var(--label2)"}, text: [q.topic || trackName(q.t), q.l, firmTag(q)].filter(Boolean).join(" · ")})),
+    h("span", {class:"trail"}, last !== null ? h("span", {class:`score-chip sc-${band(last)}`, text: last + "/10"}) : null,
+      withFlag ? flagMenu(q) : chevEl()));
+  return row;
+}
+function flagMenu(q){
+  const cur = (progress[q.id]||{}).flag || "";
+  const s = h("select", {class:"selectbtn", "aria-label":"Set level", onchange:e => { setFlag(q.id, e.target.value || null); render(); }},
+    h("option", {value:"", text:"Auto"}), ...["mastered","close","work","redo"].map(k => h("option", {value:k, selected: cur===k, text:LV[k].name})));
+  s.addEventListener("click", e => e.stopPropagation());
+  return s;
+}
+
+/* ----- Bank ----- */
+function viewBank(v){
+  v.append(h("h1", {class:"largetitle", text:"Question bank"}));
+  const pool = filtered();
+  v.append(h("p", {class:"subtitle", text:`${pool.length.toLocaleString()} questions · ${pool.filter(q=>progress[q.id]).length} attempted`}));
+  const f = h("div", {class:"filters"});
+  if (HAS_VINE){
+    const seg = h("div", {class:"seg", role:"group", "aria-label":"Source"});
+    [["vine","IB Vine"],["original","Core drills"],["all","All"]].forEach(([k,n]) => seg.append(h("button", {"aria-pressed":String(bankFilter.source===k), onclick:() => { bankFilter.source = k; bankFilter.topic = ""; bankFilter.level = ""; applyFilters(); }, text:n})));
+    f.append(seg);
+  }
+  const topics = [...new Set(allQs().filter(q => bankFilter.source==="all" || (bankFilter.source==="vine" ? q.source==="vine" : q.source!=="vine")).map(q => q.topic).filter(Boolean))].sort();
+  if (topics.length) f.append(h("select", {class:"selectbtn", "aria-label":"Topic", onchange:e => { bankFilter.topic = e.target.value; applyFilters(); }}, h("option", {value:"", text:"All topics"}), ...topics.map(t => h("option", {value:t, selected: bankFilter.topic===t, text:t}))));
+  const levels = [...new Set(allQs().map(q => q.l).filter(Boolean))];
+  f.append(h("select", {class:"selectbtn", "aria-label":"Difficulty", onchange:e => { bankFilter.level = e.target.value; applyFilters(); }}, h("option", {value:"", text:"All levels"}), ...levels.map(l => h("option", {value:l, selected: bankFilter.level===l, text:l}))));
+  if (bankFilter.search) f.append(h("button", {class:"btn plain", onclick:() => { bankFilter.search = ""; $("sideSearch").value = ""; applyFilters(); }, html: ic("close") + `“${bankFilter.search}”`}));
+  v.append(f);
+  const list = h("div", {class:"list"});
+  pool.slice(0, state.bankShown).forEach(q => list.append(questionRow(q, true)));
+  if (!pool.length) list.append(h("div", {class:"empty", text:"No questions match these filters."}));
+  v.append(list);
+  if (pool.length > state.bankShown) v.append(h("div", {class:"row", style:{justifyContent:"center"}}, h("button", {class:"btn tint", onclick:() => { state.bankShown += 300; render(); }, text:`Show more (${(pool.length - state.bankShown).toLocaleString()} left)`})));
+}
+function applyFilters(){
+  store.set("bankFilter", bankFilter); state.bankShown = 150;
+  const pool = filtered(); if (!pool.some(q => q.t === state.track)) state.track = (pool[0]||{}).t || "acct";
+  state.current = null; render();
+}
+
+/* ----- Progress ----- */
+function viewProgress(v){
+  v.append(h("h1", {class:"largetitle", text:"Progress"}));
+  v.append(h("p", {class:"subtitle", text:"Your scores and habits over time."}));
+  const n = history.length;
+  const last20 = history.slice(-20);
+  const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : null;
+  const avgScore = avg(last20.map(x=>x.score));
+  const prev20 = history.slice(-40,-20); const prevAvg = avg(prev20.map(x=>x.score));
+  const days = [...new Set(history.map(x => new Date(x.ts).toDateString()))];
+  let streak = 0; { const d = new Date(); for (;;){ if (days.includes(d.toDateString())){ streak++; d.setDate(d.getDate()-1); } else if (streak === 0 && d.toDateString() === new Date().toDateString()){ d.setDate(d.getDate()-1); } else break; } }
+  const fill = avg(last20.filter(x=>x.words).map(x => x.fillers / x.words * 100));
+  v.append(h("div", {class:"tiles"},
+    tile("t-blue","chart","Answers graded", String(n), "all time"),
+    tile("t-pink","star","Average score", avgScore === null ? "–" : avgScore.toFixed(1), prevAvg !== null && avgScore !== null ? `${avgScore >= prevAvg ? "▲" : "▼"} ${Math.abs(avgScore-prevAvg).toFixed(1)} vs previous 20` : "last 20 answers"),
+    tile("t-orange","flame","Streak", String(streak), streak === 1 ? "day" : "days"),
+    tile("t-purple","bubble","Fillers", fill === null ? "–" : fill.toFixed(1), "per 100 words")));
+  if (n >= 2){
+    const pts = history.slice(-40).map(x => x.score);
+    const W = 600, H = 60, step = W / Math.max(1, pts.length-1);
+    const d = pts.map((s,i) => `${i?"L":"M"}${(i*step).toFixed(1)},${(H - 4 - s/10*(H-8)).toFixed(1)}`).join("");
+    v.append(h("section", {class:"card"}, h("div", {class:"chead"}, h("span", {class:"lbl t-pink", html: ic("chart") + "Score trend"}), h("span", {class:"aside", text:`Last ${pts.length} answers`})),
+      h("div", {html:`<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Score trend"><path d="${d}" fill="none" stroke="var(--pink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`})));
+  }
+  v.append(h("h3", {class:"sechead"}, "By topic"));
+  const pool = filtered();
+  v.append(h("div", {class:"list"}, TRACKS.map(t => {
+    const qs = pool.filter(q => q.t === t.id); if (!qs.length) return null;
+    const tried = qs.filter(q => progress[q.id] && progress[q.id].scores.length);
+    const a = avg(tried.map(q => progress[q.id].scores.at(-1)));
+    const [icon, col] = TRACK_STYLE[t.id] || ["list","c-gray"];
+    return h("button", {class:"li", onclick:() => { setTrack(t.id); go("drill"); }},
+      h("span", {class:"lic "+col, html:ic(icon)}),
+      h("div", {class:"lit"}, h("b", {text:t.name}), h("span", {text: `${tried.length} of ${qs.length} attempted`}), mixBar(mix(qs), qs.length)),
+      h("span", {class:"trail"}, a !== null ? h("span", {class:`score-chip sc-${band(a)}`, text: a.toFixed(1)}) : null, chevEl()));
+  })));
+  v.append(h("h3", {class:"sechead"}, "Recent answers"));
+  const recent = history.slice(-12).reverse();
+  const byId = Object.fromEntries(allQs().map(q => [q.id, q]));
+  v.append(h("div", {class:"list"}, recent.length ? recent.map(x => { const q = byId[x.id]; if (!q) return null;
+    return h("button", {class:"li qrow", onclick:() => { state.track = q.t; state.view = "drill"; showQuestion(q); }},
+      h("span", {class:"lic " + (x.score >= 8 ? "c-green" : x.score >= 6 ? "c-blue" : x.score >= 4 ? "c-orange" : "c-red"), html: ic("mic")}),
+      h("div", {class:"lit"}, h("b", {text:q.q}), h("span", {text: new Date(x.ts).toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}) + (x.fillers ? ` · ${x.fillers} fillers` : "")})),
+      h("span", {class:"trail"}, h("span", {class:`score-chip sc-${band(x.score)}`, text: x.score + "/10"}), chevEl())); }) : [h("div", {class:"empty", text:"Analyze your first answer to see it here."})]));
+}
+function tile(col, icon, k, val, sub){ return h("div", {class:"tile"}, h("div", {class:"k "+col, html: ic(icon) + k}), h("div", {class:"v", text:val}), h("div", {class:"s", text:sub})); }
+
+/* ---------- Settings sheet ---------- */
+function openSettings(){
+  closeDrawer();
+  const layer = $("layer");
+  const close = () => { layer.replaceChildren(); document.removeEventListener("keydown", esc); render(); };
+  const esc = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", esc);
+  const sw = (key, label) => { const id = "s-"+key; return h("div", {class:"setrow"}, h("label", {for:id, text:label}), h("input", {type:"checkbox", class:"switch", id, checked: !!settings[key], onchange:e => { settings[key] = e.target.checked; saveSettings(); }})); };
+  const sel = (key, label, opts, after) => { const id = "s-"+key; return h("div", {class:"setrow"}, h("label", {for:id, text:label}), h("select", {class:"selectbtn", id, onchange:e => { settings[key] = e.target.value; saveSettings(); after && after(); }}, ...opts.map(([v,n]) => h("option", {value:v, selected: settings[key]===v, text:n})))); };
+  const keyInput = h("input", {type:"password", id:"s-key", placeholder: sample ? "Not needed here" : "sk-ant-…", autocomplete:"off", value: apiKey});
+  const keyMsg = h("div", {class:"grpfoot"});
+  let armed = false;
+  const resetBtn = h("button", {class:"btn plain danger", onclick:() => {
+    if (!armed){ armed = true; resetBtn.textContent = "Tap again to erase all progress"; setTimeout(() => { armed = false; resetBtn.textContent = "Reset all progress"; }, 4000); return; }
+    progress = {}; history = []; store.set("progress", progress); store.set("history", history); resetBtn.textContent = "Progress cleared"; }, text:"Reset all progress"});
+  const sheet = h("div", {class:"sheet", role:"dialog", "aria-modal":"true", "aria-labelledby":"setTitle"},
+    h("div", {class:"sheethead"}, h("span"), h("b", {id:"setTitle", text:"Settings"}), h("button", {class:"tbtn", onclick:close, text:"Done", style:{fontWeight:600}})),
+    Cloud.enabled ? h("div", {class:"grphead", text:"Account"}) : null,
+    Cloud.enabled ? h("div", {class:"list grp"}, h("button", {class:"li", onclick:() => openAccount(Cloud.user ? "profile" : "signin")},
+      h("span", {class:"avatar" + (Cloud.user ? " on" : ""), style:{width:"29px", height:"29px", fontSize:"12px"}, html: Cloud.user ? initials(Cloud.name()) : ic("person")}),
+      h("div", {class:"lit"}, h("b", {text: Cloud.user ? Cloud.name() : "Sign in or create account"}), h("span", {text: Cloud.user ? Cloud.user.email : "Keep your progress on every device"})),
+      h("span", {class:"trail"}, chevEl()))) : null,
+    h("div", {class:"grphead", text:"Practice"}),
+    h("div", {class:"list grp"}, sw("autoGrade","Analyze when I stop recording"),
+      sel("strict","Interviewer style", [["standard","Standard analyst"],["tough","Tough MD"],["coach","Friendly coach"]])),
+    h("div", {class:"grphead", text:"Appearance"}),
+    h("div", {class:"list grp"}, sel("theme","Theme", [["system","Automatic"],["light","Light"],["dark","Dark"]], applyTheme)),
+    h("div", {class:"grphead", text:"Claude review (optional)"}),
+    h("div", {class:"list grp"},
+      sample ? h("div", {class:"setrow"}, h("label", {text:"Claude is connected through this page"}), h("span", {class:"ai-badge", html: ic("sparkles") + "On"})) :
+        h("div", {class:"setrow"}, h("label", {for:"s-key", text:"API key"}), keyInput),
+      sample ? null : sel("aiModel","Model", [["claude-opus-5-5","Claude Opus 5.5 (best)"],["claude-sonnet-5-5","Claude Sonnet 5.5 (faster)"],["claude-haiku-5-5","Claude Haiku 5.5 (cheapest)"]]),
+      sel("aiMode","When to review", [["auto","After every answer"],["manual","Only when I ask"]])),
+    sample ? null : keyMsg,
+    sample ? null : h("div", {class:"row", style:{margin:"8px 32px 0"}},
+      h("button", {class:"btn tint", onclick:() => { apiKey = keyInput.value.trim(); try{ apiKey ? localStorage.setItem("sdr:apikey", apiKey) : localStorage.removeItem("sdr:apikey"); }catch{} keyMsg.textContent = apiKey ? "Saved in this browser." : "Key removed."; }, html: ic("key") + "Save key"}),
+      h("button", {class:"btn plain", onclick: async () => { keyMsg.textContent = "Testing…"; apiKey = keyInput.value.trim(); try{ await callClaude('Return JSON with score 10, verdict "ok", empty arrays and empty strings for the rest.'); keyMsg.textContent = "Connected. Claude will review your answers."; }catch(e){ keyMsg.textContent = "That didn't work: " + (e.message || e.code || "network error"); } }, text:"Test"})),
+    sample ? null : h("div", {class:"grpfoot", text:"Without a key, the built-in coach grades everything on this device. With a key, Claude also gives an interviewer score, rewrites your answer and asks follow-ups. The key stays in this browser and is sent only to api.anthropic.com. Each review costs a few cents on your Anthropic account."}),
+    h("div", {class:"grphead", text:"Data"}),
+    h("div", {class:"list grp"}, h("div", {class:"setrow"}, h("label", {text: Cloud.user ? "Progress is saved to your account." : "Progress is saved in this browser only."}), resetBtn)),
+  );
+  layer.replaceChildren(h("div", {class:"scrim", onclick:e => { if (e.target === e.currentTarget) close(); }}, sheet));
+  sheet.querySelector("button").focus();
+}
+
+/* ---------- Accounts ---------- */
+const initials = n => (n||"?").split(/[\s@._-]+/).filter(Boolean).slice(0,2).map(w => w[0].toUpperCase()).join("") || "?";
+function syncLabel(){
+  const s = Cloud.status;
+  if (s === "error") return "Couldn't sync. Will retry";
+  if (s === "pending" || s === "saving") return "Saving…";
+  if (s === "loading") return "Loading your progress…";
+  if (Cloud.lastSync){ const m = Math.round((Date.now() - Cloud.lastSync)/60000); return m < 1 ? "Synced just now" : `Synced ${m} min ago`; }
+  return "Synced";
+}
+function renderAccountRow(){
+  const b = $("navAccount"); if (!b) return;
+  b.hidden = !Cloud.enabled; if (!Cloud.enabled) return;
+  b.replaceChildren();
+  if (Cloud.user){
+    b.append(h("span", {class:"avatar on", text: initials(Cloud.name())}),
+      h("span", {class:"who"}, h("b", {text: Cloud.name()}), h("small", null, h("span", {class:"syncdot " + Cloud.status}), syncLabel())));
+  } else {
+    b.append(h("span", {class:"avatar", html: ic("person")}), h("span", {class:"who"}, h("b", {text:"Sign in"}), h("small", {text:"Save progress to your account"})));
+  }
+}
+$("navAccount").onclick = () => openAccount(Cloud.user ? "profile" : "signin");
+setInterval(() => { if (Cloud.user) renderAccountRow(); }, 30000);
+
+function readGuest(){
+  const g = k => { try{ return JSON.parse(localStorage.getItem("sdr:"+k)); }catch{ return null; } };
+  return {progress: g("progress") || {}, history: g("history") || [], custom: g("custom") || []};
+}
+function clearGuest(){ try{ ["progress","history","custom"].forEach(k => localStorage.removeItem("sdr:"+k)); }catch{} }
+
+Cloud.on(e => {
+  if (e.type === "signin"){
+    acctPrefix = "sdr:u:" + e.user.id + ":"; loadAccountData();
+    try{ localStorage.setItem("sdr:welcomed", "1"); }catch{}
+    if ($("layer").querySelector("[data-auth]")) $("layer").replaceChildren();
+    render();
+  } else if (e.type === "remote"){
+    let local = {progress, history, custom};
+    if (e.first){
+      const guest = readGuest();
+      if (Object.keys(guest.progress).length || guest.history.length){ local = Cloud.merge(local, guest); clearGuest(); }
+    }
+    const remote = e.data || {};
+    const merged = Cloud.merge(remote, local);
+    writeAccountData(merged);
+    const changed = JSON.stringify(merged.history.length) !== JSON.stringify((remote.history||[]).length) || Object.keys(merged.progress).length !== Object.keys(remote.progress||{}).length;
+    if (changed || !e.data) Cloud.queueSave();
+    render();
+  } else if (e.type === "signout"){
+    acctPrefix = "sdr:"; loadAccountData(); state.current = null; render();
+  } else if (e.type === "recovery"){
+    openAccount("newpassword");
+  } else if (e.type === "ready"){
+    let seen = false; try{ seen = localStorage.getItem("sdr:welcomed") === "1"; }catch{}
+    if (!Cloud.user && !seen) openAccount("welcome");
+  }
+  renderAccountRow();
+});
+
+function openAccount(mode){
+  closeDrawer();
+  const layer = $("layer");
+  const close = () => { layer.replaceChildren(); document.removeEventListener("keydown", esc); try{ localStorage.setItem("sdr:welcomed","1"); }catch{} render(); };
+  const esc = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", esc);
+  const msg = h("div", {class:"authmsg", role:"status"});
+  const say = (t, good) => { msg.textContent = t; msg.className = "authmsg " + (good ? "good" : "bad"); };
+  const busy = (btn, on, label) => { btn.disabled = on; if (label) btn.textContent = label; };
+  const field = (type, ph, auto) => h("input", {class:"field", type, placeholder:ph, autocomplete:auto, "aria-label":ph, required:true});
+  const friendly = e => {
+    const m = (e && e.message) || "Something went wrong.";
+    if (/invalid login/i.test(m)) return "Wrong email or password.";
+    if (/email not confirmed/i.test(m)) return "Confirm your email first. Check your inbox for the link.";
+    if (/already registered|already exists/i.test(m)) return "That email already has an account. Sign in instead.";
+    if (/password/i.test(m) && /6|short|weak/i.test(m)) return "Use a password with at least 8 characters.";
+    if (/rate limit/i.test(m)) return "Too many tries. Wait a minute and try again.";
+    return m;
+  };
+  let body;
+  const head = (title) => h("div", {class:"sheethead"}, h("span"), h("b", {id:"acctTitle", text:title}), h("button", {class:"tbtn", onclick:close, text: mode === "welcome" ? "Not now" : "Done", style:{fontWeight:600}}));
+
+  if (mode === "profile" && Cloud.user){
+    const name = h("input", {class:"field", value: Cloud.name(), "aria-label":"Name", autocomplete:"name"});
+    const n = Object.keys(progress).length;
+    body = [head("Account"),
+      h("div", {class:"authhero"}, h("div", {class:"avatar big on", text: initials(Cloud.name())}), h("h2", {text: Cloud.name()}), h("p", {text: Cloud.user.email})),
+      h("div", {class:"grphead", text:"Profile"}),
+      h("div", {class:"authform"}, h("div", {class:"list"}, h("div", {class:"li"}, name))),
+      h("div", {class:"row", style:{margin:"0 32px"}}, h("button", {class:"btn tint", onclick: async ev => { const b = ev.currentTarget; busy(b, true); try{ await Cloud.updateName(name.value.trim()); say("Name saved.", true); renderAccountRow(); }catch(e){ say(friendly(e)); } busy(b, false); }, text:"Save name"})),
+      h("div", {class:"grphead", text:"Sync"}),
+      h("div", {class:"list grp"}, h("div", {class:"setrow"}, h("label", null, h("span", {class:"syncdot " + Cloud.status}), syncLabel()), h("span", {class:"t-gray", text: `${n} question${n===1?"":"s"} tracked`}))),
+      h("div", {class:"grpfoot", text:"Your progress follows you to any device where you sign in."}),
+      msg,
+      h("div", {class:"authactions"}, h("button", {class:"btn danger", onclick: async () => { await Cloud.signOut(); close(); }, text:"Sign out"}))];
+  } else if (mode === "newpassword"){
+    const pw = field("password", "New password", "new-password");
+    const go = h("button", {class:"btn fill lg", type:"submit", text:"Save new password"});
+    body = [head("New password"),
+      h("div", {class:"authhero"}, h("h2", {text:"Choose a new password"}), h("p", {text:"At least 8 characters."})),
+      h("form", {class:"authform", onsubmit: async e => { e.preventDefault(); if (pw.value.length < 8) return say("Use at least 8 characters."); busy(go, true); try{ await Cloud.setPassword(pw.value); say("Password updated. You're signed in.", true); setTimeout(close, 900); }catch(err){ say(friendly(err)); } busy(go, false); }},
+        h("div", {class:"list"}, h("div", {class:"li"}, pw)), msg, h("div", {class:"authactions"}, go))];
+  } else {
+    let tab = mode === "signup" ? "signup" : "signin";
+    if (mode === "reset") tab = "reset";
+    const name = field("text", "Name", "name"), email = field("email", "Email", "email"), pw = field("password", "Password", tab === "signup" ? "new-password" : "current-password");
+    name.required = false;
+    const go = h("button", {class:"btn fill lg", type:"submit"});
+    const seg = h("div", {class:"seg", role:"group", "aria-label":"Account", style:{display:"grid", margin:"4px 16px 14px"}});
+    const paint = () => {
+      seg.replaceChildren(...[["signin","Sign in"],["signup","Create account"]].map(([k,n]) => h("button", {type:"button", "aria-pressed": String(tab===k), onclick:() => { tab = k; msg.textContent = ""; paint(); }, text:n})));
+      seg.hidden = tab === "reset";
+      nameRow.hidden = tab !== "signup"; pwRow.hidden = tab === "reset";
+      pw.autocomplete = tab === "signup" ? "new-password" : "current-password";
+      go.textContent = tab === "signup" ? "Create account" : tab === "reset" ? "Email me a reset link" : "Sign in";
+      forgot.hidden = tab !== "signin";
+      back.hidden = tab !== "reset";
+    };
+    const nameRow = h("div", {class:"li"}, name), pwRow = h("div", {class:"li"}, pw);
+    const forgot = h("button", {type:"button", class:"btn plain", onclick:() => { tab = "reset"; msg.textContent = ""; paint(); }, text:"Forgot password?"});
+    const back = h("button", {type:"button", class:"btn plain", onclick:() => { tab = "signin"; msg.textContent = ""; paint(); }, text:"Back to sign in"});
+    const submit = async e => {
+      e.preventDefault();
+      const em = email.value.trim();
+      if (!/^\S+@\S+\.\S+$/.test(em)) return say("Enter a valid email.");
+      if (tab !== "reset" && pw.value.length < (tab === "signup" ? 8 : 1)) return say(tab === "signup" ? "Use a password with at least 8 characters." : "Enter your password.");
+      busy(go, true);
+      try{
+        if (tab === "signin"){ await Cloud.signIn(em, pw.value); say("Signed in.", true); }
+        else if (tab === "signup"){ const r = await Cloud.signUp(em, pw.value, name.value.trim()); if (r.needsConfirm) say("Check your email and tap the link to confirm, then sign in here.", true); else say("Account created.", true); }
+        else { await Cloud.reset(em); say("If that email has an account, a reset link is on its way.", true); }
+      }catch(err){ say(friendly(err)); }
+      busy(go, false); paint();
+    };
+    body = [head(mode === "welcome" ? "Welcome" : "Account"),
+      h("div", {class:"authhero"}, h("div", {class:"avatar big", html: ic("person")}),
+        h("h2", {text: mode === "welcome" ? "Save your progress" : "Sign in to sync"}),
+        h("p", {text:"Create a free account to keep your scores and mastery on every device."})),
+      seg,
+      h("form", {class:"authform", onsubmit: submit, novalidate:true}, h("div", {class:"list"}, nameRow, h("div", {class:"li"}, email), pwRow), msg,
+        h("div", {class:"authactions"}, go, h("div", {class:"row", style:{justifyContent:"center"}}, forgot, back),
+          mode === "welcome" ? h("button", {type:"button", class:"btn plain", onclick: close, text:"Continue without an account"}) : null))];
+    paint();
+  }
+  const sheet = h("div", {class:"sheet", role:"dialog", "aria-modal":"true", "aria-labelledby":"acctTitle", "data-auth":""}, ...body);
+  layer.replaceChildren(h("div", {class:"scrim", onclick:e => { if (e.target === e.currentTarget) close(); }}, sheet));
+  const f = sheet.querySelector("input:not([hidden])"); if (f && mode !== "profile") setTimeout(() => f.focus(), 50);
+}
+
+/* ---------- Keyboard ---------- */
+document.addEventListener("keydown", e => {
+  const typing = /INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName || "");
+  if (typing || e.metaKey || e.ctrlKey || e.altKey || $("layer").children.length) return;
+  if ((state.view === "drill" || state.view === "mock") && e.key === " " && $("recBtn")){ e.preventDefault(); mic.on ? stopMic() : startMic(); }
+  if ((state.view === "drill") && e.key.toLowerCase() === "n"){ pickNext(); }
+});
+
+/* ---------- Boot ---------- */
+if (!TRACKS.some(t => t.id === state.track)) state.track = "acct";
+if (!filtered().some(q => q.t === state.track)) state.track = (filtered()[0]||{}).t || "acct";
+const first = filtered().find(q => q.t === state.track && !progress[q.id]) || filtered().find(q => q.t === state.track);
+if (first) showQuestion(first, {render:false, speak:false});   // browsers block speech before a tap
+render();
+})();
+
+</script>
+</body>
+</html>
