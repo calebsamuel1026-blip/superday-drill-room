@@ -30,4 +30,5 @@ for f in SITE.rglob("*"):
     if f.is_file() and ".git" not in f.parts and f.name not in ("build.py", "make_site.py"):
         text = f.read_text(encoding="utf-8", errors="ignore")
         assert "iv-t-" not in text and "iv-b-" not in text and "ibvine" not in text.lower(), f"IB Vine content found in {f}"
+        assert '"source":"biws"' not in text and "bw-accounting-" not in text and "breakingintowallstreet" not in text.lower(), f"BIWS content found in {f}"
 print(f"site ready at {SITE}")

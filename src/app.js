@@ -94,18 +94,22 @@ const saveSettings = () => store.set("settings", settings);
 const bankFilter = Object.assign({source:"vine", topic:"", level:"", search:""}, store.get("bankFilter", {}));
 const HAS_VINE = typeof VINE_BANK !== "undefined" && VINE_BANK.length > 0;
 const VINE = HAS_VINE ? VINE_BANK : [];
-if (!HAS_VINE && bankFilter.source === "vine") bankFilter.source = "original";
+const HAS_BIWS = typeof BIWS_BANK !== "undefined" && BIWS_BANK.length > 0;
+const BIWS = HAS_BIWS ? BIWS_BANK : [];
+if ((!HAS_VINE && bankFilter.source === "vine") || (!HAS_BIWS && bankFilter.source === "biws")) bankFilter.source = "original";
+const BIWS_GUIDES = {accounting:"BIWS Accounting guide", ev:"BIWS Equity & Enterprise Value guide", dcf:"BIWS Valuation & DCF guide", merger:"BIWS Merger Model guide", lbo:"BIWS LBO guide"};
+const sourceOk = q => bankFilter.source === "all" || (bankFilter.source === "original" ? q.source !== "vine" && q.source !== "biws" : q.source === bankFilter.source);
 let apiKey = (() => { try{ return localStorage.getItem("sdr:apikey") || ""; }catch{ return ""; } })();
 
 function applyTheme(){ if (settings.theme === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = settings.theme; }
 applyTheme();
 
 /* ---------- Question pool ---------- */
-const allQs = () => BANK.concat(VINE, custom);
+const allQs = () => BANK.concat(VINE, BIWS, custom);
 function filtered(){
   const query = (bankFilter.search||"").trim().toLowerCase();
   return allQs().filter(q =>
-    (bankFilter.source === "all" || (bankFilter.source === "vine" ? q.source === "vine" : q.source !== "vine")) &&
+    sourceOk(q) &&
     (!bankFilter.topic || q.topic === bankFilter.topic) &&
     (!bankFilter.level || q.l === bankFilter.level) &&
     (!query || [q.q, q.topic, ...(q.tags||[])].join(" ").toLowerCase().includes(query)));
@@ -465,6 +469,7 @@ function viewDrill(v){
   const meta = h("div", {class:"qmeta"},
     h("span", {class:"tag accent", text: q.topic || trackName(q.t)}),
     q.l ? h("span", {class:"tag", text:q.l}) : null,
+    q.section ? h("span", {class:"tag", text:q.section}) : null,
     firmTag(q) ? h("span", {class:"tag firm", text: firmTag(q)}) : null,
     h("span", {class:"tag", style:{color:`var(--${LV[lv].color})`}, text: p && p.scores.length ? `${LV[lv].name} · best ${Math.max(...p.scores)}/10` : LV[lv].name}));
   card.append(meta, h("h2", {class:"qtext", id:"qText", text:q.q}));
@@ -624,9 +629,21 @@ function viewReport(q, rep){
   wrap.append(h("section", {class:"card"}, h("div", {class:"quote", text: improved}), h("div", {class:"row", style:{marginTop:"10px"}},
     h("button", {class:"btn tint", onclick:e => copyText(improved, e.currentTarget), html: ic("copy") + "Copy"}))));
   const model = ai ? ai.model_answer : rep.model;
-  if (model){
+  if (q.answer && q.answer.length){
+    wrap.append(h("h3", {class:"sechead"}, "Guide answer", h("small", {text: q.ref ? `${BIWS_GUIDES[q.ref.guide] || "Guide"}, page ${q.ref.page}` : ""})));
+    wrap.append(h("section", {class:"card"}, ...q.answer.map(p => h("p", {class:"quote", style:{margin:"0 0 10px"}, text:p}))));
+  }
+  if (model && !(q.answer && q.answer.length && !ai)){
     wrap.append(h("h3", {class:"sechead"}, rep.beh && !ai ? "What a strong answer includes" : "Model answer"));
     wrap.append(h("section", {class:"card"}, h("div", {class:"quote", text:model})));
+  }
+  if (q.study){
+    const more = h("div", {hidden:true}, h("p", {class:"quote", style:{whiteSpace:"pre-wrap", margin:"10px 0 0"}, text:q.study.excerpt + (q.study.excerpt.length >= 700 ? "…" : "")}));
+    wrap.append(h("h3", {class:"sechead"}, "Study it", h("small", {text:"Where the guide teaches this"})));
+    wrap.append(h("section", {class:"card"},
+      h("div", null, h("b", {text:`${BIWS_GUIDES[q.study.guide] || "Guide"}, page ${q.study.page}`}), q.study.title ? h("span", {class:"t-gray", text:" · " + q.study.title}) : null),
+      h("div", {class:"row", style:{marginTop:"8px"}}, h("button", {class:"btn tint", onclick:e => { more.hidden = !more.hidden; e.currentTarget.textContent = more.hidden ? "Show the page" : "Hide the page"; }, text:"Show the page"})),
+      more));
   }
 
   /* mastery override + actions */
@@ -700,7 +717,7 @@ function startMock(){
   const take = (t,n) => shuffle(pool.filter(q=>q.t===t)).slice(0,n);
   let qs = [...take("beh",1), ...take("acct",2), ...take("val",1), ...take("deal",1), ...take("beh",1)];
   const intro = BANK.find(q => q.id === "b1");
-  if (intro && bankFilter.source !== "vine") qs.unshift(intro);
+  if (intro && (bankFilter.source === "original" || bankFilter.source === "all")) qs.unshift(intro);
   qs = qs.filter((q,i,a) => q && a.findIndex(x => x.id === q.id) === i).slice(0,7);
   if (qs.length < 2) qs = shuffle(pool).slice(0,6);
   state.mock = {qs, i:0, results:[], done:false};
@@ -786,7 +803,7 @@ function viewMastery(v){
   v.append(list);
 }
 function drillConcept(name, qs){
-  const vine = qs.some(q => q.source === "vine");
+  const vine = qs.some(q => q.source === "vine" || q.source === "biws");
   if (vine && qs[0].topic){ bankFilter.topic = qs[0].topic; store.set("bankFilter", bankFilter); }
   state.track = qs[0].t; store.set("track", state.track);
   settings.order = "weak"; saveSettings();
@@ -818,12 +835,12 @@ function viewBank(v){
   const pool = filtered();
   v.append(h("p", {class:"subtitle", text:`${pool.length.toLocaleString()} questions · ${pool.filter(q=>progress[q.id]).length} attempted`}));
   const f = h("div", {class:"filters"});
-  if (HAS_VINE){
+  if (HAS_VINE || HAS_BIWS){
     const seg = h("div", {class:"seg", role:"group", "aria-label":"Source"});
-    [["vine","IB Vine"],["original","Core drills"],["all","All"]].forEach(([k,n]) => seg.append(h("button", {"aria-pressed":String(bankFilter.source===k), onclick:() => { bankFilter.source = k; bankFilter.topic = ""; bankFilter.level = ""; applyFilters(); }, text:n})));
+    [HAS_VINE && ["vine","IB Vine"], HAS_BIWS && ["biws","BIWS guides"], ["original","Core drills"], ["all","All"]].filter(Boolean).forEach(([k,n]) => seg.append(h("button", {"aria-pressed":String(bankFilter.source===k), onclick:() => { bankFilter.source = k; bankFilter.topic = ""; bankFilter.level = ""; applyFilters(); }, text:n})));
     f.append(seg);
   }
-  const topics = [...new Set(allQs().filter(q => bankFilter.source==="all" || (bankFilter.source==="vine" ? q.source==="vine" : q.source!=="vine")).map(q => q.topic).filter(Boolean))].sort();
+  const topics = [...new Set(allQs().filter(sourceOk).map(q => q.topic).filter(Boolean))].sort();
   if (topics.length) f.append(h("select", {class:"selectbtn", "aria-label":"Topic", onchange:e => { bankFilter.topic = e.target.value; applyFilters(); }}, h("option", {value:"", text:"All topics"}), ...topics.map(t => h("option", {value:t, selected: bankFilter.topic===t, text:t}))));
   const levels = [...new Set(allQs().map(q => q.l).filter(Boolean))];
   f.append(h("select", {class:"selectbtn", "aria-label":"Difficulty", onchange:e => { bankFilter.level = e.target.value; applyFilters(); }}, h("option", {value:"", text:"All levels"}), ...levels.map(l => h("option", {value:l, selected: bankFilter.level===l, text:l}))));
