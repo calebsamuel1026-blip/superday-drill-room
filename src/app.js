@@ -91,7 +91,7 @@ function writeAccountData(d){
 if (typeof Cloud !== "undefined") Cloud.setSnapshot(() => ({progress, history, custom}));
 const settings = Object.assign({autoGrade:false, voice:"", strict:"standard", theme:"system", aiMode:"auto", aiModel:"claude-opus-5-5", order:"smart"}, store.get("settings", {}));
 const saveSettings = () => store.set("settings", settings);
-const bankFilter = Object.assign({source:"vine", topic:"", level:"", search:""}, store.get("bankFilter", {}));
+const bankFilter = Object.assign({source:"all", topic:"", level:"", search:""}, store.get("bankFilter", {}));
 const HAS_VINE = typeof VINE_BANK !== "undefined" && VINE_BANK.length > 0;
 const VINE = HAS_VINE ? VINE_BANK : [];
 const HAS_BIWS = typeof BIWS_BANK !== "undefined" && BIWS_BANK.length > 0;
@@ -329,6 +329,12 @@ function renderNav(){
     n.id === "mastery" && redo ? h("span", {class:"cnt badge", text:String(redo)}) : null)));
   const t = $("navTopics"); t.replaceChildren();
   const pool = filtered();
+  if (HAS_VINE || HAS_BIWS){
+    const opts = [HAS_VINE && ["vine","IB Vine"], HAS_BIWS && ["biws","BIWS guides"], ["original","Core drills"], ["all","All questions"]].filter(Boolean);
+    t.append(h("select", {class:"selectbtn", "aria-label":"Question source", style:{margin:"0 8px 6px", width:"calc(100% - 16px)"},
+      onchange:e => { bankFilter.source = e.target.value; bankFilter.topic = ""; bankFilter.level = ""; applyFilters(); }},
+      ...opts.map(([k,n]) => h("option", {value:k, selected: bankFilter.source===k, text:`${n} (${allQs().filter(q => k==="all" || (k==="original" ? q.source!=="vine" && q.source!=="biws" : q.source===k)).length.toLocaleString()})`}))));
+  }
   TRACKS.forEach(tr => {
     const qs = pool.filter(q => q.t === tr.id); if (!qs.length) return;
     const c = mix(qs); const done = c.mastered;
