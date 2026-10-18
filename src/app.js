@@ -196,7 +196,7 @@ The answer came from speech-to-text, so ignore spelling and punctuation and obvi
 QUESTION (${q.l || "general"}, ${beh ? "behavioral/fit" : "technical"}): ${q.q}
 ANSWER KEY (points a strong answer covers):
 ${(q.k||[]).map(k=>"- "+k).join("\n") || "- (none given; use expert judgment)"}
-TARGET LENGTH: about ${q.s||60} seconds. ACTUAL: ${secs ? secs+" seconds" : "unknown"}, ${local.stats.words} words.
+${q.answer && q.answer.length ? `FULL REFERENCE ANSWER (from the study guide):\n${q.answer.join("\n").slice(0, 3000)}\n` : ""}${local.corrections.length ? `POSSIBLE ERRORS FLAGGED BY AN AUTOMATED CHECK (verify each; drop any that are wrong):\n${local.corrections.map(c => "- " + c).join("\n")}\n` : ""}TARGET LENGTH: about ${q.s||60} seconds. ACTUAL: ${secs ? secs+" seconds" : "unknown"}, ${local.stats.words} words.
 AUTOMATED DELIVERY CHECK: ${local.stats.fillers} filler words, ${local.stats.hedges} hedges${local.stats.wpm ? ", "+local.stats.wpm+" wpm" : ""}.
 ${beh ? "For behavioral answers judge structure (STAR for stories), specificity, ownership (\"I\" not \"we\"), authenticity, concision and whether it would persuade a banker. The candidate's personal facts are theirs; don't penalize what you can't verify, and don't invent facts in rewrites." : "For technical answers any factual error or wrong number is a major deduction. Check every number and direction (up/down) they say."}
 
@@ -561,6 +561,13 @@ function viewReport(q, rep){
     metricsRow(rep));
   wrap.append(sum);
 
+  /* next try: the three changes that would move the score most */
+  if (rep.plan && rep.plan.length && score < 9){
+    wrap.append(h("section", {class:"card", "aria-label":"Your next try"},
+      h("b", {text:"Your next try"}),
+      h("ol", {style:{margin:"8px 0 0", paddingLeft:"20px", lineHeight:"1.6"}}, rep.plan.map(p => h("li", {text:p.title})))));
+  }
+
   /* AI layer */
   const aiBox = h("div", {id:"aiBox"}); wrap.append(aiBox); paintAI(aiBox);
 
@@ -568,7 +575,9 @@ function viewReport(q, rep){
   const corr = ai && ai.corrections && ai.corrections.length ? ai.corrections : rep.corrections;
   if (corr.length){
     wrap.append(h("h3", {class:"sechead"}, "What you got wrong"));
-    wrap.append(h("div", {class:"list"}, corr.map(c => h("div", {class:"li"}, h("span", {class:"lic c-red", html:ic("xmark")}), h("div", {class:"lit"}, h("b", {text:c}))))));
+    const saidFor = c => (corr === rep.corrections && rep.said && rep.said[c]) ? rep.said[c] : null;
+    wrap.append(h("div", {class:"list"}, corr.map(c => h("div", {class:"li"}, h("span", {class:"lic c-red", html:ic("xmark")}),
+      h("div", {class:"lit"}, saidFor(c) ? h("span", {text:`You said: “${saidFor(c)}”`}) : null, h("b", {text:c}))))));
   }
 
   /* top fixes */
@@ -579,7 +588,7 @@ function viewReport(q, rep){
     const tagIcon = {Content:"list", Structure:"text", Story:"person", Concision:"scissors", Delivery:"bubble", Wording:"quote"};
     wrap.append(h("div", {class:"list"}, fixes.slice(0, 8).map(f => h("div", {class:"li"},
       h("span", {class:"lic " + sevCol(f.sev), html: ic(tagIcon[f.tag] || "warn")}),
-      h("div", {class:"lit"}, h("b", {text:f.title}), h("span", {text:f.body})),
+      h("div", {class:"lit"}, h("b", {text:f.title}), h("span", {style:{whiteSpace:"pre-line"}, text:f.body})),
       h("span", {class:"trail", text:f.tag})))));
   }
 
@@ -589,7 +598,7 @@ function viewReport(q, rep){
     wrap.append(h("h3", {class:"sechead"}, "Key points ", h("small", {text:`${hit} of ${rep.coverage.length} covered`})));
     const icons = {hit:["check","t-green","Covered"], partial:["half","t-orange","Partly covered"], miss:["xmark","t-red","Missed"]};
     wrap.append(h("div", {class:"list noicon pts"}, rep.coverage.map(p => { const [i,c,lbl] = icons[p.status];
-      return h("div", {class:"li"}, h("span", {class:"status "+c, title:lbl, html: ic(i, "status")}), h("div", {class:"lit"}, h("b", {text:p.text}), p.status === "partial" ? h("span", {text: missingText(p)}) : null)); })));
+      return h("div", {class:"li"}, h("span", {class:"status "+c, title:lbl, html: ic(i, "status")}), h("div", {class:"lit"}, h("b", {text:p.text}), p.status !== "hit" ? h("span", {text: missingText(p)}) : null)); })));
   }
 
   /* strengths */
@@ -669,6 +678,7 @@ function viewReport(q, rep){
 }
 const TERM = {da:"D&A", ppe:"PP&E", ar:"accounts receivable", ap:"accounts payable", accrued:"accrued expenses", deferredrevenue:"deferred revenue", dtl:"deferred tax liability", dta:"deferred tax asset", nol:"NOLs", netincome:"net income", incomestatement:"income statement", balancesheet:"balance sheet", cfs:"cash flow statement", cfo:"cash flow from operations", cfi:"cash flow from investing", cff:"cash flow from financing", shequity:"shareholders' equity", retainedearnings:"retained earnings", apic:"APIC", treasury:"treasury stock", sbc:"stock-based comp", capex:"CapEx", nwc:"working capital", cogs:"COGS", sga:"SG&A", ebitda:"EBITDA", ebit:"EBIT / operating income", ev:"enterprise value", equityvalue:"equity value", wacc:"WACC", costequity:"cost of equity", costdebt:"cost of debt", capm:"CAPM", erp:"equity risk premium", riskfree:"risk-free rate", fcf:"free cash flow", terminalvalue:"terminal value", gordon:"perpetuity growth", exitmultiple:"exit multiple", dcf:"DCF", lbo:"LBO", irr:"IRR", moic:"MoIC", mna:"M&A", pe:"P/E", eps:"EPS", nopat:"NOPAT", comps:"comparable companies", precedents:"precedent transactions", sourcesuses:"sources & uses", nci:"noncontrolling interest", preferred:"preferred stock", goodwill:"goodwill", intangibles:"intangibles", interestexpense:"interest expense", dividend:"dividends", revolver:"revolver", synergy:"synergies", accretive:"accretion", dilutive:"dilution", pretax:"pre-tax income"};
 function missingText(p){
+  if (p.missWords && p.missWords.length) return "Missing: " + p.missWords.slice(0,5).join(", ");
   const terms = p.miss.filter(t => TERM[t] || /^\d/.test(t)).map(t => TERM[t] || t);
   return terms.length ? "Missing: " + [...new Set(terms)].slice(0,5).join(", ") : "Add the specifics from this point.";
 }
