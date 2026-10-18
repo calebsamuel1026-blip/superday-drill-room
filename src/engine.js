@@ -508,9 +508,26 @@ function analyze(q, answer, seconds){
   delivery -= Math.min(1.5, wording.length * 0.25);
   delivery = clamp(Math.round(delivery));
 
+  // Structure, delivery, concision and accuracy only count when there's a real
+  // answer to judge. "No mistakes" in two sentences isn't a 10 — cap each one
+  // by how much substance the answer actually has.
+  const lenFactor = clamp(words / (targetWords * 0.35), 0, 1);
+  const contentFactor = clamp(content / 6, 0, 1);
+  const substance = contentFactor * (0.5 + 0.5 * lenFactor);
+  const cap = Math.round(2 + 8 * substance);
+  structure = Math.min(structure, cap);
+  concision = Math.min(concision, cap);
+  delivery = Math.min(delivery, cap);
+  let accuracyOut = accuracy;
+  if (!beh){
+    if ((contentRatio ?? 0) < 0.15 && !uniqCorr.length) accuracyOut = null;   // too little said to judge
+    else if (!uniqCorr.length) accuracyOut = Math.min(accuracy, cap);
+  }
+  const accuracyForScore = accuracyOut ?? 0;
+
   let overall = beh
     ? content*0.30 + structure*0.30 + concision*0.15 + delivery*0.25
-    : content*0.50 + accuracy*0.20 + structure*0.10 + concision*0.10 + delivery*0.10;
+    : content*0.50 + accuracyForScore*0.20 + structure*0.10 + concision*0.10 + delivery*0.10;
   if (uniqCorr.length) overall = Math.min(overall, 6 - (uniqCorr.length-1));
   if (words < 12) overall = Math.min(overall, 2);
   if (beh){
@@ -525,6 +542,9 @@ function analyze(q, answer, seconds){
   const fixes = [];
   const add = (sev, title, body, tag) => fixes.push({sev, title, body, tag});
   uniqCorr.forEach(c => add(5, "Factual error", c, "Accuracy"));
+  if (substance < 0.35 && words >= 3) add(5, "Not enough of an answer yet",
+    beh ? "There isn't a real example or story here yet, so structure and delivery can't score well. Use the hint, pick one concrete experience, and walk through it."
+        : "This doesn't cover the key points, so there's nothing to give structure, delivery or accuracy credit for. Tap Hint to see what to cover, then answer again.", "Content");
   const missed = cov.filter(p=>p.status==="miss"), partial = cov.filter(p=>p.status==="partial");
   if (missed.length) add(4, `You missed ${missed.length} key point${missed.length>1?"s":""}`, missed.slice(0,3).map(p=>p.label).join(" · "), "Content");
   if (partial.length) add(2, "Go one level deeper", `You touched on ${partial.slice(0,2).map(p=>"“"+p.label+"”").join(" and ")} but left out the specifics.`, "Content");
@@ -570,7 +590,7 @@ function analyze(q, answer, seconds){
 
   return {
     overall, verdict, beh,
-    scores: {content, accuracy, structure, concision, delivery},
+    scores: {content, accuracy: accuracyOut, structure, concision, delivery}, substance,
     coverage: cov, corrections: uniqCorr, fixes, strengths,
     stats: {words, targetWords, target, secs, wpm, fillers: fillers.length, hedges: hedges.length, fillerRate: +fillerRate.toFixed(1), sentences: sents.length, longest: Math.max(0, ...sents.map(wc))},
     marks: {fillers, hedges, wording, offTopic, reps},
