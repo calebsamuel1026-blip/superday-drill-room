@@ -568,17 +568,119 @@ function behavioralChecks(q, answer, norm){
 }
 
 /* ---------- Model answer from the key ---------- */
+// The model answer is what to SAY: full spoken sentences in order, not the key's shorthand.
+// "IS: Operating Income down $10, Net Income down $6 (10 × (1 – 40%))" becomes
+// "On the income statement, operating income goes down by $10 and net income goes down by $6, because 10 times (1 minus 40%) is 6."
+const LABELS = [
+  [/^(?:IS|Income Statement)\s*[:–—-]\s*/i, "On the income statement, "],
+  [/^(?:CFS|SCF|Cash Flow Statement)\s*[:–—-]\s*/i, "On the cash flow statement, "],
+  [/^(?:BS|Balance Sheet)\s*[:–—-]\s*/i, "On the balance sheet, "],
+  [/^CFO\s*[:–—-]\s*/i, "In cash flow from operations, "], [/^CFI\s*[:–—-]\s*/i, "In cash flow from investing, "], [/^CFF\s*[:–—-]\s*/i, "In cash flow from financing, "],
+  [/^SE\s*:\s*/, "In shareholders' equity, "],
+  [/^(?:Answer|Part \d+|Step \d+|Key point|Bottom line)\s*:\s*/i, ""],
+  [/^Note\s*:\s*/i, "One more thing: "], [/^Examples?\s*:\s*/i, "For example, "], [/^Intuition\s*:\s*/i, "The intuition is that "],
+  [/^Formula\s*:\s*/i, "The formula is "], [/^Net effect\s*:\s*/i, "The net effect is that "], [/^Your view\s*:\s*/i, "My view is that "],
+  [/^Pros\s*:\s*/i, "The pros are "], [/^Cons\s*:\s*/i, "The cons are "], [/^Downside\s*:\s*/i, "The downside is "], [/^Upside\s*:\s*/i, "The upside is "],
+  [/^Strategic rationale\s*:\s*/i, "The strategic rationale is "], [/^Follow-?up(?: \d+)?\s*:\s*/i, "If they follow up: "],
+];
+const IMPERATIVE = /^(?:Project|Calculate|Discount|Bridge|Divide|Add|Subtract|Take|Use|Start|Find|Pick|Compare|Apply|Determine|Estimate|Look|Check|Multiply|Sum|Build|Run|Screen|Select|Forecast|Model|Assume|Adjust|Deduct|Record|Reflect|Move|Get|Back out|Plug|Allocate|Remove|Exclude|Include|Combine|Show|Set|Choose|Identify|Value|Create|Raise|Pay|Repay|Refinance|Issue)\b/;
+const THIRD = /^(?:Reduces|Increases|Shows|Gives|Allows|Lets|Makes|Helps|Measures|Represents|Includes|Reflects|Lowers|Raises|Boosts|Magnifies|Captures|Ignores|Omits|Assumes|Requires|Depends|Creates|Provides|Excludes|Means|Leads|Drives|Affects|Impacts|Tells|Varies)\b/;
+function spoken(line){
+  let s = line.replace(/\s+/g, " ").trim().replace(/[.;]+$/, "");
+  for (const [re, rep] of LABELS) if (re.test(s)){ s = s.replace(re, rep); break; }
+  // "Income Statement – Shows revenues" -> "The income statement shows revenues"
+  s = s.replace(/^([A-Z][\w&' ]{2,40}?) [–—-] ([A-Z][a-z]+s)\b/, (m, a, v) => `The ${a.toLowerCase()} ${v.toLowerCase()}`);
+  // "Growth: faster than organic" -> "For growth, faster than organic"
+  s = s.replace(/^([A-Z][\w&'\/ -]{1,32}):\s+/, (m, a) => a.split(" ").length <= 4 ? `For ${/^[A-Z]{2,}|\//.test(a) ? a : a.toLowerCase()}, ` : m);
+  // signed amounts and math symbols, said out loud
+  s = s.replace(/(^|[\s(,])[–—−]\s?\$(\d)/g, "$1down $$$2").replace(/(^|[\s(,])\+\s?\$(\d)/g, "$1up $$$2")
+       .replace(/(\d)[–—-](\d)/g, "$1 to $2")                                   // "5–10 years" -> "5 to 10 years"
+       .replace(/\(([^()]*[×=+][^()]*|[^()]*\([^()]*\)[^()]*)\)/g, m => m.replace(/\s[–—−-]\s/g, " minus ").replace(/\s\+\s/g, " plus "))
+       .replace(/\s*×\s*/g, " times ").replace(/(\d|\))\s+[–—−]\s+(?=\(?\$?\d)/g, "$1 minus ").replace(/\s*=\s*/g, " equals ")
+       .replace(/\s*÷\s*/g, " divided by ").replace(/\s*≈\s*/g, " about ").replace(/\s[–—]\s/g, ", ");
+  // "Net Income down $6" -> "net income goes down by $6"
+  s = s.replace(/\b([A-Za-z][\w&' ]{1,30}?) (up|down) \$(\d[\d,.]*)/g, (m, item, dir, n) => /\b(?:goes|is|was|are|go|by|cash|and)$/.test(item) ? m : `${item} goes ${dir} by $${n}`);
+  // a parenthetical calculation becomes a spoken "because…"
+  s = s.replace(/\s*\(([^()]*\d[^()]*(?:\([^()]*\)[^()]*)*)\)\s*$/, (m, calc) => /times|minus|equals|divided|percent|%/.test(calc) ? `, because ${calc.trim()}` : m);
+  if (IMPERATIVE.test(s)) s = "you " + s.charAt(0).toLowerCase() + s.slice(1);
+  else if (THIRD.test(s)) s = "it " + s.charAt(0).toLowerCase() + s.slice(1);
+  return s;
+}
+const lowerFirst = s => /^(?:[A-Z]{2,}|I\b|[A-Z][a-z]*[A-Z])/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1);
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const NUM = ["zero","one","two","three","four","five","six","seven","eight"];
+
+function behavioralScript(q, points){
+  const raw = (q.k || []).map(k => String(k).trim());
+  // A sample answer in the key is exactly what to say.
+  const ex = raw.map(k => k.match(/^(?:example|sample answer|e\.g\.)\s*:?\s*"?(.+?)"?$/i)).find(Boolean);
+  const tips = points.map(p => p.text.replace(/\s+/g," ").replace(/\.$/,"")).filter(t => !/^(?:star(?: structure)?|use star)$/i.test(t));
+  const qq = q.q.toLowerCase();
+  let script;
+  if (ex) script = ex[1].replace(/^"|"$/g, "");
+  else if (STORY_Q.test(q.q)) script = [
+    "Last [semester / summer], when I was [your role] at [club, job or class], [one line on what was going on].",
+    "The challenge was [what had to happen, and why it mattered].",
+    "First, I [your first action]. Then I [your second action], and I [a third action, if you have one].",
+    "As a result, [the outcome, ideally with a number: \"we finished two days early\", \"we raised $4,000\"].",
+    "What I learned was [the lesson], and since then I [how you've used it]."].join("\n");
+  else if (/about yourself|walk me through your (?:resume|background)|your background/.test(qq)) script = [
+    "I'm a [year] at [school] studying [major], and I grew up in [where].",
+    "I got interested in finance when [the moment or experience that sparked it].",
+    "Since then I've [your most relevant experience], where I [what you did, with a result].",
+    "That's what led me to investment banking: [the specific thing about the work you want], and that's why I'm excited to be here today."].join("\n");
+  else if (/why (?:investment banking|ib|banking)/.test(qq)) script = [
+    "I want to do investment banking for [two] reasons.",
+    "First, [the learning curve: what you want to learn, like modeling and valuing companies on live deals].",
+    "Second, [a real experience that pulled you in: \"when I [did X], I saw [Y]\"].",
+    "I've talked with [people at the firm or in banking], and [what you heard that confirmed it]. That's the work I want to be doing."].join("\n");
+  else if (/weakness/.test(qq)) script = [
+    "My biggest weakness has been [a real weakness that isn't a core banking skill].",
+    "It showed up when [a specific moment and what it cost].",
+    "So I [the concrete steps you took: a habit, a system, a class].",
+    "Since then, [evidence it's improving, with a number if you have one]. I still work on it by [what you do now]."].join("\n");
+  else if (/strength/.test(qq)) script = [
+    "My biggest strength is [the strength].",
+    "For example, when I was [role] at [place], I [what you did that shows it], and [the result].",
+    "In banking, that matters because [how it helps an analyst]."].join("\n");
+  else if (/why (?:our|this) (?:bank|firm|company)|why (?:us|here)|what does our firm do/.test(qq)) script = [
+    "[Firm] is [what the firm does and is known for: groups, deal types, middle market or bulge bracket].",
+    "What stands out to me is [a specific group, sector or recent deal].",
+    "When I spoke with [name] in [group], [what they told you that stuck with you].",
+    "That's why I want to start my career here: [tie it to what you want to learn]."].join("\n");
+  else if (/(?:five|5) years|long[- ]term|future goals|career goals/.test(qq)) script = [
+    "In five years I see myself [growing into associate-level work at a bank like this one].",
+    "I want to [the skills and responsibility you want: leading parts of deals, working with clients].",
+    "The analyst years are how I get there, because [what the role teaches you]."].join("\n");
+  else script = [
+    "[Answer the question directly in one sentence.]",
+    "[Reason or point one, backed by a specific example from your own experience.]",
+    "[Point two, with a detail or number that makes it real.]",
+    "[One line tying it back to the role or to why you'd be a strong analyst.]"].join("\n");
+  const head = ex ? "Say something like this:\n" : "Say it like this, filling the brackets with your own details:\n";
+  return head + script + (tips.length ? "\n\nMake sure it shows: " + tips.map(lowerFirst).join("; ") + "." : "");
+}
+
 function modelAnswer(q, points){
   if (!points.length) return "";
-  const beh = q.t === "beh";
-  const lines = points.map(p => p.text.replace(/\s+/g," ").replace(/[;]\s*/g,", ").replace(/\.$/,""));
-  if (beh) return lines.map(l => "• " + l).join("\n");
-  const joiners = ["", "Then ", "Next, ", "On top of that, ", "Also, ", "Finally, "];
-  return lines.map((l,i) => {
-    const j = i === 0 ? "" : i === lines.length-1 && lines.length > 2 ? "Finally, " : joiners[Math.min(i, joiners.length-2)];
-    const body = j ? l.charAt(0).toLowerCase() + l.slice(1) : l;
-    return (j + (/^[A-Z]{2,}/.test(l) ? l : body)) + ".";
-  }).join(" ");
+  if (q.t === "beh") return behavioralScript(q, points);
+  const lines = points.map(p => spoken(p.text)).filter(Boolean);
+  const n = lines.length;
+  const steps = n >= 3 && /walk me through|steps|how do you|what are|explain|differen|methods|ways|why/i.test(q.q);
+  const out = [];
+  lines.forEach((l, i) => {
+    let j = "";
+    if (n > 1){
+      if (i === 0) j = steps ? "First, " : "";
+      else if (i === n - 1) j = n > 2 ? "Finally, " : steps ? "Second, " : "";
+      else j = ["Second, ", "Third, ", "Next, ", "After that, ", "Then "][Math.min(i - 1, 4)];
+      if (!steps && i > 0 && i < n - 1) j = ["Also, ", "On top of that, ", "And "][Math.min(i - 1, 2)];
+    }
+    const body = j ? lowerFirst(l) : cap(l);
+    out.push((j + body).replace(/,\s*,/g, ",") + (/[.?!]$/.test(body) ? "" : "."));
+  });
+  const intro = steps && n >= 3 && n <= 8 ? `There are ${NUM[n] || n} parts to this. ` : "";
+  return intro + out.join(" ");
 }
 
 /* ---------- Tightened version of their own answer ---------- */

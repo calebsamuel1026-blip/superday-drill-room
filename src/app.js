@@ -89,17 +89,20 @@ function writeAccountData(d){
   loadAccountData();
 }
 if (typeof Cloud !== "undefined") Cloud.setSnapshot(() => ({progress, history, custom}));
-const settings = Object.assign({autoGrade:false, voice:"", strict:"standard", theme:"system", aiMode:"auto", aiModel:"claude-opus-5-5", order:"smart"}, store.get("settings", {}));
+const settings = Object.assign({autoGrade:false, accurate:true, voice:"", strict:"standard", theme:"system", aiMode:"auto", aiModel:"claude-opus-5-5", order:"smart"}, store.get("settings", {}));
 const saveSettings = () => store.set("settings", settings);
 const bankFilter = Object.assign({source:"all", topic:"", level:"", search:""}, store.get("bankFilter", {}));
 let HAS_VINE = typeof VINE_BANK !== "undefined" && VINE_BANK.length > 0;
 const VINE = HAS_VINE ? VINE_BANK.slice() : [];
 let HAS_BIWS = typeof BIWS_BANK !== "undefined" && BIWS_BANK.length > 0;
 const BIWS = HAS_BIWS ? BIWS_BANK.slice() : [];
+// Full spoken model answers ("what to say"), by question id.
+const SAY = Object.assign({}, typeof SAY_BANK !== "undefined" ? SAY_BANK : {});
 // The page's own banks, restored on sign-out after an account's private bank replaced them.
-const PAGE_BANKS = {vine: VINE.slice(), biws: BIWS.slice()};
+const PAGE_BANKS = {vine: VINE.slice(), biws: BIWS.slice(), say: Object.assign({}, SAY)};
 function useBanks(b){
   const swap = (arr, next) => { arr.length = 0; arr.push(...next); };
+  if (b.say && typeof b.say === "object"){ if (b === PAGE_BANKS) for (const k in SAY) delete SAY[k]; Object.assign(SAY, b.say); }
   if (Array.isArray(b.vine)) swap(VINE, b.vine.filter(q => q && q.id && q.q));
   if (Array.isArray(b.biws)) swap(BIWS, b.biws.filter(q => q && q.id && q.q));
   HAS_VINE = VINE.length > 0; HAS_BIWS = BIWS.length > 0;
@@ -245,7 +248,141 @@ const synth = null;
 
 /* ---------- Speech in + level meter ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const mic = {rec:null, on:false, base:"", final:"", stream:null, ctx:null, raf:0};
+const mic = {rec:null, on:false, base:"", final:"", stream:null, ctx:null, raf:0, pcm:[], rate:16000, proc:null, session:0};
+
+// Finance words speech engines mishear, written the way an interviewer would see them.
+const TERM_FIXES = [
+  [/\b(?:e[\s-]?bit[\s-]?d[\s-]?a|ebit da|eb it da|a bit da|e bitda|ebita\b(?= (?:margin|multiple|of|is|was|minus|plus)))/gi, "EBITDA"],
+  [/\b(?:whack|wack|w a c c)\b/gi, "WACC"], [/\be[\s-]bit\b/gi, "EBIT"],
+  [/\b(?:cap[\s-]?ex|cap x|capx)\b/gi, "CapEx"], [/\bop[\s-]?ex\b/gi, "OpEx"],
+  [/\bp\s?(?:and|&|n)\s?l\b/gi, "P&L"], [/\bp\s?p\s?(?:and|&|n)\s?e\b/gi, "PP&E"], [/\bd\s?(?:and|&|n)\s?a\b(?! (?:lot|few|couple|bit))/g, "D&A"],
+  [/\bm\s?(?:and|&|n)\s?a\b/gi, "M&A"], [/\bs\s?g\s?(?:and|&|n)\s?a\b/gi, "SG&A"],
+  [/\bd c f\b/gi, "DCF"], [/\bA(DCF|LBO|WACC|IRR)\b/g, "a $1"], [/\bDNA\b/g, "D&A"], [/\bnetworking capital\b/gi, "net working capital"],
+  [/\bin (?:the )?bit\b/gi, m => m], [/\bcash flow from (?:operating|operations) activities\b/gi, "cash flow from operating activities"], [/\bl b o\b/gi, "LBO"], [/\bi r r\b/gi, "IRR"], [/\be p s\b/gi, "EPS"], [/\bm o i c\b|\bmoik\b/gi, "MOIC"],
+  [/\bc o g s\b|\bcogs\b/gi, "COGS"], [/\ba pick\b|\bapick\b/gi, "APIC"], [/\b(?:n o l|knoll)s?\b/gi, m => /s$/i.test(m) ? "NOLs" : "NOL"],
+  [/\bd t l\b/gi, "DTL"], [/\bd t a\b/gi, "DTA"], [/\bn w c\b/gi, "NWC"], [/\bt e v\b/gi, "TEV"], [/\be v\b(?= ?(?:\/|to|is|of|equals|goes|would|will))/gi, "EV"],
+  [/\b(up|down|by|is|of|was) for\b(?=[\s.,;!?]|$)(?! (?:the|a|an|each|every|that|this|it|us|them|example|instance|me|you)\b)/gi, "$1 four"],
+  [/\b(up|down|by|is|of|was) to\b(?=[.,;!?]|$)/gi, "$1 two"],
+];
+function fixTerms(t){ let s = String(t || ""); for (const [re, rep] of TERM_FIXES) s = s.replace(re, rep); return s; }
+
+/* Accurate transcription: Whisper running on this device in a background worker.
+   The browser's live recognizer shows words while you talk; when you stop, the
+   Whisper transcript replaces it. The model (~77 MB) downloads once and is cached. */
+const ACC = {worker:null, ready:false, loading:false, failed:false, progress:0, jobs:new Map(), seq:0, listeners:new Set()};
+const ACC_SRC = `
+let asr = null;
+self.onmessage = async (e) => {
+  const m = e.data;
+  try {
+    if (m.type === "load") {
+      if (asr) { self.postMessage({type: "ready"}); return; }
+      const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1");
+      env.allowLocalModels = false;
+      const files = {};
+      asr = await pipeline("automatic-speech-recognition", "onnx-community/whisper-base.en", {
+        dtype: "q8", device: "wasm",
+        progress_callback: p => {
+          if (p.status === "progress" && p.total) { files[p.file] = [p.loaded, p.total];
+            const v = Object.values(files); self.postMessage({type: "progress", value: v.reduce((s, x) => s + x[0], 0) / v.reduce((s, x) => s + x[1], 0)}); }
+        },
+      });
+      self.postMessage({type: "ready"});
+    } else if (m.type === "run") {
+      const out = await asr(m.audio, { chunk_length_s: 30, stride_length_s: 5 });
+      self.postMessage({type: "done", id: m.id, text: out.text || ""});
+    }
+  } catch (err) { self.postMessage({type: "error", id: m.id, error: String(err && err.message || err)}); }
+};`;
+function accEmit(){ ACC.listeners.forEach(fn => { try{ fn(); }catch{} }); }
+function accLoad(){
+  if (ACC.worker || ACC.failed || !window.Worker) return;
+  try{
+    ACC.worker = new Worker(URL.createObjectURL(new Blob([ACC_SRC], {type:"text/javascript"})), {type:"module"});
+  }catch{ ACC.failed = true; return; }
+  ACC.loading = true;
+  ACC.worker.onmessage = e => {
+    const m = e.data;
+    if (m.type === "progress"){ ACC.progress = m.value; accEmit(); }
+    else if (m.type === "ready"){ ACC.ready = true; ACC.loading = false; accEmit(); }
+    else if (m.type === "done" || m.type === "error"){
+      const job = ACC.jobs.get(m.id); ACC.jobs.delete(m.id);
+      if (m.type === "error" && !ACC.ready){ ACC.failed = true; ACC.loading = false; accEmit(); }
+      if (job) m.type === "done" ? job.resolve(m.text) : job.reject(new Error(m.error));
+    }
+  };
+  ACC.worker.onerror = () => { ACC.failed = true; ACC.loading = false; accEmit(); for (const j of ACC.jobs.values()) j.reject(new Error("worker failed")); ACC.jobs.clear(); };
+  ACC.worker.postMessage({type:"load"});
+}
+function accRun(audio){
+  return new Promise((resolve, reject) => {
+    if (!ACC.worker || ACC.failed) return reject(new Error("unavailable"));
+    const id = ++ACC.seq; ACC.jobs.set(id, {resolve, reject});
+    ACC.worker.postMessage({type:"run", id, audio}, [audio.buffer]);
+  });
+}
+const accurateOn = () => settings.accurate !== false && !!window.Worker && !!(window.AudioContext || window.webkitAudioContext);
+// Self-test for the accurate transcript: index.html#acctest=<wav url> runs a recording through
+// the same pipeline as the mic (chunking + Whisper + term fixes) and prints the result.
+if (/#acctest=/.test(location.hash)) setTimeout(async () => {
+  const out = document.body.appendChild(Object.assign(document.createElement("pre"), {id:"acctest", textContent:"running"}));
+  try{
+    const url = decodeURIComponent(location.hash.split("#acctest=")[1]), t0 = performance.now();
+    const buf = await (await fetch(url)).arrayBuffer();
+    const audio = await new OfflineAudioContext(1, 16000 * 600, 16000).decodeAudioData(buf);
+    mic.rate = 16000; accState.parts = []; accState.pending = []; accState.carry = null; accState.session = ++mic.session;
+    const pcm = audio.getChannelData(0);
+    for (let i = 0; i < pcm.length; i += 16000 * 28){ mic.pcm = [pcm.slice(i, i + 16000 * 28)]; accFlush(false); }
+    accFlush(true);
+    await Promise.allSettled(accState.pending);
+    out.textContent = JSON.stringify({seconds: +((performance.now() - t0) / 1000).toFixed(1), pieces: accState.parts.length, text: fixTerms(accState.parts.filter(Boolean).join(" "))});
+  }catch(e){ out.textContent = "error: " + e; }
+}, 500);
+
+// Raw audio for Whisper: mono Float32 at the context's rate, resampled to 16 kHz.
+function to16k(chunks, rate){
+  const n = chunks.reduce((s, c) => s + c.length, 0), all = new Float32Array(n);
+  let o = 0; for (const c of chunks){ all.set(c, o); o += c.length; }
+  if (rate === 16000) return all;
+  const ratio = rate / 16000, out = new Float32Array(Math.floor(n / ratio));
+  for (let i = 0; i < out.length; i++){ const a = i * ratio, j = Math.floor(a), f = a - j; out[i] = all[j] * (1 - f) + (all[j + 1] || 0) * f; }
+  return out;
+}
+// Whisper works on 30-second windows. Long answers are sent in pieces while you're still
+// talking, each cut at the quietest moment between 18 and 26 seconds so no word is split.
+function cutPoint(a){
+  const sr = 16000, win = sr * 0.25;
+  let best = Math.min(a.length, sr * 26), bestE = Infinity;
+  for (let s = sr * 18; s + win <= Math.min(a.length, sr * 26); s += win / 2){
+    let e = 0; for (let i = s; i < s + win; i++) e += a[i] * a[i];
+    if (e < bestE){ bestE = e; best = s + win / 2; }
+  }
+  return Math.floor(best);
+}
+const accState = {parts:[], pending:[], carry:null, session:0};
+function accFlush(final){
+  if (!accurateOn()) return;
+  const audio = to16k(mic.pcm, mic.rate); mic.pcm = [];
+  let buf = accState.carry ? concatF32(accState.carry, audio) : audio; accState.carry = null;
+  const session = accState.session;
+  while (buf.length > 16000 * 27 || (final && buf.length > 16000 * 0.4)){
+    const cut = buf.length > 16000 * 27 ? cutPoint(buf) : buf.length;
+    const piece = buf.slice(0, cut); buf = buf.slice(cut);
+    const idx = accState.parts.length; accState.parts.push(null);
+    accLoad();
+    accState.pending.push(accRunWhenReady(piece).then(t => { if (accState.session === session) accState.parts[idx] = t.trim(); }).catch(() => {}));
+    if (!final) break;
+  }
+  if (buf.length) accState.carry = buf;
+}
+function concatF32(a, b){ const o = new Float32Array(a.length + b.length); o.set(a); o.set(b, a.length); return o; }
+function accRunWhenReady(audio){
+  if (ACC.ready) return accRun(audio);
+  return new Promise((resolve, reject) => {
+    const check = () => { if (ACC.ready){ ACC.listeners.delete(check); accRun(audio).then(resolve, reject); } else if (ACC.failed){ ACC.listeners.delete(check); reject(new Error("unavailable")); } };
+    ACC.listeners.add(check); check();
+  });
+}
 const DICTATE = "Tip: click in the answer box and use your keyboard's dictation (Win+H on Windows, press Fn twice on Mac). It works the same way.";
 function setMicNote(t){ const n = $("micNote"); if (n){ n.textContent = t || ""; n.hidden = !t; } }
 async function startMeter(){
@@ -253,10 +390,22 @@ async function startMeter(){
   wave.classList.add("on");
   const bars = [...wave.children];
   try{
-    mic.stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    mic.stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}});
     mic.ctx = new (window.AudioContext || window.webkitAudioContext)();
     const an = mic.ctx.createAnalyser(); an.fftSize = 64;
-    mic.ctx.createMediaStreamSource(mic.stream).connect(an);
+    const src = mic.ctx.createMediaStreamSource(mic.stream); src.connect(an);
+    if (accurateOn()){
+      // Keep the raw audio for the accurate transcript.
+      mic.rate = mic.ctx.sampleRate; mic.capturing = true;
+      const proc = mic.proc = mic.ctx.createScriptProcessor(4096, 1, 1);
+      let since = 0;
+      proc.onaudioprocess = e => {
+        if (!mic.on) return;
+        const ch = e.inputBuffer.getChannelData(0); mic.pcm.push(new Float32Array(ch));
+        since += ch.length; if (since > mic.rate * 28){ since = 0; accFlush(false); }
+      };
+      src.connect(proc); proc.connect(mic.ctx.destination);
+    }
     const buf = new Uint8Array(an.frequencyBinCount);
     const loop = () => { an.getByteFrequencyData(buf); bars.forEach((b,i) => { const v = buf[(i*2+2) % buf.length] / 255; b.style.height = (3 + v*23) + "px"; }); mic.raf = requestAnimationFrame(loop); };
     loop();
@@ -269,28 +418,59 @@ function stopMeter(){
   cancelAnimationFrame(mic.raf); clearTimeout(mic.raf);
   try{ mic.stream && mic.stream.getTracks().forEach(t => t.stop()); }catch{}
   try{ mic.ctx && mic.ctx.close(); }catch{}
-  mic.stream = mic.ctx = null;
+  try{ mic.proc && mic.proc.disconnect(); }catch{}
+  mic.stream = mic.ctx = mic.proc = null;
   const wave = $("wave"); if (wave){ wave.classList.remove("on"); [...wave.children].forEach(b => b.style.height = "3px"); }
 }
 function startMic(){
   if (synth) synth.cancel();
+  const acc = accurateOn();
+  if (!SR && !acc){ $("ans").focus(); setMicNote("This browser can't transcribe from the page. " + DICTATE); return; }
   timer.start();
-  if (!SR){ $("ans").focus(); setMicNote("This browser can't transcribe from the page. " + DICTATE); return; }
-  const rec = mic.rec = new SR(); rec.continuous = true; rec.interimResults = true; rec.lang = "en-US";
   mic.base = $("ans").value.trim() ? $("ans").value.trim() + " " : ""; mic.final = "";
-  rec.onresult = e => {
-    let interim = "";
-    for (let i = e.resultIndex; i < e.results.length; i++){ const r = e.results[i]; if (r.isFinal) mic.final += r[0].transcript.trim() + " "; else interim += r[0].transcript; }
-    $("ans").value = mic.base + mic.final + interim; updateWC();
-  };
-  rec.onerror = e => { if (/not-allowed|service-not-allowed|audio-capture/.test(e.error)){ mic.on = false; setMicUI(false); stopMeter(); setMicNote("The page couldn't use the microphone. " + DICTATE); $("ans").focus(); } };
-  rec.onend = () => { if (mic.on){ try{ rec.start(); }catch{} } };
-  try{ rec.start(); mic.on = true; setMicUI(true); setMicNote(""); startMeter(); }catch{ setMicNote("The microphone didn't start. " + DICTATE); }
+  mic.pcm = []; mic.capturing = false;
+  accState.parts = []; accState.pending = []; accState.carry = null; accState.session = ++mic.session;
+  if (acc) accLoad();
+  if (SR){
+    const rec = mic.rec = new SR(); rec.continuous = true; rec.interimResults = true; rec.lang = "en-US"; rec.maxAlternatives = 1;
+    rec.onresult = e => {
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++){ const r = e.results[i]; if (r.isFinal) mic.final += r[0].transcript.trim() + " "; else interim += r[0].transcript; }
+      $("ans").value = mic.base + fixTerms(mic.final + interim); updateWC();
+    };
+    rec.onerror = e => { if (/not-allowed|service-not-allowed|audio-capture/.test(e.error)){ mic.on = false; setMicUI(false); stopMeter(); timer.stop(); setMicNote("The page couldn't use the microphone. " + DICTATE); $("ans").focus(); } };
+    // Chrome ends a session after a pause; restart it so nothing you say is dropped.
+    rec.onend = () => { if (mic.on){ try{ rec.start(); }catch{ setTimeout(() => { if (mic.on) try{ rec.start(); }catch{} }, 250); } } };
+    try{ rec.start(); }catch{ if (!acc){ setMicNote("The microphone didn't start. " + DICTATE); timer.stop(); return; } }
+  }
+  mic.on = true; setMicUI(true);
+  setMicNote(SR ? "" : "Listening. Your words will appear when you stop.");
+  startMeter();
 }
 function stopMic(auto=true){
   mic.on = false; try{ mic.rec && mic.rec.stop(); }catch{}
-  setMicUI(false); timer.stop(); stopMeter();
-  if (auto && settings.autoGrade && $("ans") && $("ans").value.trim().length > 15) setTimeout(grade, 700);
+  setMicUI(false); timer.stop();
+  const useAcc = accurateOn() && mic.capturing;
+  if (useAcc) accFlush(true);
+  stopMeter();
+  if (useAcc) finishAccurate(auto);
+  else if (auto && settings.autoGrade && $("ans") && $("ans").value.trim().length > 15) setTimeout(grade, 700);
+}
+async function finishAccurate(auto){
+  const session = accState.session, ta = $("ans"), before = ta ? ta.value : "";
+  const note = () => setMicNote(ACC.ready ? "Making your transcript more accurate…"
+    : ACC.failed ? "" : `Getting the accurate speech model ready (one-time download, about 77 MB): ${Math.round(ACC.progress * 100)}%. You can analyze now with the live transcript or wait.`);
+  ACC.listeners.add(note); note();
+  await Promise.allSettled(accState.pending);
+  ACC.listeners.delete(note);
+  if (session !== accState.session) return;                      // a new recording started
+  const text = accState.parts.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+  const t = $("ans");
+  if (text && t && t.value === before && !state.report){
+    t.value = mic.base + fixTerms(text); state.answer = t.value; updateWC();
+    setMicNote("");
+  } else setMicNote(ACC.failed && !text ? "Accurate transcription isn't available in this browser, so this is the live transcript." : "");
+  if (auto && settings.autoGrade && t && t.value.trim().length > 15 && !state.report) setTimeout(grade, 300);
 }
 function setMicUI(on){
   const b = $("recBtn"); if (!b) return;
@@ -651,14 +831,15 @@ function viewReport(q, rep){
   wrap.append(h("h3", {class:"sechead"}, ai ? "Your answer at a 9/10" : "Your answer, tightened", h("small", {text: ai ? "Your facts, rewritten" : "Fillers and hedges removed"})));
   wrap.append(h("section", {class:"card"}, h("div", {class:"quote", text: improved}), h("div", {class:"row", style:{marginTop:"10px"}},
     h("button", {class:"btn tint", onclick:e => copyText(improved, e.currentTarget), html: ic("copy") + "Copy"}))));
-  const model = ai ? ai.model_answer : rep.model;
+  const model = ai ? ai.model_answer : (SAY[q.id] || rep.model);
   if (q.answer && q.answer.length){
     wrap.append(h("h3", {class:"sechead"}, "Guide answer", h("small", {text: q.ref ? `${BIWS_GUIDES[q.ref.guide] || "Guide"}, page ${q.ref.page}` : ""})));
-    wrap.append(h("section", {class:"card"}, ...q.answer.map(p => h("p", {class:"quote", style:{margin:"0 0 10px"}, text:p}))));
+    wrap.append(h("section", {class:"card"}, ...q.answer.map(p => h("p", {class:"quote", style:{margin:"0 0 10px"}, text:p})),
+      ...(q.figures || []).map(f => figureEl(f))));
   }
   if (model && !(q.answer && q.answer.length && !ai)){
     wrap.append(h("h3", {class:"sechead"}, rep.beh && !ai ? "What a strong answer includes" : "Model answer"));
-    wrap.append(h("section", {class:"card"}, h("div", {class:"quote", text:model})));
+    wrap.append(h("section", {class:"card"}, h("div", {class:"quote", style:{whiteSpace:"pre-line"}, text:model})));
   }
   if (q.study){
     const more = h("div", {hidden:true}, h("p", {class:"quote", style:{whiteSpace:"pre-wrap", margin:"10px 0 0"}, text:q.study.excerpt + (q.study.excerpt.length >= 700 ? "…" : "")}));
@@ -685,6 +866,22 @@ function viewReport(q, rep){
   return wrap;
 }
 const TERM = {da:"D&A", ppe:"PP&E", ar:"accounts receivable", ap:"accounts payable", accrued:"accrued expenses", deferredrevenue:"deferred revenue", dtl:"deferred tax liability", dta:"deferred tax asset", nol:"NOLs", netincome:"net income", incomestatement:"income statement", balancesheet:"balance sheet", cfs:"cash flow statement", cfo:"cash flow from operations", cfi:"cash flow from investing", cff:"cash flow from financing", shequity:"shareholders' equity", retainedearnings:"retained earnings", apic:"APIC", treasury:"treasury stock", sbc:"stock-based comp", capex:"CapEx", nwc:"working capital", cogs:"COGS", sga:"SG&A", ebitda:"EBITDA", ebit:"EBIT / operating income", ev:"enterprise value", equityvalue:"equity value", wacc:"WACC", costequity:"cost of equity", costdebt:"cost of debt", capm:"CAPM", erp:"equity risk premium", riskfree:"risk-free rate", fcf:"free cash flow", terminalvalue:"terminal value", gordon:"perpetuity growth", exitmultiple:"exit multiple", dcf:"DCF", lbo:"LBO", irr:"IRR", moic:"MoIC", mna:"M&A", pe:"P/E", eps:"EPS", nopat:"NOPAT", comps:"comparable companies", precedents:"precedent transactions", sourcesuses:"sources & uses", nci:"noncontrolling interest", preferred:"preferred stock", goodwill:"goodwill", intangibles:"intangibles", interestexpense:"interest expense", dividend:"dividends", revolver:"revolver", synergy:"synergies", accretive:"accretion", dilutive:"dilution", pretax:"pre-tax income"};
+// A table or screenshot from the guide, transcribed as text with markdown tables.
+function figureEl(f){
+  const box = h("div", {style:{margin:"6px 0 12px", padding:"10px 12px", borderRadius:"10px", background:"var(--fill, rgba(127,127,127,.12))", overflowX:"auto"}},
+    h("div", {style:{fontSize:"12px", color:"var(--label2)", marginBottom:"6px"}, text:`Table from the guide, page ${f.page}`}));
+  const lines = String(f.text).split("\n");
+  for (let i = 0; i < lines.length; i++){
+    if (/^\s*\|/.test(lines[i])){
+      const rows = [];
+      while (i < lines.length && /^\s*\|/.test(lines[i])){ if (!/^\s*\|[\s:|-]+\|\s*$/.test(lines[i])) rows.push(lines[i].trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim().replace(/\*\*/g, ""))); i++; }
+      i--;
+      box.append(h("table", {style:{borderCollapse:"collapse", fontSize:"13px", width:"100%"}}, ...rows.map((r, ri) => h("tr", null,
+        ...r.map(c => h(ri === 0 ? "th" : "td", {style:{border:"1px solid var(--sep, rgba(127,127,127,.3))", padding:"3px 6px", textAlign:"left", whiteSpace:"nowrap"}, text:c}))))));
+    } else if (lines[i].trim()) box.append(h("p", {style:{margin:"4px 0", fontSize:"13px"}, text: lines[i].replace(/\*\*/g, "").replace(/^#+\s*/, "")}));
+  }
+  return box;
+}
 function missingText(p){
   if (p.missWords && p.missWords.length) return "Missing: " + p.missWords.slice(0,5).join(", ");
   const terms = p.miss.filter(t => TERM[t] || /^\d/.test(t)).map(t => TERM[t] || t);
@@ -953,7 +1150,7 @@ function openSettings(){
       h("span", {class:"trail"}, chevEl()))) : null,
     privateBankRow(),
     h("div", {class:"grphead", text:"Practice"}),
-    h("div", {class:"list grp"}, sw("autoGrade","Analyze when I stop recording"),
+    h("div", {class:"list grp"}, sw("autoGrade","Analyze when I stop recording"), sw("accurate","Accurate transcription (on this device)"),
       sel("strict","Interviewer style", [["standard","Standard analyst"],["tough","Tough MD"],["coach","Friendly coach"]])),
     h("div", {class:"grphead", text:"Appearance"}),
     h("div", {class:"list grp"}, sel("theme","Theme", [["system","Automatic"],["light","Light"],["dark","Dark"]], applyTheme)),
