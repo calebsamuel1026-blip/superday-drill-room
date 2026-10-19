@@ -831,15 +831,18 @@ function viewReport(q, rep){
   wrap.append(h("h3", {class:"sechead"}, ai ? "Your answer at a 9/10" : "Your answer, tightened", h("small", {text: ai ? "Your facts, rewritten" : "Fillers and hedges removed"})));
   wrap.append(h("section", {class:"card"}, h("div", {class:"quote", text: improved}), h("div", {class:"row", style:{marginTop:"10px"}},
     h("button", {class:"btn tint", onclick:e => copyText(improved, e.currentTarget), html: ic("copy") + "Copy"}))));
-  const model = ai ? ai.model_answer : (SAY[q.id] || rep.model);
+  // The model answer is the full spoken answer to say; the guide's text (BIWS) follows it for study.
+  const written = !ai && SAY[q.id];
+  const model = ai ? ai.model_answer : (written || (q.answer && q.answer.length ? "" : rep.model));
+  if (model){
+    wrap.append(h("h3", {class:"sechead"}, ai || written ? "Model answer" : rep.beh ? "What a strong answer includes" : "Model answer", written ? h("small", {text:"What to say, word for word"}) : null));
+    wrap.append(h("section", {class:"card"}, h("div", {class:"quote", style:{whiteSpace:"pre-line"}, text:model}),
+      h("div", {class:"row", style:{marginTop:"10px"}}, h("button", {class:"btn tint", onclick:e => copyText(model, e.currentTarget), html: ic("copy") + "Copy"}))));
+  }
   if (q.answer && q.answer.length){
     wrap.append(h("h3", {class:"sechead"}, "Guide answer", h("small", {text: q.ref ? `${BIWS_GUIDES[q.ref.guide] || "Guide"}, page ${q.ref.page}` : ""})));
     wrap.append(h("section", {class:"card"}, ...q.answer.map(p => h("p", {class:"quote", style:{margin:"0 0 10px"}, text:p})),
       ...(q.figures || []).map(f => figureEl(f))));
-  }
-  if (model && !(q.answer && q.answer.length && !ai)){
-    wrap.append(h("h3", {class:"sechead"}, rep.beh && !ai ? "What a strong answer includes" : "Model answer"));
-    wrap.append(h("section", {class:"card"}, h("div", {class:"quote", style:{whiteSpace:"pre-line"}, text:model})));
   }
   if (q.study){
     const more = h("div", {hidden:true}, h("p", {class:"quote", style:{whiteSpace:"pre-wrap", margin:"10px 0 0"}, text:q.study.excerpt + (q.study.excerpt.length >= 700 ? "…" : "")}));
