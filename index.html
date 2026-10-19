@@ -1536,7 +1536,9 @@ const Cloud = (() => {
   }
   if (client){
     client.auth.getSession().then(({data}) => onSession(data.session, "INITIAL"));
-    client.auth.onAuthStateChange((event, session) => onSession(session, event));
+    // Run our handler after the auth callback returns: making Supabase requests inside
+    // onAuthStateChange deadlocks the client (every later query waits forever).
+    client.auth.onAuthStateChange((event, session) => { setTimeout(() => onSession(session, event), 0); });
   }
 
   const redirect = () => location.origin + location.pathname;
