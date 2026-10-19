@@ -65,11 +65,20 @@ const Cloud = (() => {
     }catch{}
   }
 
+  // A private question bank, readable only by its owner (public.private_bank, row-level security).
+  async function pullBank(){
+    if (!client || !user) return null;
+    const {data, error} = await client.from("private_bank").select("data, updated_at").eq("user_id", user.id).maybeSingle();
+    if (error) return null;            // table missing or no access: carry on with the page's own banks
+    return data ? data.data : null;
+  }
+
   async function onSession(session, event){
     const prev = user;
     user = session ? session.user : null;
     if (event === "PASSWORD_RECOVERY"){ emit({type:"recovery"}); }
     if (user && (!prev || prev.id !== user.id)){
+      pullBank().then(bank => { if (bank) emit({type:"bank", data: bank}); });
       status = "loading"; emit({type:"signin", user});
       try{ const remote = await pull(); emit({type:"remote", data: remote, first:true}); status = "saved"; lastSync = Date.now(); }
       catch(e){ status = "error"; emit({type:"status", error:e}); }
@@ -100,5 +109,11 @@ const Cloud = (() => {
     async setPassword(password){ const {error} = await client.auth.updateUser({password}); if (error) throw error; },
     async updateName(name){ const {data, error} = await client.auth.updateUser({data:{name}}); if (error) throw error; user = data.user; emit({type:"status"}); },
     async signOut(){ flush(); await client.auth.signOut(); },
+    async saveBank(bank){
+      if (!client || !user) throw new Error("Sign in first.");
+      const {error} = await client.from("private_bank").upsert({user_id:user.id, data:bank, updated_at:new Date().toISOString()});
+      if (error) throw error;
+      emit({type:"bank", data: bank});
+    },
   };
 })();

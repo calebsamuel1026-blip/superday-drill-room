@@ -92,10 +92,18 @@ if (typeof Cloud !== "undefined") Cloud.setSnapshot(() => ({progress, history, c
 const settings = Object.assign({autoGrade:false, voice:"", strict:"standard", theme:"system", aiMode:"auto", aiModel:"claude-opus-5-5", order:"smart"}, store.get("settings", {}));
 const saveSettings = () => store.set("settings", settings);
 const bankFilter = Object.assign({source:"all", topic:"", level:"", search:""}, store.get("bankFilter", {}));
-const HAS_VINE = typeof VINE_BANK !== "undefined" && VINE_BANK.length > 0;
-const VINE = HAS_VINE ? VINE_BANK : [];
-const HAS_BIWS = typeof BIWS_BANK !== "undefined" && BIWS_BANK.length > 0;
-const BIWS = HAS_BIWS ? BIWS_BANK : [];
+let HAS_VINE = typeof VINE_BANK !== "undefined" && VINE_BANK.length > 0;
+const VINE = HAS_VINE ? VINE_BANK.slice() : [];
+let HAS_BIWS = typeof BIWS_BANK !== "undefined" && BIWS_BANK.length > 0;
+const BIWS = HAS_BIWS ? BIWS_BANK.slice() : [];
+// The page's own banks, restored on sign-out after an account's private bank replaced them.
+const PAGE_BANKS = {vine: VINE.slice(), biws: BIWS.slice()};
+function useBanks(b){
+  const swap = (arr, next) => { arr.length = 0; arr.push(...next); };
+  if (Array.isArray(b.vine)) swap(VINE, b.vine.filter(q => q && q.id && q.q));
+  if (Array.isArray(b.biws)) swap(BIWS, b.biws.filter(q => q && q.id && q.q));
+  HAS_VINE = VINE.length > 0; HAS_BIWS = BIWS.length > 0;
+}
 if ((!HAS_VINE && bankFilter.source === "vine") || (!HAS_BIWS && bankFilter.source === "biws")) bankFilter.source = "original";
 const BIWS_GUIDES = {accounting:"BIWS Accounting guide", ev:"BIWS Equity & Enterprise Value guide", dcf:"BIWS Valuation & DCF guide", merger:"BIWS Merger Model guide", lbo:"BIWS LBO guide"};
 const sourceOk = q => bankFilter.source === "all" || (bankFilter.source === "original" ? q.source !== "vine" && q.source !== "biws" : q.source === bankFilter.source);
@@ -943,6 +951,7 @@ function openSettings(){
       h("span", {class:"avatar" + (Cloud.user ? " on" : ""), style:{width:"29px", height:"29px", fontSize:"12px"}, html: Cloud.user ? initials(Cloud.name()) : ic("person")}),
       h("div", {class:"lit"}, h("b", {text: Cloud.user ? Cloud.name() : "Sign in or create account"}), h("span", {text: Cloud.user ? Cloud.user.email : "Keep your progress on every device"})),
       h("span", {class:"trail"}, chevEl()))) : null,
+    privateBankRow(),
     h("div", {class:"grphead", text:"Practice"}),
     h("div", {class:"list grp"}, sw("autoGrade","Analyze when I stop recording"),
       sel("strict","Interviewer style", [["standard","Standard analyst"],["tough","Tough MD"],["coach","Friendly coach"]])),
@@ -1014,7 +1023,10 @@ Cloud.on(e => {
     const changed = JSON.stringify(merged.history.length) !== JSON.stringify((remote.history||[]).length) || Object.keys(merged.progress).length !== Object.keys(remote.progress||{}).length;
     if (changed || !e.data) Cloud.queueSave();
     render();
+  } else if (e.type === "bank"){
+    useBanks(e.data || {}); state.current = null; render();
   } else if (e.type === "signout"){
+    useBanks(PAGE_BANKS);
     acctPrefix = "sdr:"; loadAccountData(); state.current = null; render();
   } else if (e.type === "recovery"){
     openAccount("newpassword");
@@ -1024,6 +1036,33 @@ Cloud.on(e => {
   }
   renderAccountRow();
 });
+
+/* Private question bank: stored in the account (readable only by its owner) and loaded
+   on sign-in. Shown once one is loaded, or when the page is opened with #privatebank. */
+let privateBankInfo = null;
+Cloud.on(e => { if (e.type === "bank"){ const d = e.data || {}; privateBankInfo = {biws: (d.biws||[]).length, vine: (d.vine||[]).length}; } else if (e.type === "signout") privateBankInfo = null; });
+function privateBankRow(){
+  if (!Cloud.enabled || !Cloud.user || !(privateBankInfo || /privatebank/.test(location.hash))) return null;
+  const msg = h("div", {class:"grpfoot", text: privateBankInfo
+    ? `Loaded from your account: ${[privateBankInfo.biws && privateBankInfo.biws + " BIWS", privateBankInfo.vine && privateBankInfo.vine + " IB Vine"].filter(Boolean).join(" and ")} questions. Only your account can read it.`
+    : "Upload a bank file (private-bank.json). It's stored in your account, only you can read it, and it loads whenever you sign in."});
+  const file = h("input", {type:"file", accept:".json,application/json", hidden:true, onchange: async e => {
+    const f = e.target.files[0]; if (!f) return;
+    msg.textContent = "Uploading…";
+    try{
+      const bank = JSON.parse(await f.text());
+      if (!Array.isArray(bank.biws) && !Array.isArray(bank.vine)) throw new Error("That file has no question bank in it.");
+      await Cloud.saveBank(bank);
+      msg.textContent = `Saved to your account: ${[(bank.biws||[]).length && (bank.biws||[]).length + " BIWS", (bank.vine||[]).length && (bank.vine||[]).length + " IB Vine"].filter(Boolean).join(" and ")} questions.`;
+    }catch(err){ msg.textContent = "Couldn't save it: " + (/row-level security|policy/i.test(err.message||"") ? "only the owner account can store a private bank." : err.message || err); }
+    e.target.value = "";
+  }});
+  return h("div", null,
+    h("div", {class:"grphead", text:"Private question bank"}),
+    h("div", {class:"list grp"}, h("div", {class:"setrow"}, h("label", {text: privateBankInfo ? "Your private bank is on" : "No private bank yet"}),
+      h("button", {class:"btn tint", onclick:() => file.click(), text: privateBankInfo ? "Replace" : "Upload"}), file)),
+    msg);
+}
 
 function openAccount(mode){
   closeDrawer();
