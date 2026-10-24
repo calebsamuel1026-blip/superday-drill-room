@@ -849,8 +849,9 @@ const timer = {t0:0, id:null, el:0,
 function updateWC(){ const n = (($("ans")||{}).value || "").trim().match(/\S+/g)?.length || 0; const w = $("wc"); if (w) w.textContent = n + (n===1?" word":" words"); }
 
 /* ---------- App state ---------- */
-const state = {view:"drill", track: store.get("track","acct"), current:null, report:null, ai:null, aiBusy:false, mock:null, answer:"", bankShown:150};
+const state = {view:"drill", track: store.get("track","acct"), current:null, report:null, ai:null, aiBusy:false, mock:null, answer:"", bankShown:150, course: store.get("courseOn", false)};
 const NAV = [
+  {id:"course", name:"Course", icon:"list", color:"c-teal"},
   {id:"drill", name:"Drill", icon:"mic", color:"c-red"},
   {id:"mock", name:"Mock interview", icon:"person2", color:"c-indigo"},
   {id:"mastery", name:"Mastery", icon:"target", color:"c-green"},
@@ -860,6 +861,7 @@ const NAV = [
 
 function go(view){
   if (mic.on) stopMic(false);
+  if (view === "drill" || view === "mock") exitCourse();   // the Drill tab is free practice
   if (view === "mock" && (!state.mock || state.mock.done)) startMock();
   state.view = view;
   closeDrawer();
@@ -894,7 +896,7 @@ function renderNav(){
   const tb = $("tabbar"); tb.replaceChildren();
   NAV.forEach(n => tb.append(h("button", {"aria-current": String(state.view===n.id), onclick:() => go(n.id)}, h("span", {html:ic(n.icon)}), n.id==="mock" ? "Mock" : n.id==="bank" ? "Bank" : n.name)));
 }
-function setTrack(id){ state.track = id; store.set("track", id); pickNext(); }
+function setTrack(id){ exitCourse(); state.track = id; store.set("track", id); pickNext(); }
 $("sideSearch").addEventListener("input", debounce(e => { bankFilter.search = e.target.value; store.set("bankFilter", bankFilter); state.bankShown = 150; if (state.view !== "bank") state.view = "bank"; render(); const s = $("sideSearch"); s.focus(); }, 250));
 $("navSettings").onclick = openSettings;
 $("menuBtn").onclick = () => { const s = $("sidebar"); s.classList.add("open"); const sc = h("div", {class:"drawer-scrim", id:"drawerScrim", onclick: closeDrawer}); document.body.append(sc); };
@@ -902,8 +904,90 @@ function closeDrawer(){ $("sidebar").classList.remove("open"); const s = $("draw
 window.addEventListener("scroll", () => $("toolbar").classList.toggle("scrolled", window.scrollY > 30), {passive:true});
 function debounce(fn, ms){ let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
+/* ---------- Course: every question in learning order ----------
+   Units go from the foundations up (accounting before valuation before deals), and inside a
+   unit all basic questions come before intermediate before advanced. Within a level, lessons
+   follow the curated order: core drills, then the BIWS guides section by section, then IB Vine. */
+const COURSE_UNITS = [
+  {id:"acct",   name:"Accounting",                       test:q => q.t === "acct"},
+  {id:"ev",     name:"Equity Value & Enterprise Value",  test:q => q.t === "val" && (/enterprise|equity value/i.test((q.topic||"") + " " + (q.section||"")) || (q.ref && q.ref.guide === "ev") || (!q.topic && /enterprise value|equity value/i.test(q.q)))},
+  {id:"val",    name:"Valuation & DCF",                  test:q => q.t === "val"},
+  {id:"ma",     name:"Mergers & Acquisitions",           test:q => q.t === "deal" && !/lbo|leveraged|buyout|restructuring|distress/i.test((q.topic||"") + " " + (q.section||"") + " " + (q.ref ? q.ref.guide : "")) && !(!q.topic && /\bLBO\b|leverag|private equity/i.test(q.q))},
+  {id:"lbo",    name:"LBOs",                             test:q => q.t === "deal" && !/restructuring|distress/i.test(q.topic||"")},
+  {id:"rx",     name:"Restructuring",                    test:q => q.t === "deal"},
+  {id:"mkt",    name:"Markets & brainteasers",           test:q => q.t === "mkt"},
+  {id:"sector", name:"Industry groups",                  test:q => q.t === "sector"},
+  {id:"beh",    name:"Behavioral & fit",                 test:q => q.t === "beh"},
+];
+const TIER = l => /^(?:advanced|brainteaser)$/i.test(l || "") ? 2 : /^intermediate$/i.test(l || "") ? 1 : 0;
+const TIER_NAME = ["Basics", "Intermediate", "Advanced"];
+const SOURCE_RANK = q => q.source === "biws" ? 1 : q.source === "vine" ? 2 : q.source === "mine" || q.custom ? 3 : 0;
+let courseCache = null;
+function courseData(){
+  const pool = allQs().filter(sourceOk);
+  const key = bankFilter.source + ":" + pool.length;
+  if (courseCache && courseCache.key === key) return courseCache;
+  const seen = new Set(), units = COURSE_UNITS.map(u => ({...u, qs:[]}));
+  pool.forEach((q, i) => {
+    const norm = q.q.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    if (seen.has(norm)) return; seen.add(norm);
+    const u = units.find(u => u.test(q)); if (!u) return;
+    u.qs.push({q, i, tier: TIER(q.l), lesson: q.section || (q.source === "vine" ? q.topic : "") || "Essentials"});
+  });
+  const order = [], lessons = [];
+  for (const u of units){
+    u.qs.sort((a, b) => a.tier - b.tier || SOURCE_RANK(a.q) - SOURCE_RANK(b.q) || a.i - b.i);
+    u.lessons = [];
+    // Group consecutive questions into lessons; long groups become sets of 15.
+    const groups = [];
+    for (const x of u.qs){
+      const name = `${TIER_NAME[x.tier]} · ${x.lesson.replace(/\s*\((?:BIWS)\)$/, "")}`;
+      const g = groups[groups.length - 1];
+      if (!g || g.name !== name) groups.push({name, items:[x]}); else g.items.push(x);
+    }
+    for (const g of groups){
+      const sets = g.items.length > 20 ? Math.ceil(g.items.length / 15) : 1;
+      for (let s = 0; s < sets; s++){
+        const items = sets > 1 ? g.items.slice(s * 15, (s + 1) * 15) : g.items;
+        const name = sets > 1 ? `${g.name} · Set ${s + 1} of ${sets}` : g.name;
+        const l = {name, unit:u, qs: items.map(x => x.q), key: u.id + "|" + name};
+        u.lessons.push(l); lessons.push(l);
+        for (const x of items) order.push({q:x.q, unit:u, lesson:l});
+      }
+    }
+  }
+  courseCache = {key, units: units.filter(u => u.qs.length), lessons, order, pos: new Map(order.map((o, k) => [o.q.id, k]))};
+  return courseCache;
+}
+// A question is passed once its best score reaches 7, or you marked it mastered.
+const coursePassed = id => { const p = progress[id]; return !!p && (p.flag === "mastered" || (p.scores || []).some(s => s >= 7)); };
+function courseNext(fromId){
+  const c = courseData();
+  const start = fromId != null && c.pos.has(fromId) ? c.pos.get(fromId) + 1 : 0;
+  for (let k = start; k < c.order.length; k++) if (!coursePassed(c.order[k].q.id)) return c.order[k];
+  for (let k = 0; k < Math.min(start, c.order.length); k++) if (!coursePassed(c.order[k].q.id)) return c.order[k];
+  return null;
+}
+function startCourse(fromId){
+  const c = courseData();
+  const at = fromId && c.pos.has(fromId) ? c.order[c.pos.get(fromId)] : courseNext(store.get("coursePos", null));
+  if (!at){ go("course"); return; }
+  state.course = true; store.set("courseOn", true);
+  state.track = at.q.t; state.view = "drill";
+  store.set("coursePos", at.q.id);
+  showQuestion(at.q);
+  window.scrollTo({top:0});
+}
+function exitCourse(){ state.course = false; store.set("courseOn", false); }
+
 /* ---------- Picking questions ---------- */
 function pickNext(opts={}){
+  if (state.course){
+    // Course mode: the next question you haven't passed yet, in learning order.
+    const nx = courseNext(state.current ? state.current.id : store.get("coursePos", null));
+    if (nx){ state.track = nx.q.t; store.set("coursePos", nx.q.id); return showQuestion(nx.q, opts); }
+    exitCourse();
+  }
   const pool = filtered().filter(q => q.t === state.track);
   if (!pool.length){ state.current = null; return; }
   const cand = pool.filter(q => !state.current || q.id !== state.current.id);
@@ -998,7 +1082,7 @@ function render(){
   if (typeof renderAccountRow === "function") renderAccountRow();
   const v = $("view"); v.replaceChildren();
   $("tbRight").replaceChildren();
-  const views = {drill:viewDrill, mock:viewDrill, mastery:viewMastery, bank:viewBank, progress:viewProgress};
+  const views = {course:viewCourse, drill:viewDrill, mock:viewDrill, mastery:viewMastery, bank:viewBank, progress:viewProgress};
   (views[state.view] || viewDrill)(v);
   $("tbTitle").textContent = state.view === "drill" ? trackName(state.track) : (NAV.find(n=>n.id===state.view)||{}).name || "";
 }
@@ -1014,7 +1098,25 @@ function viewDrill(v){
   v.append(h("h1", {class:"largetitle", text: isMock ? "Mock interview" : trackName(state.track)}));
   v.append(h("p", {class:"subtitle", text: isMock ? `Question ${m.i+1} of ${m.qs.length}. Answer each one like it's the real thing.` : subtitleFor(state.track)}));
 
-  if (!isMock){
+  if (!isMock && state.course && q){
+    // Course banner: where you are in the learning path.
+    const c = courseData(), at = c.order[c.pos.get(q.id)];
+    if (at){
+      const ui = c.units.indexOf(at.unit), inLesson = at.lesson.qs.indexOf(q) + 1;
+      const passedL = at.lesson.qs.filter(x => coursePassed(x.id)).length;
+      v.append(h("section", {class:"card", "aria-label":"Course progress", style:{padding:"12px 16px"}},
+        h("div", {class:"row", style:{justifyContent:"space-between", gap:"8px", flexWrap:"wrap"}},
+          h("div", {style:{minWidth:0}},
+            h("div", {style:{fontSize:"12px", fontWeight:700, textTransform:"uppercase", letterSpacing:".04em", color:"var(--teal, var(--blue))"}, text:`Course · Unit ${ui + 1} of ${c.units.length}: ${at.unit.name}`}),
+            h("b", {text: at.lesson.name}),
+            h("div", {style:{fontSize:"13px", color:"var(--label2)"}, text:`Question ${inLesson} of ${at.lesson.qs.length} in this lesson · ${passedL} passed`})),
+          h("div", {class:"row", style:{gap:"6px"}},
+            h("button", {class:"btn tint", onclick:() => go("course"), text:"Course map"}),
+            h("button", {class:"btn plain", onclick:() => { exitCourse(); render(); }, text:"Exit course"}))),
+        h("div", {class:"bar", style:{marginTop:"8px"}}, h("i", {style:{width: (passedL / at.lesson.qs.length * 100) + "%", background:"var(--green)"}}))));
+    }
+  }
+  if (!isMock && !state.course){
     const strip = h("div", {class:"topics-strip", role:"group", "aria-label":"Topic"});
     TRACKS.forEach(t => { const n = filtered().filter(q=>q.t===t.id).length; if (n) strip.append(h("button", {"aria-pressed":String(t.id===state.track), onclick:() => { setTrack(t.id); render(); }, text:t.name})); });
     v.append(strip);
@@ -1391,6 +1493,45 @@ function viewMockDone(v){
   v.append(h("div", {class:"row"}, h("button", {class:"btn lg fill", onclick:() => { startMock(); render(); }, html: ic("retry") + "Run another mock"}), h("button", {class:"btn lg tint", onclick:() => { state.mock = null; go("drill"); }, text:"Back to drills"})));
 }
 
+/* ----- Course ----- */
+let courseOpen = null;
+function viewCourse(v){
+  const c = courseData();
+  const total = c.order.length, passed = c.order.filter(o => coursePassed(o.q.id)).length;
+  const next = courseNext(store.get("coursePos", null));
+  v.append(h("h1", {class:"largetitle", text:"Course"}));
+  v.append(h("p", {class:"subtitle", text:"Every question in learning order: the basics of each topic first, then intermediate, then advanced, and accounting before valuation before deals. You move on as you go; anything you score under 7 on comes back later."}));
+  const srcName = {vine:"IB Vine", biws:"BIWS guides", original:"Core drills", all:"All questions"}[bankFilter.source] || "All questions";
+  v.append(h("section", {class:"card"},
+    h("div", {class:"row", style:{justifyContent:"space-between", gap:"10px", flexWrap:"wrap"}},
+      h("div", null,
+        h("b", {style:{fontSize:"18px"}, text: `${passed.toLocaleString()} of ${total.toLocaleString()} questions passed`}),
+        h("div", {style:{fontSize:"13px", color:"var(--label2)"}, text:`Using: ${srcName}. Change it with the picker in the sidebar.`}),
+        next ? h("div", {style:{fontSize:"14px", marginTop:"6px"}}, h("span", {class:"t-gray", text:"Up next: "}), `${next.unit.name} · ${next.lesson.name}`) : h("div", {style:{marginTop:"6px"}, text:"You've passed every question. Nice work."})),
+      next ? h("button", {class:"btn lg fill", onclick:() => startCourse(next.q.id), html: ic("forward") + (passed ? "Continue" : "Start the course")}) : null),
+    h("div", {class:"bar", style:{marginTop:"10px"}}, h("i", {style:{width: (total ? passed / total * 100 : 0) + "%", background:"var(--green)"}}))));
+
+  const list = h("div", {class:"list"});
+  c.units.forEach((u, ui) => {
+    const up = u.qs.filter(x => coursePassed(x.q.id)).length, open = courseOpen === u.id;
+    const [icon, col] = TRACK_STYLE[u.qs[0].q.t] || ["list", "c-gray"];
+    list.append(h("button", {class:"li", "aria-expanded": String(open), onclick:() => { courseOpen = open ? null : u.id; render(); }},
+      h("span", {class:"lic " + col, html: ic(icon)}),
+      h("div", {class:"lit"}, h("b", {text:`${ui + 1}. ${u.name}`}),
+        h("span", {text:`${up} of ${u.qs.length} passed · ${u.lessons.length} lessons`}),
+        h("div", {class:"bar"}, h("i", {style:{width:(up / u.qs.length * 100) + "%", background:"var(--green)"}}))),
+      h("span", {class:"trail"}, chevEl())));
+    if (open) u.lessons.forEach(l => {
+      const lp = l.qs.filter(q => coursePassed(q.id)).length;
+      const first = l.qs.find(q => !coursePassed(q.id)) || l.qs[0];
+      list.append(h("div", {class:"li", style:{paddingLeft:"52px"}},
+        h("div", {class:"lit"}, h("b", {style:{fontWeight:500}, text:l.name}), h("span", {text:`${lp} of ${l.qs.length} passed`})),
+        h("span", {class:"trail"}, h("button", {class:"btn tint", onclick:() => startCourse(first.id), text: lp === l.qs.length ? "Review" : lp ? "Resume" : "Start here"}))));
+    });
+  });
+  v.append(h("h3", {class:"sechead"}, "Units"), list);
+}
+
 /* ----- Mastery ----- */
 let masteryOpen = null, masteryLevel = "all";
 function viewMastery(v){
@@ -1445,6 +1586,7 @@ function viewMastery(v){
   v.append(list);
 }
 function drillConcept(name, qs){
+  exitCourse();
   const vine = qs.some(q => q.source === "vine" || q.source === "biws");
   if (vine && qs[0].topic){ bankFilter.topic = qs[0].topic; store.set("bankFilter", bankFilter); }
   state.track = qs[0].t; store.set("track", state.track);
@@ -1456,7 +1598,7 @@ function questionRow(q, withFlag){
   const last = p && p.scores.length ? p.scores.at(-1) : null;
   const row = h("div", {class:"li qrow"},
     h("span", {class:"status", style:{color:`var(--${LV[lv].color})`}, title: LV[lv].name, html: ic(lv==="mastered"?"check":lv==="close"?"half":lv==="new"?"list":"warn", "status")}),
-    h("button", {class:"lit", style:{all:"unset", cursor:"pointer", flex:1, minWidth:0}, onclick:() => { state.track = q.t; store.set("track", q.t); state.view = "drill"; showQuestion(q); window.scrollTo({top:0}); }},
+    h("button", {class:"lit", style:{all:"unset", cursor:"pointer", flex:1, minWidth:0}, onclick:() => { exitCourse(); state.track = q.t; store.set("track", q.t); state.view = "drill"; showQuestion(q); window.scrollTo({top:0}); }},
       h("b", {style:{display:"block", fontWeight:500, fontSize:"15px"}, text:q.q}),
       h("span", {style:{display:"block", fontSize:"13px", color:"var(--label2)"}, text: [q.topic || trackName(q.t), q.l, firmTag(q)].filter(Boolean).join(" · ")})),
     h("span", {class:"trail"}, last !== null ? h("span", {class:`score-chip sc-${band(last)}`, text: last + "/10"}) : null,
