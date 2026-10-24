@@ -1688,7 +1688,7 @@ function writeAccountData(d){
   loadAccountData();
 }
 if (typeof Cloud !== "undefined") Cloud.setSnapshot(() => ({progress, history, custom}));
-const settings = Object.assign({autoGrade:false, accurate:true, speechModel:"fast", voice:"", strict:"standard", theme:"system", aiMode:"auto", aiModel:"claude-opus-5-5", order:"smart"}, store.get("settings", {}));
+const settings = Object.assign({autoGrade:false, accurate:true, speechModel:"fast", smartCleanup:true, voice:"", strict:"standard", theme:"system", aiMode:"auto", aiModel:"claude-opus-5-5", order:"smart"}, store.get("settings", {}));
 const saveSettings = () => store.set("settings", settings);
 const bankFilter = Object.assign({source:"all", topic:"", level:"", search:""}, store.get("bankFilter", {}));
 let HAS_VINE = typeof VINE_BANK !== "undefined" && VINE_BANK.length > 0;
@@ -1913,7 +1913,7 @@ const COMMON = new Set("the of and to a in for is on that by this with i you it 
 function phon(s){
   let w = String(s).toLowerCase().replace(/[^a-z]/g, "");
   if (!w) return "";
-  w = w.replace(/^kn|^gn|^pn|^wr/, m => m[1]).replace(/^x/, "s").replace(/ph/g, "f").replace(/ck/g, "k").replace(/sch/g, "sk")
+  w = w.replace(/^h(?=[aeiouy])/, "").replace(/^kn|^gn|^pn|^wr/, m => m[1]).replace(/^x/, "s").replace(/ph/g, "f").replace(/ck/g, "k").replace(/sch/g, "sk")
        .replace(/dg/g, "j").replace(/tch/g, "ch").replace(/c(?=[eiy])/g, "s").replace(/c/g, "k").replace(/q/g, "k").replace(/x/g, "ks")
        .replace(/z/g, "s").replace(/wh/g, "w").replace(/([bcdfgjklmnpqrstvwxz])h/g, "$1").replace(/v/g, "f");
   const first = w[0];
@@ -1945,6 +1945,7 @@ function expectedTerms(q){
   }
   const out = [];
   for (const t of terms) for (const f of t.forms){ const k = phon(f); if (k.length >= 3) out.push({show:t.show, form:f.replace(/[^a-z]/g, ""), raw:f, key:k, words:f.split(" ").length, local:t.local, spelled: /^[A-Z&\/]{2,6}s?$/.test(t.show)}); }
+  out.localShows = new Set(terms.filter(t => t.local).map(t => t.show.toLowerCase()));
   // Index by first sound, so each heard word is only compared with terms that could match.
   out.byFirst = new Map();
   for (const t of out){ const f = t.key[0]; if (!out.byFirst.has(f)) out.byFirst.set(f, []); out.byFirst.get(f).push(t); }
@@ -2029,6 +2030,156 @@ function predictTerms(text, q){
   }
   return parts.join("").replace(/\s{2,}/g, " ");
 }
+/* ---------- Listening pipeline (built like a dictation app) ----------
+   1. Whisper on this device gives the main transcript; Chrome's live recognizer gives a second opinion.
+   2. Known mishearings are fixed, then your own dictionary (learned from your edits) is applied.
+   3. The two transcripts are lined up word by word: where they disagree and Chrome heard a term
+      this question expects, Chrome's word wins; a phrase Whisper skipped entirely is put back.
+   4. The term predictor fixes jargon heard as everyday words.
+   5. With a Claude key, Claude reads the transcript with the question and fixes only words that
+      were misheard, never your wording, fillers or mistakes (the coach grades those). Its result
+      is thrown away if it changed too much. */
+const plainWords = s => String(s).toLowerCase().replace(/[^a-z0-9&'\s-]/g, " ").split(/\s+/).filter(Boolean);
+function alignWords(a, b){
+  // Word-level edit alignment; returns pairs [i in a | -1, j in b | -1].
+  const n = a.length, m = b.length, d = Array.from({length: n + 1}, () => new Uint16Array(m + 1));
+  for (let i = 0; i <= n; i++) d[i][0] = i;
+  for (let j = 0; j <= m; j++) d[0][j] = j;
+  for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++)
+    d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+  const out = []; let i = n, j = m;
+  while (i > 0 || j > 0){
+    if (i > 0 && j > 0 && d[i][j] === d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1)){ out.push([i-1, j-1]); i--; j--; }
+    else if (i > 0 && d[i][j] === d[i-1][j] + 1){ out.push([i-1, -1]); i--; }
+    else { out.push([-1, j-1]); j--; }
+  }
+  return out.reverse();
+}
+function fuseTranscripts(main, live, q){
+  const L = plainWords(live);
+  if (!L.length || L.length > 900) return main;
+  const parts = String(main).split(/(\s+)/), idx = [];
+  parts.forEach((p, i) => { if (p.trim()) idx.push(i); });
+  const M = idx.map(i => parts[i].toLowerCase().replace(/[^a-z0-9&'-]/g, ""));
+  if (M.length > 900) return main;
+  const terms = expectedTerms(q), expected = terms.localShows || new Set();
+  const pairs = alignWords(M, L);
+  // Substitutions: Chrome heard an expected term where Whisper heard a sound-alike.
+  for (const [i, j] of pairs){
+    if (i < 0 || j < 0 || M[i] === L[j]) continue;
+    const word = L[j], mw = M[i].replace(/[-']/g, "");
+    if (mw.includes(word) || word.includes(mw)) continue;                     // "tax-deductible" vs "deductible"
+    const pa = phon(mw), pb = phon(word);
+    if (lev(pa, pb) > Math.max(1, Math.round(Math.max(pa.length, pb.length) * 0.4))) continue;   // not a sound-alike
+    if (expected.has(word) && !expected.has(M[i])){
+      const lead = parts[idx[i]].match(/^[^\w]*/)[0], tail = parts[idx[i]].match(/[^\w]*$/)[0];
+      const show = (terms.find(t => t.show.toLowerCase() === word) || {show: /^[a-z]{2,5}$/.test(word) && word === word.toLowerCase() && expected.has(word) ? word.toUpperCase() : word}).show;
+      parts[idx[i]] = lead + show + tail;
+    }
+  }
+  // Insertions: a run of 3+ words Chrome heard that Whisper skipped, between words both heard.
+  const inserts = [];
+  for (let k = 0; k < pairs.length; k++){
+    if (pairs[k][0] !== -1) continue;
+    let e = k; while (e < pairs.length && pairs[e][0] === -1) e++;
+    const run = pairs.slice(k, e).map(p => L[p[1]]);
+    const before = pairs[k - 1], after = pairs[e];
+    if (run.length >= 3 && before && after && before[0] >= 0 && after[0] >= 0 && before[1] >= 0 && after[1] >= 0 && M[before[0]] === L[before[1]] && M[after[0]] === L[after[1]])
+      inserts.push({at: before[0], words: run.join(" ")});
+    k = e - 1;
+  }
+  for (const ins of inserts.reverse()) parts[idx[ins.at]] += " " + ins.words;
+  return parts.join("");
+}
+
+// Your dictionary: corrections you make to a transcript are remembered and applied next time.
+let personalDict = store.get("speechDict", {});
+function applyDictionary(text){
+  let s = String(text);
+  for (const [from, entry] of Object.entries(personalDict)){
+    if (!entry || !entry.to) continue;
+    const re = new RegExp("\\b" + from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+") + "\\b", "gi");
+    s = s.replace(re, entry.to);
+  }
+  return s;
+}
+function learnFromEdit(before, after){
+  const A = String(before).split(/\s+/).filter(Boolean), B = String(after).split(/\s+/).filter(Boolean);
+  if (!A.length || !B.length || Math.abs(A.length - B.length) > 12) return 0;
+  const clean = w => w.toLowerCase().replace(/^[^\w&]+|[^\w&]+$/g, "");
+  const pairs = alignWords(A.map(clean), B.map(clean));
+  let learned = 0, k = 0;
+  while (k < pairs.length){
+    if (pairs[k][0] >= 0 && pairs[k][1] >= 0 && clean(A[pairs[k][0]]) === clean(B[pairs[k][1]])){ k++; continue; }
+    let e = k; while (e < pairs.length && !(pairs[e][0] >= 0 && pairs[e][1] >= 0 && clean(A[pairs[e][0]]) === clean(B[pairs[e][1]]))) e++;
+    const from = pairs.slice(k, e).filter(p => p[0] >= 0).map(p => clean(A[p[0]])).join(" ");
+    const to = pairs.slice(k, e).filter(p => p[1] >= 0).map(p => B[p[1]].replace(/^[^\w&]+|[^\w&]+$/g, "")).join(" ");
+    // Only short word swaps that look like mishearings, not rewrites or plain-English edits.
+    const fw = from.split(" ").filter(Boolean), tw = to.split(" ").filter(Boolean);
+    if (fw.length && tw.length && fw.length <= 3 && tw.length <= 3 && from !== to.toLowerCase() && !(fw.every(w => isCommon(w)) && fw.length === 1)){
+      const prev = personalDict[from];
+      personalDict[from] = {to, n: prev && prev.to === to ? prev.n + 1 : 1, at: Date.now()};
+      learned++;
+    }
+    k = e;
+  }
+  if (learned){
+    const keep = Object.entries(personalDict).sort((x, y) => (y[1].at || 0) - (x[1].at || 0)).slice(0, 300);
+    personalDict = Object.fromEntries(keep); store.set("speechDict", personalDict);
+  }
+  return learned;
+}
+
+// Claude reads the transcript in context and fixes only misheard words.
+const CLEAN_SCHEMA = {type:"object", additionalProperties:false, required:["text","changes"],
+  properties:{text:{type:"string"}, changes:{type:"array", items:{type:"object", additionalProperties:false, required:["from","to"], properties:{from:{type:"string"}, to:{type:"string"}}}}}};
+async function claudeCleanup(text, live, q){
+  if (!(apiKey || sample) || settings.smartCleanup === false || !q) return null;
+  const terms = [...new Set(expectedTerms(q).filter(t => t.local).map(t => t.show))].slice(0, 60);
+  const prompt = `You correct speech-recognition errors in a transcript of a student answering an investment banking interview question out loud.
+
+QUESTION: ${q.q}
+TERMS THIS ANSWER IS LIKELY TO USE: ${terms.join(", ") || "(general finance)"}
+SECOND RECOGNIZER'S VERSION (less accurate, but useful evidence where they differ): """${String(live || "").slice(0, 4000)}"""
+
+TRANSCRIPT TO CORRECT: """${text.slice(0, 6000)}"""
+
+Fix ONLY words that were clearly misheard by the speech recognizer, using the question, the terms and the second version as context (e.g. "the herb" -> "the IRR", "whack" -> "WACC", "Bunso purchase" -> "funds the purchase").
+Do NOT change anything the student actually said: keep every filler (um, uh, like, you know, so), repetition, false start, grammar mistake, informal wording and every factually wrong statement exactly as spoken, because the transcript is being graded. Do not add, remove, reorder or rephrase words. Do not fix their finance. Fix punctuation only where it is missing.
+Return the corrected transcript in "text" and each word-level fix in "changes". If nothing was misheard, return the transcript unchanged with an empty "changes" list.`;
+  const body = {model: "claude-haiku-5-5", max_tokens: 4000, messages:[{role:"user", content: prompt}], output_config:{format:{type:"json_schema", schema: CLEAN_SCHEMA}}};
+  let out;
+  try{
+    if (sample) out = await sample.json(prompt + "\n\nReply with only the JSON object: {\"text\": ..., \"changes\": [{\"from\": ..., \"to\": ...}]}.", {cache:false});
+    else {
+      const r = await fetch("https://api.anthropic.com/v1/messages", {method:"POST", headers:{"content-type":"application/json", "x-api-key":apiKey, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true"}, body: JSON.stringify(body)});
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || data.stop_reason === "refusal") return null;
+      out = JSON.parse((data.content || []).filter(b => b.type === "text").map(b => b.text).join(""));
+    }
+  }catch{ return null; }
+  return checkCleanup(text, out);
+}
+// Safety checks: the cleanup may only swap a few misheard words, never rewrite the answer.
+const FILLER_RE = /\b(?:um+|uh+|uhm+|er|like|you know|basically|kind of|sort of|i mean)\b/gi;
+function checkCleanup(orig, out){
+  if (!out || typeof out.text !== "string" || !out.text.trim()) return null;
+  const A = plainWords(orig), B = plainWords(out.text);
+  if (Math.abs(A.length - B.length) > Math.max(3, A.length * 0.06)) return null;                 // added or dropped words
+  if ((out.text.match(FILLER_RE) || []).length < (orig.match(FILLER_RE) || []).length) return null;   // removed fillers
+  const edits = alignWords(A, B).filter(([i, j]) => i < 0 || j < 0 || A[i] !== B[j]).length;
+  if (edits > Math.max(4, A.length * 0.12)) return null;                                           // rewrote too much
+  return {text: out.text, changes: (out.changes || []).filter(c => c && c.from && c.to && c.from !== c.to).slice(0, 20)};
+}
+
+async function polishTranscript(raw, live, q){
+  let t = predictTerms(fuseTranscripts(applyDictionary(fixTerms(raw)), live, q), q);
+  const fixes = [];
+  const c = await claudeCleanup(t, live, q);
+  if (c){ t = c.text; fixes.push(...c.changes); }
+  return {text: t, fixes};
+}
+
 // Chrome can be told which phrases to expect (contextual biasing), where supported.
 function biasRecognizer(rec, q){
   try{
@@ -2267,10 +2418,15 @@ async function finishAccurate(auto){
   ACC.listeners.delete(note);
   if (session !== accState.session) return;                      // a new recording started
   const text = accState.parts.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+  const live = (mic.final + " " + (mic.interim || "")).replace(/\s+/g, " ").trim();
   const t = $("ans");
-  if (text && t && t.value === before && !state.report){
-    t.value = mic.base + predictTerms(fixTerms(text), state.current); state.answer = t.value; updateWC();
-    setMicNote("");
+  if ((text || live) && t && t.value === before && !state.report){
+    if (apiKey || sample) setMicNote("Checking your transcript against the question…");
+    // Whisper's text is the main transcript; without it, the live text gets the same clean-up.
+    const p = await polishTranscript(text || live, text ? live : "", state.current);
+    if (session !== accState.session || $("ans") !== t || t.value !== before || state.report) return;
+    t.value = mic.base + p.text; state.answer = t.value; state.polished = t.value; updateWC();
+    setMicNote(p.fixes.length ? "Fixed misheard words: " + p.fixes.slice(0, 6).map(f => `“${f.from}” → “${f.to}”`).join(", ") + (p.fixes.length > 6 ? "…" : "") + ". Edit anything still wrong and the app will remember it." : "");
   } else setMicNote(ACC.failed && !text ? "Accurate transcription isn't available in this browser, so this is the live transcript." : "");
   if (auto && settings.autoGrade && t && t.value.trim().length > 15 && !state.report) setTimeout(grade, 300);
 }
@@ -2383,6 +2539,9 @@ async function grade(){
   }
   const ta = $("ans"); const answer = (ta ? ta.value : state.answer).trim();
   state.answer = answer;
+  // Corrections you typed into the transcript become your personal dictionary.
+  if (state.polished && answer !== state.polished.trim()) learnFromEdit(state.polished, answer);
+  state.polished = null;
   if (answer.split(/\s+/).length < 3){ setMicNote("Say or type an answer first, then tap Analyze."); ta && ta.focus(); return; }
   const secs = timer.el || null;
   const rep = Coach.analyze(q, answer, secs);
@@ -3012,6 +3171,9 @@ function openSettings(){
     privateBankRow(),
     h("div", {class:"grphead", text:"Practice"}),
     h("div", {class:"list grp"}, sw("autoGrade","Analyze when I stop recording"), sw("accurate","Accurate transcription (on this device)"),
+      (apiKey || sample) ? sw("smartCleanup","Fix misheard words with Claude (uses your key)") : null,
+      Object.keys(personalDict).length ? h("div", {class:"setrow"}, h("label", {text:`Word fixes learned from your edits: ${Object.keys(personalDict).length}`}),
+        h("button", {class:"btn plain", onclick:e => { personalDict = {}; store.set("speechDict", {}); e.currentTarget.textContent = "Cleared"; }, text:"Clear"})) : null,
       sel("speechModel","Speech accuracy", [["fast","Fast (default)"],["best","Most accurate (slower, 172 MB once)"]], () => { if (ACC.worker){ try{ ACC.worker.terminate(); }catch{} ACC.worker = null; ACC.ready = false; ACC.loading = false; ACC.failed = false; ACC.progress = 0; } }),
       sel("strict","Interviewer style", [["standard","Standard analyst"],["tough","Tough MD"],["coach","Friendly coach"]])),
     h("div", {class:"grphead", text:"Appearance"}),
