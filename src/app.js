@@ -756,20 +756,14 @@ function viewReport(q, rep){
       h("ol", {style:{margin:"8px 0 0", paddingLeft:"20px", lineHeight:"1.6"}}, rep.plan.map(p => h("li", {text:p.title})))));
   }
 
+  /* answer check: every key point, what you said for it, and what to add or correct */
+  wrap.append(answerCheck(rep, ai));
+
   /* AI layer */
   const aiBox = h("div", {id:"aiBox"}); wrap.append(aiBox); paintAI(aiBox);
 
-  /* corrections */
-  const corr = ai && ai.corrections && ai.corrections.length ? ai.corrections : rep.corrections;
-  if (corr.length){
-    wrap.append(h("h3", {class:"sechead"}, "What you got wrong"));
-    const saidFor = c => (corr === rep.corrections && rep.said && rep.said[c]) ? rep.said[c] : null;
-    wrap.append(h("div", {class:"list"}, corr.map(c => h("div", {class:"li"}, h("span", {class:"lic c-red", html:ic("xmark")}),
-      h("div", {class:"lit"}, saidFor(c) ? h("span", {text:`You said: “${saidFor(c)}”`}) : null, h("b", {text:c}))))));
-  }
-
-  /* top fixes */
-  const fixes = rep.fixes.filter(f => f.tag !== "Accuracy");
+  /* top fixes (missed and partial points are already in the answer check) */
+  const fixes = rep.fixes.filter(f => f.tag !== "Accuracy" && !/^Add (?:this point|these)|^Go one level deeper/.test(f.title));
   if (fixes.length){
     wrap.append(h("h3", {class:"sechead"}, "How to improve ", h("small", {text: fixes.length + " fixes, most important first"})));
     const sevCol = s => s >= 4 ? "c-red" : s === 3 ? "c-orange" : s === 2 ? "c-yellow" : "c-gray";
@@ -780,21 +774,6 @@ function viewReport(q, rep){
       h("span", {class:"trail", text:f.tag})))));
   }
 
-  /* key points */
-  if (rep.coverage.length){
-    const hit = rep.coverage.filter(p => p.status === "hit").length;
-    wrap.append(h("h3", {class:"sechead"}, "Key points ", h("small", {text:`${hit} of ${rep.coverage.length} covered`})));
-    const icons = {hit:["check","t-green","Covered"], partial:["half","t-orange","Partly covered"], miss:["xmark","t-red","Missed"]};
-    wrap.append(h("div", {class:"list noicon pts"}, rep.coverage.map(p => { const [i,c,lbl] = icons[p.status];
-      return h("div", {class:"li"}, h("span", {class:"status "+c, title:lbl, html: ic(i, "status")}), h("div", {class:"lit"}, h("b", {text:p.text}), p.status !== "hit" ? h("span", {text: missingText(p)}) : null)); })));
-  }
-
-  /* strengths */
-  const good = ai && ai.got_right && ai.got_right.length ? ai.got_right : rep.strengths;
-  if (good.length){
-    wrap.append(h("h3", {class:"sechead"}, "What you did well"));
-    wrap.append(h("div", {class:"list"}, good.map(s => h("div", {class:"li"}, h("span", {class:"lic c-green", html:ic("thumbs")}), h("div", {class:"lit"}, h("b", {style:{fontWeight:500}, text:s}))))));
-  }
 
   /* STAR */
   if (rep.star){
@@ -807,10 +786,30 @@ function viewReport(q, rep){
   /* transcript */
   wrap.append(h("h3", {class:"sechead"}, "Your transcript"));
   const tr = h("div", {class:"transcript"});
-  const marks = Coach.highlights(state.answer, rep); let pos = 0;
-  marks.forEach(mk => { if (mk.i > pos) tr.append(state.answer.slice(pos, mk.i)); tr.append(h("mark", {class:mk.kind, title:mk.tip, tabindex:"0"}, state.answer.slice(mk.i, mk.j))); pos = mk.j; });
-  tr.append(state.answer.slice(pos));
+  // Sentences that earned a key point are underlined green, ones with a factual error red;
+  // filler, hedges and weak words are highlighted inside them.
+  const ans = state.answer, sentMarks = [];
+  const findSent = s => { const words = String(s).replace(/…$/, "").trim().split(/\s+/).filter(Boolean); if (!words.length) return null;
+    const m = new RegExp(words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+")).exec(ans); return m ? [m.index, m.index + m[0].length] : null; };
+  (rep.coverage || []).forEach(p => { if (p.quoteFull && p.status !== "miss"){ const r = findSent(p.quoteFull); if (r) sentMarks.push({i:r[0], j:r[1], kind:"good"}); } });
+  Object.values(rep.said || {}).forEach(s => { const r = s && findSent(s); if (r) sentMarks.push({i:r[0], j:r[1], kind:"bad"}); });
+  const sentAt = i => { let k = null; for (const m of sentMarks) if (i >= m.i && i < m.j){ if (m.kind === "bad") return "bad"; k = "good"; } return k; };
+  const SENT_STYLE = {good:{textDecoration:"underline", textDecorationColor:"var(--green)", textDecorationThickness:"2px", textUnderlineOffset:"3px"},
+                      bad:{textDecoration:"underline wavy", textDecorationColor:"var(--red)", textDecorationThickness:"1.5px", textUnderlineOffset:"3px"}};
+  const marks = Coach.highlights(ans, rep);
+  const cuts = new Set([0, ans.length]);
+  marks.forEach(m => { cuts.add(m.i); cuts.add(m.j); }); sentMarks.forEach(m => { cuts.add(m.i); cuts.add(m.j); });
+  const pts = [...cuts].sort((a, b) => a - b);
+  for (let x = 0; x < pts.length - 1; x++){
+    const a = pts[x], b = pts[x + 1]; if (a >= b) continue;
+    const piece = ans.slice(a, b), mk = marks.find(m => a >= m.i && a < m.j), sk = sentAt(a);
+    let node = mk ? h("mark", {class:mk.kind, title:mk.tip, tabindex:"0"}, piece) : document.createTextNode(piece);
+    if (sk) node = h("span", {style:SENT_STYLE[sk], title: sk === "good" ? "Earned a key point" : "Factual error"}, node);
+    tr.append(node);
+  }
   wrap.append(h("section", {class:"card"}, tr, h("div", {class:"keys"},
+    h("span", null, h("i", {style:{background:"transparent", borderBottom:"2px solid var(--green)", borderRadius:0}}), "Earned a key point"),
+    rep.said && Object.keys(rep.said).length ? h("span", null, h("i", {style:{background:"transparent", borderBottom:"2px dotted var(--red)", borderRadius:0}}), "Factual error") : null,
     h("span", null, h("i", {style:{background:"color-mix(in srgb,var(--orange) 30%,transparent)"}}), `Filler (${rep.stats.fillers})`),
     h("span", null, h("i", {style:{background:"color-mix(in srgb,var(--purple) 30%,transparent)"}}), `Hedge (${rep.stats.hedges})`),
     h("span", null, h("i", {style:{background:"color-mix(in srgb,var(--blue) 25%,transparent)"}}), "Word choice"),
@@ -869,6 +868,56 @@ function viewReport(q, rep){
   return wrap;
 }
 const TERM = {da:"D&A", ppe:"PP&E", ar:"accounts receivable", ap:"accounts payable", accrued:"accrued expenses", deferredrevenue:"deferred revenue", dtl:"deferred tax liability", dta:"deferred tax asset", nol:"NOLs", netincome:"net income", incomestatement:"income statement", balancesheet:"balance sheet", cfs:"cash flow statement", cfo:"cash flow from operations", cfi:"cash flow from investing", cff:"cash flow from financing", shequity:"shareholders' equity", retainedearnings:"retained earnings", apic:"APIC", treasury:"treasury stock", sbc:"stock-based comp", capex:"CapEx", nwc:"working capital", cogs:"COGS", sga:"SG&A", ebitda:"EBITDA", ebit:"EBIT / operating income", ev:"enterprise value", equityvalue:"equity value", wacc:"WACC", costequity:"cost of equity", costdebt:"cost of debt", capm:"CAPM", erp:"equity risk premium", riskfree:"risk-free rate", fcf:"free cash flow", terminalvalue:"terminal value", gordon:"perpetuity growth", exitmultiple:"exit multiple", dcf:"DCF", lbo:"LBO", irr:"IRR", moic:"MoIC", mna:"M&A", pe:"P/E", eps:"EPS", nopat:"NOPAT", comps:"comparable companies", precedents:"precedent transactions", sourcesuses:"sources & uses", nci:"noncontrolling interest", preferred:"preferred stock", goodwill:"goodwill", intangibles:"intangibles", interestexpense:"interest expense", dividend:"dividends", revolver:"revolver", synergy:"synergies", accretive:"accretion", dilutive:"dilution", pretax:"pre-tax income"};
+// One place to see how the answer did, point by point: wrong statements first, then every key
+// point in order with the sentence that earned it (or what to add), then the delivery strengths.
+function answerCheck(rep, ai){
+  const box = h("div", {"aria-label":"Answer check"});
+  const pts = rep.coverage || [];
+  const wrong = ai && ai.corrections && ai.corrections.length
+    ? ai.corrections.map(c => ({fix:c, said:null}))
+    : rep.corrections.map(c => ({fix:c, said: rep.said && rep.said[c]}));
+  const n = k => pts.filter(p => p.status === k).length;
+  const STATUS = {
+    wrong:   {icon:"xmark", col:"red",    label:"Wrong"},
+    hit:     {icon:"check", col:"green",  label:"Covered"},
+    partial: {icon:"half",  col:"orange", label:"Partly"},
+    miss:    {icon:"xmark", col:"red",    label:"Missed"},
+  };
+  const chip = (k, count) => count ? h("span", {class:"tag", style:{color:`var(--${STATUS[k].col})`, fontWeight:600}, html: ic(STATUS[k].icon) + `${count} ${STATUS[k].label.toLowerCase()}`}) : null;
+  box.append(h("h3", {class:"sechead"}, "Answer check ",
+    h("small", {text: pts.length ? `${n("hit")} of ${pts.length} key points covered` : ""})));
+  box.append(h("div", {class:"row", style:{gap:"6px", margin:"-4px 0 10px", flexWrap:"wrap"}},
+    chip("hit", n("hit")), chip("partial", n("partial")), chip("miss", n("miss")), chip("wrong", wrong.length)));
+
+  const said = text => h("div", {style:{margin:"6px 0 0", padding:"6px 10px", borderLeft:"3px solid var(--sep, rgba(127,127,127,.35))", fontSize:"14px", color:"var(--label2)"}},
+    h("span", {style:{fontSize:"12px", textTransform:"uppercase", letterSpacing:".04em", display:"block", marginBottom:"2px"}, text:"You said"}), `“${text}”`);
+  const todo = (label, text, col) => h("div", {style:{margin:"6px 0 0", fontSize:"14px"}},
+    h("span", {style:{color:`var(--${col})`, fontWeight:700, display:"inline"}, text: label + " "}), text);
+  const row = (k, title, ...body) => h("div", {class:"li", style:{alignItems:"flex-start"}},
+    h("span", {class:"status t-" + STATUS[k].col, title: STATUS[k].label, style:{marginTop:"2px"}, html: ic(STATUS[k].icon, "status")}),
+    h("div", {class:"lit"},
+      h("div", {style:{fontSize:"12px", fontWeight:700, textTransform:"uppercase", letterSpacing:".04em", color:`var(--${STATUS[k].col})`}, text: STATUS[k].label}),
+      h("b", {text:title}), ...body));
+
+  const list = h("div", {class:"list noicon pts"});
+  wrong.forEach(w => list.append(row("wrong", w.said ? `“${w.said}”` : "Something in your answer was wrong", todo("Correct:", w.fix, "green"))));
+  pts.forEach(p => {
+    const text = p.text.replace(/\s+/g, " ");
+    if (p.status === "hit") list.append(row("hit", text, p.quote ? said(p.quote) : null));
+    else if (p.status === "partial") list.append(row("partial", text, p.quote ? said(p.quote) : null,
+      todo("Add:", (p.missWords && p.missWords.length ? p.missWords.slice(0, 6).join(", ") : "the specifics in this point") + ".", "orange")));
+    else list.append(row("miss", text, todo("Add:", "this point wasn't in your answer. Say it next time.", "red")));
+  });
+  if (!list.childElementCount) list.append(h("div", {class:"li"}, h("div", {class:"lit", text:"No answer key for this question. See the model answer below."})));
+  box.append(list);
+
+  const good = ai && ai.got_right && ai.got_right.length ? ai.got_right : rep.strengths.filter(s => !/key points\.$/.test(s));
+  if (good.length) box.append(h("div", {class:"row", style:{gap:"6px", margin:"10px 0 4px", flexWrap:"wrap"}},
+    h("span", {style:{fontSize:"13px", color:"var(--label2)", marginRight:"2px"}, text:"Also did well:"}),
+    ...good.map(s => h("span", {class:"tag", style:{color:"var(--green)"}, html: ic("thumbs") + s.replace(/\.$/, "")}))));
+  return box;
+}
+
 // A table or screenshot from the guide, transcribed as text with markdown tables.
 function figureEl(f){
   const box = h("div", {style:{margin:"6px 0 12px", padding:"10px 12px", borderRadius:"10px", background:"var(--fill, rgba(127,127,127,.12))", overflowX:"auto"}},

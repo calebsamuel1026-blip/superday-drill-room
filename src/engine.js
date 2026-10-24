@@ -720,7 +720,7 @@ function analyze(q, answer, seconds){
     // guidance points are satisfied loosely
     const status = p.ratio >= 0.34 ? "hit" : p.ratio >= 0.15 ? "partial" : "miss";
     return {...p, status};
-  });
+  }).map(p => withEvidence(p, answer));
   const contentRatio = cov.length ? cov.reduce((s,p)=>s + (p.status==="hit"?1:p.status==="partial"?0.5:0), 0) / cov.length : null;
 
   /* accuracy */
@@ -745,6 +745,15 @@ function analyze(q, answer, seconds){
     corrections.push(...factChecks(q, answer));
   }
   const uniqCorr = [...new Set(corrections)];
+  // Errors found from numbers and directions point to the sentence that shares the most with them.
+  for (const c of uniqCorr){
+    if (said[c]) continue;
+    const said0 = (c.match(/you said ([^.]+)\./i) || [])[1] || c;
+    const ct = new Set(sigTokens(said0));
+    let best = null, bs = 0;
+    for (const x of sentNorm){ const st = sigTokens(x.s); let sc = 0; for (const t of st) if (ct.has(t)) sc += weightOf(t); if (sc > bs){ bs = sc; best = x.s; } }
+    if (best && bs >= 2) said[c] = best.trim().slice(0, 180);
+  }
 
   /* delivery */
   const fillers = findAll(answer, FILLERS);
@@ -982,6 +991,26 @@ function analyze(q, answer, seconds){
     model: modelAnswer(q, points),
   };
 }
+// The sentence of the answer that earned a key point, so the report can show "you said …" next to it.
+function withEvidence(p, answer){
+  if (p.status === "miss") return p;
+  const sents = sentences(answer);
+  let best = -1, bs = 0;
+  if (p.byConcept){
+    const cs = (p.concepts || []).filter(c => (p.hit || []).includes(c.name) && c.ans instanceof RegExp);
+    sents.forEach((s, i) => { const n = cs.filter(c => c.ans.test(s)).length; if (n > bs){ bs = n; best = i; } });
+  } else {
+    sents.forEach((s, i) => {
+      const set = new Set(sigTokens(s)); let sc = 0;
+      for (const t of p.hit || []) if (set.has(t)) sc += weightOf(t);
+      if (sc > bs){ bs = sc; best = i; }
+    });
+  }
+  if (best < 0) return p;
+  const s = sents[best];
+  return {...p, quote: s.length > 220 ? s.slice(0, 217).replace(/\s+\S*$/, "") + "…" : s, quoteFull: s};
+}
+
 // Missed pieces of a key point in plain words: "retained earnings", "40%", not stems.
 function missingWords(p){
   if (p.byConcept) return p.miss || [];
