@@ -8,9 +8,9 @@
 <link rel="canonical" href="https://calebsamuel1026-blip.github.io/superday-room/">
 <meta http-equiv="refresh" content="0; url=https://calebsamuel1026-blip.github.io/superday-room/">
 <script>
-  // Old address -> new address, keeping any page, query and #section.
-  var p = location.pathname.replace(/^\/superday-drill-room/, "/superday-room");
-  location.replace(location.origin + p + location.search + location.hash);
+  // Old address -> new address, keeping the query and #section. The app is one page, so every
+  // old path lands on its home.
+  location.replace(location.origin + "/superday-room/" + location.search + location.hash);
 </script>
 <style>body{font:15px/1.5 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;color:#09090b}a{color:inherit}</style>
 </head>
