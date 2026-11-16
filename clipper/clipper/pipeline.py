@@ -10,7 +10,8 @@ from . import campaigns, db, experiments
 from .config import settings, streamers
 from .detect import find_moments
 from .models import ChatMessage, Moment, Segment, Source
-from .render import build_ass, render_clip
+from .edit.title import render_title
+from .render import build_ass, caption_y, render_clip
 from .signals.audio import loudness_curve
 from .signals.heatmap import heatmap_curve
 from .signals.keywords import keyword_curve
@@ -30,7 +31,8 @@ def have_agent() -> bool:
 def _heuristic_rank(moments: list[Moment], languages: list[str]):
     """No API key: rank by signal strength, use template hooks."""
     from .agent import Packaging, Ranking, Verdict
-    tmpl = experiments.HOOK_TEMPLATES
+    import random as _r
+    tmpl = {k: {l: _r.choice(v) for l, v in d.items()} for k, d in experiments.HOOK_TEMPLATES.items()}
     titles = {"en": "GTA 6 moment chat lost it over 💀", "es": "El chat enloqueció con esto en GTA 6 💀",
               "pt": "O chat surtou com isso no GTA 6 💀"}
     tags = {"en": ["#gta6", "#gta6clips", "#gaming"], "es": ["#gta6", "#gta6español", "#gaming"],
@@ -73,6 +75,35 @@ def target_accounts(source_language: str | None, virality: int) -> list[str]:
     return out
 
 
+def detect_layout(video, start: float, end: float, streamer: dict) -> dict:
+    """Streamer's manual facecam box wins; otherwise auto-detect the face cam."""
+    mode = settings()["render"].get("layout", "auto")
+    if streamer.get("facecam"):
+        return {"layout": "split", "cam": streamer["facecam"]}
+    if mode == "blur_fill":
+        return {"layout": "none"}
+    try:
+        from .edit.face import detect
+        return detect(str(video), start, end)
+    except Exception as e:  # noqa: BLE001  (opencv missing etc.)
+        log("face detection unavailable:", e)
+        return {"layout": "none"}
+
+
+def edit_plan(video, start: float, end: float, peak_rel: float, min_keep: float | None = None):
+    """Dead-air cuts + where to punch-in zoom (output time)."""
+    from .edit.jumpcut import keep_ranges, remap
+    r = settings()["render"]
+    keep = None
+    if r.get("jumpcuts", True):
+        keep = keep_ranges(str(video), start, end, protect=(peak_rel - 1.5, peak_rel + 3.0),
+                           min_keep=min_keep or settings()["detection"]["min_clip_seconds"])
+        if len(keep) == 1 and keep[0][0] < 0.01 and keep[0][1] >= end - start - 0.05:
+            keep = None
+    zoom = remap(peak_rel, keep) if keep else peak_rel
+    return keep, zoom
+
+
 def long_window(m: Moment, duration: float, length: float = 66.0) -> tuple[float, float]:
     """61-75s cut for TikTok Creator Rewards (>1 min): more setup before, reaction after."""
     a = max(0.0, m.peak - length * 0.68)
@@ -113,6 +144,8 @@ def produce(src: Source, m: Moment, verdict, section_path: Path, section_offset:
 
     ids = []
     packs = {p.language: p for p in verdict.packaging}
+    layout = detect_layout(section_path, tight[0] - section_offset, tight[1] - section_offset, st)
+    log(f"  layout: {layout.get('layout')}")
     for acc_name in accounts:
         acc = cfg["accounts"][acc_name]
         lang = acc["language"]
@@ -131,11 +164,13 @@ def produce(src: Source, m: Moment, verdict, section_path: Path, section_offset:
         name = f"{int(a):06d}_{_slug(pack.title)}"
         outdir = Path(cfg["outdir"]) / acc_name / src.id
         outdir.mkdir(parents=True, exist_ok=True)
-        ass = build_ass(outdir / f"{name}.ass", segs, b - a, hook, acc.get("handle"),
-                        arms["caption_style"], translated)
-        layout = "facecam_split" if st.get("facecam") and cfg["render"]["layout"] == "facecam_split" else "blur_fill"
+        keep, zoom = edit_plan(section_path, a - section_offset, b - section_offset, m.peak - a)
+        handle = acc.get("handle") if cfg["render"].get("watermark", False) else None
+        title_png = render_title(hook, outdir / f"{name}.title.png") if hook else None
+        ass = build_ass(outdir / f"{name}.ass", segs, b - a, None, handle,
+                        arms["caption_style"], translated, caption_y(layout), keep)
         out = render_clip(section_path, outdir / f"{name}.mp4", a - section_offset, b - section_offset,
-                          ass, layout, st.get("facecam"))
+                          ass, layout, keep=keep, zoom_at=zoom, title_png=title_png)
         credit = f"🎥 {st.get('name', src.title)} — {src.url}"
         description = (pack.description + "\n" + credit).strip()
         title, hashtags = pack.title, list(pack.hashtags)
@@ -158,10 +193,13 @@ def produce(src: Source, m: Moment, verdict, section_path: Path, section_offset:
                 if translated is not None and have_agent():
                     from .agent import translate_captions
                     ltr = translate_captions(lsegs, src.language, [lang], src.streamer_id).get(lang)
-                lass = build_ass(outdir / f"{name}.long.ass", lsegs, lb - la, hook, acc.get("handle"),
-                                 arms["caption_style"], ltr)
+                lkeep, lzoom = edit_plan(section_path, la - section_offset, lb - section_offset, m.peak - la,
+                                         min_keep=61.0)       # stays >1 min for Creator Rewards
+                lass = build_ass(outdir / f"{name}.long.ass", lsegs, lb - la, None, handle,
+                                 arms["caption_style"], ltr, caption_y(layout), lkeep)
                 long_path = str(render_clip(section_path, outdir / f"{name}.long.mp4", la - section_offset,
-                                            lb - section_offset, lass, layout, st.get("facecam")))
+                                            lb - section_offset, lass, layout, keep=lkeep, zoom_at=lzoom,
+                                            title_png=title_png))
         cid = db.insert_clip(source_id=src.id, streamer_id=src.streamer_id, source_language=src.language,
                              account=acc_name, language=lang, start=a, end=b, signal_score=m.score,
                              virality=verdict.virality, title=title, description=description,

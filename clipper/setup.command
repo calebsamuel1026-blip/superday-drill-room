@@ -15,6 +15,11 @@ else
   command -v ffmpeg >/dev/null || sudo apt-get install -y ffmpeg
   command -v deno >/dev/null || (curl -fsSL https://deno.land/install.sh | sh)
 fi
+mkdir -p fonts
+[ -f fonts/Montserrat-Black.ttf ] || curl -fsSL -o fonts/Montserrat-Black.ttf https://github.com/JulietaUla/Montserrat/raw/master/fonts/ttf/Montserrat-Black.ttf
+if [[ "$OSTYPE" != darwin* ]] && [ ! -f fonts/NotoColorEmoji.ttf ]; then   # macOS uses Apple Color Emoji
+  curl -fsSL -o fonts/NotoColorEmoji.ttf https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf || true
+fi
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip -q

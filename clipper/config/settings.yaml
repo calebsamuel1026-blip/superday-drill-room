@@ -85,10 +85,16 @@ render:
   width: 1080
   height: 1920
   fps: 30
-  layout: blur_fill                # blur_fill | facecam_split (uses streamer facecam box)
-  caption_font: "Inter Display"
-  caption_size: 84
-  hook_seconds: 3.0
+  layout: auto                     # auto = detect face cam -> cam-top/gameplay-bottom split (standard TikTok
+                                   #        clip format), full-face crop for IRL, blur-fill for gameplay-only
+  split_top_ratio: 0.40            # cam panel height in the split layout
+  jumpcuts: true                   # remove dead air > 0.7s (never cuts the peak reaction)
+  zoom_punch: true                 # 1.3s punch-in zoom on the peak reaction
+  caption_font: "Montserrat Black"   # setup downloads it into fonts/; falls back to a system bold font
+  caption_size: 88
+  hook_seconds: 0                  # 0 = headline stays the whole clip (standard clip-page format)
+  title_y: 230                     # headline position (inside TikTok's safe zone)
+  watermark: false                 # no handle watermark: looks like every other clip, doesn't distract
   crf: 20
   preset: veryfast
   threads: 2                       # CPU threads for ffmpeg/whisper per job (keeps the computer usable)
@@ -134,7 +140,7 @@ autopilot:
 experiments:
   # A/B arms. Each new clip gets one value per factor via Thompson sampling.
   factors:
-    hook_style: [question, shock, none]
-    caption_style: [karaoke_yellow, white_box, big_center]
+    hook_style: [question, shock]
+    caption_style: [karaoke_yellow, karaoke_green]   # the two most common clip-page caption looks
     length: [tight, full]
   success_metric: views_48h_vs_account_median

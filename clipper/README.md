@@ -12,6 +12,24 @@ An automatic clipping system. It finds the best moments in GTA 6 streams and You
  LIVE: `watch <twitch channel>` → anonymous chat listener + rolling 10-min stream buffer → clip ~1-2 min after it happens
 ```
 
+## Clip format (matches the big TikTok clip pages)
+- **Layout.** Detected automatically per clip:
+  - The streamer's face cam goes on top (40%) with gameplay underneath. This is the standard streamer-clip layout.
+  - IRL streams get a face-tracked crop.
+  - Gameplay-only clips get a blur-fill background.
+- **Headline.** It sits at the top for the whole clip, in TikTok's native style (bold black text on a white rounded box), slightly clickbait, ending with one real color emoji: "He did NOT expect this 😭".
+- **Captions.** 1–3 words at a time, ALL CAPS, Montserrat Black with a heavy outline, active word highlighted (yellow or green, A/B tested). They sit on the seam between cam and gameplay.
+- **Edits.**
+  - Dead air over 0.7s is cut out, never during the peak reaction.
+  - A quick zoom punches in on the reaction.
+  - Loudness is normalized to TikTok's level.
+- **Nothing extra.** No watermark, and nothing under TikTok's buttons or caption area.
+
+**Editing tools: why it's ffmpeg and not DaVinci or Remotion**
+- **DaVinci Resolve** can't be fully automated without the paid Studio version and needs its GUI.
+- **Remotion** renders through a browser, about 5–10× slower than ffmpeg, so it would hog your computer. It also needs a paid license for companies.
+- **ffmpeg + libass + OpenCV + Pillow** do this whole format in one fast pass, 2 threads, about 10–20s per clip.
+
 ## Why it works
 - **Chat spikes.** Each chat message is scored. A plain message counts 1. Hype words count extra: `KEKW`, `OMEGALUL`, `kkkkkkk`, `jajaja`, `MDS`, `CARALHO`, `NO MAMES`, `CLIP IT`, `CLIPA ISSO`. Messages in all caps, stretched letters and emote spam also count extra. One spamming user counts only once per second.
 - **Baseline.** Each stream's chat is compared with its own rolling baseline (median and MAD), so a 2k-viewer chat and a 60k-viewer chat are judged the same way.

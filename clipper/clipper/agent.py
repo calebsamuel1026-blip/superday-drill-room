@@ -32,7 +32,7 @@ How you judge virality:
 - Penalize anything that would be unsafe to post: slurs, sexual content, real-life doxxing, minors, real violence. Mark keep=false for those.
 
 Packaging rules:
-- hook_shock / hook_question: two variants (we A/B test them) of on-screen text shown for the first ~3 seconds, max 7 words, native slang for that language, no hashtags. It must create curiosity without spoiling the payoff.
+- hook_shock / hook_question: two variants (we A/B test them) of the HEADLINE shown at the top of the whole clip, in the style of the biggest TikTok clip pages: slightly clickbaity, curiosity gap, max 8 words, sentence case with 1-2 words in CAPS for emphasis, ending with exactly ONE fitting emoji (😭 💀 😂 🤣 😳 😱 🤯 🔥). Examples: "He did NOT expect this 😭", "Chat couldn't believe what Kai did 💀", "Bro got DESTROYED by the cops 😭", "Nobody was ready for this ending 😳". hook_shock = bold statement; hook_question = 'wait for it' / question style. Native slang for each language, no hashtags, never misrepresent what happens.
 - title: max 70 chars, include "GTA 6" naturally, may include the streamer's name. YouTube Shorts title style. No clickbait that misrepresents the clip.
 - hashtags: 3-6, always include #gta6 plus the streamer and a language-appropriate tag (e.g. #gta6clips, #gta6español, #gta6brasil).
 - description: 1-2 lines + credit line "Streamer: <name> (<platform link handle>)".

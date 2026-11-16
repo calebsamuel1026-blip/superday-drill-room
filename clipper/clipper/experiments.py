@@ -81,7 +81,11 @@ def report(account: str) -> dict:
     return out
 
 
-HOOK_TEMPLATES = {
-    "question": {"en": "Wait for it...", "es": "Espera al final...", "pt": "Espera o final..."},
-    "shock": {"en": "HE DID NOT EXPECT THIS", "es": "NO SE LO ESPERABA", "pt": "ELE NÃO ESPERAVA ISSO"},
+HOOK_TEMPLATES = {   # fallback headlines when the AI agent isn't available
+    "question": {"en": ["Wait for the end 😭", "Chat wasn't ready for this 💀", "How did this even happen 😭"],
+                 "es": ["Espera al final 😭", "El chat no estaba listo 💀", "¿Cómo pasó esto? 😭"],
+                 "pt": ["Espera o final 😭", "O chat não tava pronto 💀", "Como isso aconteceu? 😭"]},
+    "shock": {"en": ["He did NOT expect this 😭", "Bro got DESTROYED 💀", "Chat couldn't believe this 😭"],
+              "es": ["NO se lo esperaba 😭", "Lo DESTRUYERON 💀", "El chat no lo podía creer 😭"],
+              "pt": ["Ele NÃO esperava isso 😭", "Ele foi DESTRUÍDO 💀", "O chat não acreditou 😭"]},
 }
