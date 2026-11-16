@@ -26,7 +26,9 @@ def transcribe(media: str | Path, language: str | None = None, model_size: str =
     global _MODEL
     from faster_whisper import WhisperModel
     if _MODEL is None:
-        _MODEL = WhisperModel(model_size, device="auto", compute_type="int8")
+        from .config import settings
+        threads = int(settings()["render"].get("threads", 2))
+        _MODEL = WhisperModel(model_size, device="auto", compute_type="int8", cpu_threads=threads)
     segs, _ = _MODEL.transcribe(str(media), language=language, word_timestamps=True,
                                 vad_filter=True, beam_size=1)
     out = []

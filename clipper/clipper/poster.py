@@ -28,6 +28,17 @@ def _in_window(acc: dict, tolerance_min: int = 25) -> bool:
     return False
 
 
+def _can_post_now(acc: dict) -> bool:
+    """spread (default): any time inside active hours, gaps/caps enforced elsewhere.
+    windows: only near the account's post_windows_local times."""
+    pcfg = settings().get("posting") or {}
+    if pcfg.get("mode", "spread") == "windows":
+        return _in_window(acc)
+    start, end = (acc.get("active_hours") or pcfg.get("active_hours") or ["08:30", "02:00"])
+    now = datetime.now(ZoneInfo(acc["timezone"])).strftime("%H:%M")
+    return (start <= now <= end) if start <= end else (now >= start or now <= end)
+
+
 def allowed_today(acc: dict, platform: str) -> int:
     """Posts allowed today = min(account cap, ramp schedule for the account's age)."""
     cap = (acc.get("max_posts_per_day") or {}).get(platform, 3)
@@ -78,7 +89,7 @@ def post(account: str | None = None, now: bool = False, dry_run: bool = False):
     for name, acc in cfg["accounts"].items():
         if account and name != account:
             continue
-        if not now and not _in_window(acc):
+        if not now and not _can_post_now(acc):
             continue
         for platform in acc["platforms"]:
             with connect() as con:

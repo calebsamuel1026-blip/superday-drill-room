@@ -7,7 +7,7 @@ pip install -q --upgrade yt-dlp   # YouTube/Twitch change often; stay current
 KEEPAWAKE=""
 command -v caffeinate >/dev/null && KEEPAWAKE="caffeinate -dimsu"
 while true; do
-  $KEEPAWAKE python -m clipper autopilot
+  $KEEPAWAKE python -m clipper autopilot   # supervisor -> scout + clipper + poster (+ live)
   code=$?
   [ $code -eq 0 ] && break
   echo "autopilot exited ($code) — restarting in 30s (Ctrl+C to stop)"

@@ -15,7 +15,7 @@ accounts:
     handle: "@gta6clips"                  # burned into the video as a small watermark
     platforms: [youtube, tiktok]
     timezone: America/New_York
-    max_posts_per_day: {youtube: 4, tiktok: 3}
+    max_posts_per_day: {youtube: 6, tiktok: 5}
     started: {youtube: null, tiktok: null}   # YYYY-MM-DD each account was created -> drives the ramp
     post_windows_local: ["11:30", "15:00", "18:30", "21:00", "23:30", "01:30"]
     # take clips from streamers of other languages too, with translated captions
@@ -27,7 +27,7 @@ accounts:
     handle: "@gta6clipses"
     platforms: [youtube, tiktok]
     timezone: America/Mexico_City
-    max_posts_per_day: {youtube: 4, tiktok: 3}
+    max_posts_per_day: {youtube: 6, tiktok: 5}
     started: {youtube: null, tiktok: null}   # YYYY-MM-DD each account was created -> drives the ramp
     post_windows_local: ["12:00", "15:30", "19:00", "21:30", "23:45", "02:00"]
     crosspost_from: [en]
@@ -38,7 +38,7 @@ accounts:
     handle: "@gta6cortesbr"
     platforms: [youtube, tiktok]
     timezone: America/Sao_Paulo
-    max_posts_per_day: {youtube: 4, tiktok: 3}
+    max_posts_per_day: {youtube: 6, tiktok: 5}
     started: {youtube: null, tiktok: null}   # YYYY-MM-DD each account was created -> drives the ramp
     post_windows_local: ["12:00", "16:00", "19:00", "21:00", "23:00", "01:00"]
     crosspost_from: [en]
@@ -91,6 +91,7 @@ render:
   hook_seconds: 3.0
   crf: 20
   preset: veryfast
+  threads: 2                       # CPU threads for ffmpeg/whisper per job (keeps the computer usable)
   tiktok_long_variant: true        # also render a 61-75s cut for TikTok Creator Rewards (>1 min)
 
 publish:
@@ -101,13 +102,18 @@ publish:
     mode: inbox                    # inbox (draft to the app, works unaudited) | direct
     privacy_level: SELF_ONLY       # unaudited apps can only post SELF_ONLY with mode=direct
 
-# Ramp-up schedule (docs/POSTING_VOLUME_RESEARCH.md). Posts/day per ACCOUNT.
+# MAX-VOLUME schedule: every account runs at the research hard caps (docs/POSTING_VOLUME_RESEARCH.md).
+# Posts/day per ACCOUNT. Want more total volume? Add accounts (en2, es2, ...) — not more posts per account.
 # Scale by adding accounts, not by posting 10+/day on one — the real ban risk is "unoriginal content",
 # so every clip keeps hook + captions + edit, and cross-posts get new captions/hook/title per language.
 cadence:
-  tiktok:    {warmup_days: 0, week1: 1, week2_4: 2, steady: 3, min_gap_minutes: 150, hard_cap: 5}
-  youtube:   {warmup_days: 0, week1: 2, week2_4: 3, steady: 4, min_gap_minutes: 90,  hard_cap: 6}
+  tiktok:    {warmup_days: 0, week1: 3, week2_4: 4, steady: 5, min_gap_minutes: 120, hard_cap: 5}
+  youtube:   {warmup_days: 0, week1: 4, week2_4: 5, steady: 6, min_gap_minutes: 90,  hard_cap: 6}
   instagram: {warmup_days: 0, week1: 1, week2_4: 2, steady: 2, min_gap_minutes: 180, hard_cap: 3}
+
+posting:
+  mode: spread                 # spread = post whenever gap/cap allow during active hours | windows = fixed times only
+  active_hours: ["08:30", "02:00"]   # local time of each account
 
 # Fully automatic mode: `python -m clipper autopilot`
 autopilot:
@@ -116,6 +122,8 @@ autopilot:
   live_check_minutes: 5        # check who's live on Twitch
   live_top_streamers: 15       # how many top-priority streamers to check
   live_max_concurrent: 2       # live clippers at once (each records the stream; CPU + bandwidth)
+  polite_max_load: 0.6         # clipper pauses while your computer is busier than this (0-1 of all cores)
+  niceness: 15                 # 0-19: how much the clipper yields CPU to your own apps
   seed_when_queue_below: 6     # top up an account with reaction clips when fewer unposted clips than this
   seed_every_minutes: 60
   seed_videos_per_run: 6

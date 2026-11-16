@@ -27,6 +27,11 @@ CREATE TABLE IF NOT EXISTS posts (
   clip_id INTEGER, account TEXT, platform TEXT, remote_id TEXT, url TEXT,
   posted_at REAL, status TEXT
 );
+CREATE TABLE IF NOT EXISTS jobs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT UNIQUE, kind TEXT, streamer_id TEXT,
+  campaign_id TEXT, priority REAL, status TEXT DEFAULT 'pending', note TEXT,
+  created_at REAL, updated_at REAL
+);
 CREATE TABLE IF NOT EXISTS metrics (
   post_id INTEGER, fetched_at REAL, views INTEGER, likes INTEGER,
   comments INTEGER, shares INTEGER, raw TEXT
@@ -75,3 +80,34 @@ def insert_clip(**kw) -> int:
     with connect() as con:
         cur = con.execute(f"INSERT INTO clips ({cols}) VALUES ({q})", tuple(kw.values()))
         return cur.lastrowid
+
+
+def enqueue(url: str, kind: str, priority: float, streamer_id: str | None = None,
+            campaign_id: str | None = None) -> bool:
+    with connect() as con:
+        if con.execute("SELECT 1 FROM sources WHERE url=? AND status='done'", (url,)).fetchone():
+            return False
+        cur = con.execute("INSERT OR IGNORE INTO jobs (url, kind, streamer_id, campaign_id, priority, status, "
+                          "created_at, updated_at) VALUES (?,?,?,?,?, 'pending', ?, ?)",
+                          (url, kind, streamer_id, campaign_id, priority, time.time(), time.time()))
+        return cur.rowcount > 0
+
+
+def next_job():
+    with connect() as con:
+        r = con.execute("SELECT * FROM jobs WHERE status='pending' ORDER BY priority DESC, created_at ASC "
+                        "LIMIT 1").fetchone()
+        if r:
+            con.execute("UPDATE jobs SET status='running', updated_at=? WHERE id=?", (time.time(), r["id"]))
+        return dict(r) if r else None
+
+
+def finish_job(job_id: int, status: str, note: str = ""):
+    with connect() as con:
+        con.execute("UPDATE jobs SET status=?, note=?, updated_at=? WHERE id=?",
+                    (status, note[:500], time.time(), job_id))
+
+
+def pending_jobs() -> int:
+    with connect() as con:
+        return con.execute("SELECT COUNT(*) FROM jobs WHERE status='pending'").fetchone()[0]

@@ -132,6 +132,7 @@ def render_clip(src_video: str | Path, out_path: str | Path, start: float, end: 
     cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{start:.3f}", "-to", f"{end:.3f}", "-i", str(src_video),
            "-filter_complex", fc, "-map", last, "-map", "0:a?",
            "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
+           "-threads", str(cfg.get("threads", 2)),
            "-r", str(cfg["fps"]), "-c:v", "libx264", "-preset", cfg["preset"], "-crf", str(cfg["crf"]),
            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", str(out_path)]
     subprocess.run(cmd, check=True)

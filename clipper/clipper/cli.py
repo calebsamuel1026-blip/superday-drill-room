@@ -1,5 +1,6 @@
 """python -m clipper <command>
 
+  status                           what the agents are doing: jobs, queues, posts today, live
   autopilot                        FULLY AUTOMATIC: live clipping + VODs + campaigns + seed + post + learn, forever
   process <url> [--chat FILE]     clip one VOD / YouTube video (YouTube, Twitch, Kick)
   local <video> [--chat FILE]     clip a local file
@@ -86,7 +87,7 @@ def cmd_seed(langs: list[str], top: int, dry_run: bool, max_videos: int):
                     print(f"  [{lang}] {st['name']:<16} {dur / 60:>5.0f}m  {v['title'][:70]}  {v['url']}")
     print(f"{len(picked)} reaction videos found")
     if dry_run:
-        return
+        return picked
     # interleave languages so every account gets content early
     by_lang: dict[str, list] = {}
     for st, v in picked:
@@ -158,6 +159,24 @@ def cmd_campaigns(action: str, arg: str | None):
         print(json.dumps(campaigns.earnings(), indent=1))
 
 
+def cmd_status():
+    import time as _t
+    from .autopilot import queue_sizes
+    from .db import connect
+    with connect() as con:
+        jobs = {r["status"]: r["n"] for r in con.execute("SELECT status, COUNT(*) n FROM jobs GROUP BY status")}
+        running = con.execute("SELECT kind, url FROM jobs WHERE status='running'").fetchall()
+        posts = con.execute("SELECT account, platform, COUNT(*) n FROM posts WHERE posted_at > ? AND "
+                            "status='posted' GROUP BY account, platform", (_t.time() - 86400,)).fetchall()
+        clips = con.execute("SELECT COUNT(*) FROM clips WHERE created_at > ?", (_t.time() - 86400,)).fetchone()[0]
+    print("jobs:", jobs or "none")
+    for r in running:
+        print(f"  clipping now [{r['kind']}] {r['url']}")
+    print("clips made (24h):", clips)
+    print("waiting to post per account:", queue_sizes())
+    print("posted (24h):", {f"{r['account']}/{r['platform']}": r["n"] for r in posts} or "none")
+
+
 def cmd_doctor():
     """Checks that everything needed to run locally is installed and configured."""
     import os
@@ -207,6 +226,8 @@ def main():
     p = sub.add_parser("local"); p.add_argument("video"); p.add_argument("--chat")
     p.add_argument("--streamer"); p.add_argument("--lang"); p.add_argument("--max", type=int, default=6)
     sub.add_parser("discover"); sub.add_parser("autopilot"); sub.add_parser("doctor")
+    sub.add_parser("status")
+    p = sub.add_parser("agent"); p.add_argument("role", choices=["scout", "clipper", "poster"])
     p = sub.add_parser("seed"); p.add_argument("--lang", action="append")
     p.add_argument("--top", type=int, default=6); p.add_argument("--max-videos", type=int, default=30)
     p.add_argument("--dry-run", action="store_true")
@@ -230,8 +251,13 @@ def main():
         from .pipeline import process_local
         process_local(a.video, a.chat, a.streamer, a.lang, max_clips=a.max)
     elif a.cmd == "autopilot":
-        from .autopilot import run
-        run()
+        from .agents import supervisor
+        supervisor()
+    elif a.cmd == "agent":
+        from .agents import run_role
+        run_role(a.role)
+    elif a.cmd == "status":
+        cmd_status()
     elif a.cmd == "doctor":
         cmd_doctor()
     elif a.cmd == "seed":

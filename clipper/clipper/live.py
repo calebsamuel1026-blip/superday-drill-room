@@ -29,7 +29,9 @@ def _find_streamer(channel: str) -> dict | None:
 
 
 def watch(channel: str, cooldown: int = 75, dry_run: bool = False):
+    from .agents import _lower_priority
     from .pipeline import process_local
+    _lower_priority(int((settings().get("autopilot") or {}).get("niceness", 15)))
     cfg = settings()["detection"]
     st = _find_streamer(channel)
     lang = (st or {}).get("language")
