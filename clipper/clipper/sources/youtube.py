@@ -176,3 +176,18 @@ def is_gta6(title: str) -> bool:
     kws = settings()["game_filter"]["title_keywords"]
     t = re.sub(r"\s+", " ", title.lower())
     return any(k in t for k in kws)
+
+
+def search(query: str, n: int = 6) -> list[dict]:
+    """YouTube search via yt-dlp (no API key), relevance order."""
+    opts = {**_YDL_BASE, "extract_flat": "in_playlist"}
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        info = ydl.extract_info(f"ytsearch{n}:{query}", download=False)
+    out = []
+    for e in info.get("entries") or []:
+        if e and e.get("id"):
+            out.append({"url": f"https://www.youtube.com/watch?v={e['id']}", "id": e["id"],
+                        "title": e.get("title") or "", "duration": e.get("duration"),
+                        "channel": e.get("channel") or e.get("uploader") or "",
+                        "live_status": e.get("live_status")})
+    return out

@@ -61,7 +61,7 @@ How it works:
 4. Campaign clips get priority in the posting queue, weighted by $/1k.
 5. The autopilot (`run --loop`) includes campaigns. Expected GTA 6 campaigns (Kai Cenat, N3on, Adin Ross, Ibai/AuronPlay) are already listed as `expected`. Flip them on the day they go live.
 
-Rejection traps to avoid: hidden like counts, editing the caption after approval, copyrighted music, and posting after the campaign's budget runs out. Research: `docs/CAMPAIGNS_RESEARCH.md`.
+Rejection traps to avoid: hidden like counts, editing the caption after approval, and posting after the campaign's budget runs out. Research: `docs/CAMPAIGNS_RESEARCH.md`.
 
 ## How much to post (no-shadowban schedule)
 10+ posts a day on ONE account is risky. Spread volume across accounts instead. New accounts ramp up automatically from each account's `started` date (`config/settings.yaml → cadence`):

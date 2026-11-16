@@ -175,22 +175,27 @@ def produce(src: Source, m: Moment, verdict, section_path: Path, section_offset:
 # ─────────────────────────── process a VOD ───────────────────────────
 
 def process_url(url: str, chat_file: str | None = None, use_audio: bool = True,
-                max_clips: int = 6, force: bool = False, campaign_id: str | None = None) -> list[int]:
+                max_clips: int = 6, force: bool = False, campaign_id: str | None = None,
+                streamer_id: str | None = None) -> list[int]:
     if campaign_id:
         camp = campaigns.load().get(campaign_id)
         if not camp:
             raise SystemExit(f"unknown campaign {campaign_id} (see config/campaigns.yaml)")
         token = campaigns.CURRENT.set(camp)
         try:
-            return _process_url(url, chat_file, use_audio, max_clips, force)
+            return _process_url(url, chat_file, use_audio, max_clips, force, streamer_id)
         finally:
             campaigns.CURRENT.reset(token)
-    return _process_url(url, chat_file, use_audio, max_clips, force)
+    return _process_url(url, chat_file, use_audio, max_clips, force, streamer_id)
 
 
-def _process_url(url: str, chat_file: str | None, use_audio: bool, max_clips: int, force: bool) -> list[int]:
+def _process_url(url: str, chat_file: str | None, use_audio: bool, max_clips: int, force: bool,
+                 streamer_id: str | None = None) -> list[int]:
     from .sources import twitch, youtube
     src = youtube.probe(url)
+    if streamer_id and streamer_id in streamers():        # e.g. a reaction re-uploaded by a fan channel
+        src.streamer_id = streamer_id
+        src.language = streamers()[streamer_id].get("language") or src.language
     if not force and db.source_seen(src.id):
         log("already processed", src.id)
         return []

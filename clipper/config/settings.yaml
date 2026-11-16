@@ -49,6 +49,18 @@ game_filter:
   title_keywords: ["gta 6", "gta vi", "gta6", "gtavi", "grand theft auto vi", "grand theft auto 6", "leonida", "vice city"]
   twitch_game_names: ["Grand Theft Auto VI"]
 
+# Warm-up content BEFORE campaigns go live: existing GTA 6 reaction videos (trailer reactions,
+# pre-launch streams, early-unlock streams). `python -m clipper seed` searches YouTube for these.
+# {name} is replaced by each streamer's name in config/streamers.yaml (by language, top priority first).
+seed:
+  per_query: 6                 # newest results per search
+  max_age_days: 400            # trailer 1 (Dec 2023) is old; trailers 2/3 + pre-launch streams are fresh
+  max_duration_hours: 12
+  queries:
+    en: ["{name} gta 6 trailer reaction", "{name} reacts gta 6", "{name} gta 6"]
+    es: ["{name} reacciona trailer gta 6", "{name} gta 6", "reaccion trailer gta 6 {name}"]
+    pt: ["{name} reagindo trailer gta 6", "{name} react gta 6", "{name} gta 6"]
+
 detection:
   bin_seconds: 1
   smooth_seconds: 4
@@ -93,9 +105,9 @@ publish:
 # Scale by adding accounts, not by posting 10+/day on one — the real ban risk is "unoriginal content",
 # so every clip keeps hook + captions + edit, and cross-posts get new captions/hook/title per language.
 cadence:
-  tiktok:    {warmup_days: 4, week1: 1, week2_4: 2, steady: 3, min_gap_minutes: 150, hard_cap: 5}
+  tiktok:    {warmup_days: 0, week1: 1, week2_4: 2, steady: 3, min_gap_minutes: 150, hard_cap: 5}
   youtube:   {warmup_days: 0, week1: 2, week2_4: 3, steady: 4, min_gap_minutes: 90,  hard_cap: 6}
-  instagram: {warmup_days: 4, week1: 1, week2_4: 2, steady: 2, min_gap_minutes: 180, hard_cap: 3}
+  instagram: {warmup_days: 0, week1: 1, week2_4: 2, steady: 2, min_gap_minutes: 180, hard_cap: 3}
 
 experiments:
   # A/B arms. Each new clip gets one value per factor via Thompson sampling.

@@ -2,6 +2,7 @@
 
   process <url> [--chat FILE]     clip one VOD / YouTube video (YouTube, Twitch, Kick)
   local <video> [--chat FILE]     clip a local file
+  seed [--lang en] [--top 6]       START TODAY: find + clip existing GTA 6 reaction videos (warm-up content)
   discover                         list new GTA 6 VODs from every streamer in config/streamers.yaml
   run [--loop]                     discover -> process -> post -> metrics (the money loop)
   watch <twitch_channel>           LIVE mode: clip in real time from chat spikes
@@ -49,6 +50,56 @@ def cmd_discover(limit=8, quiet=False):
                 found.append({**v, "streamer": s["id"], "priority": s.get("priority", 5)})
                 print(f"  NEW  [{s['language']}] {s['name']:<18} {v['title'][:70]}  {v['url']}")
     return found
+
+
+def cmd_seed(langs: list[str], top: int, dry_run: bool, max_videos: int):
+    import time as _t
+    from . import db
+    from .sources.youtube import is_gta6, search
+    cfg = settings()["seed"]
+    picked = []
+    seen = set()
+    for lang in langs:
+        sts = sorted([s for s in streamers().values() if s["language"] == lang],
+                     key=lambda s: -s.get("priority", 5))[:top]
+        for st in sts:
+            first = st["name"].split("(")[0].split("/")[0].strip()
+            for q in cfg["queries"].get(lang, []):
+                try:
+                    res = search(q.format(name=first), cfg["per_query"])
+                except Exception as e:  # noqa: BLE001
+                    print(f"  search failed ({q.format(name=first)}): {str(e)[:80]}")
+                    continue
+                for v in res:
+                    blob = (v["title"] + " " + v["channel"]).lower()
+                    dur = v.get("duration") or 0
+                    if (v["id"] in seen or not is_gta6(v["title"]) or first.lower() not in blob
+                            or v.get("live_status") == "is_live" or dur > cfg["max_duration_hours"] * 3600
+                            or (dur and dur < 60)):
+                        continue
+                    with db.connect() as con:
+                        if con.execute("SELECT 1 FROM sources WHERE url=? AND status='done'", (v["url"],)).fetchone():
+                            continue
+                    seen.add(v["id"])
+                    picked.append((st, v))
+                    print(f"  [{lang}] {st['name']:<16} {dur / 60:>5.0f}m  {v['title'][:70]}  {v['url']}")
+    print(f"{len(picked)} reaction videos found")
+    if dry_run:
+        return
+    # interleave languages so every account gets content early
+    by_lang: dict[str, list] = {}
+    for st, v in picked:
+        by_lang.setdefault(st["language"], []).append((st, v))
+    order = [x for grp in zip(*[iter(v) for v in by_lang.values()]) for x in grp] if len(by_lang) > 1 else picked
+    order += [x for x in picked if x not in order]
+    from .pipeline import process_url
+    for st, v in order[:max_videos]:
+        print(f"\n== {st['name']}: {v['title'][:80]}")
+        try:
+            process_url(v["url"], max_clips=3, streamer_id=st["id"])
+        except Exception as e:  # noqa: BLE001
+            print("  failed:", str(e)[:200])
+        _t.sleep(2)
 
 
 def campaign_discover(camp: dict, limit=8) -> list[dict]:
@@ -119,6 +170,9 @@ def main():
     p = sub.add_parser("local"); p.add_argument("video"); p.add_argument("--chat")
     p.add_argument("--streamer"); p.add_argument("--lang"); p.add_argument("--max", type=int, default=6)
     sub.add_parser("discover")
+    p = sub.add_parser("seed"); p.add_argument("--lang", action="append")
+    p.add_argument("--top", type=int, default=6); p.add_argument("--max-videos", type=int, default=30)
+    p.add_argument("--dry-run", action="store_true")
     p = sub.add_parser("run"); p.add_argument("--loop", action="store_true")
     p.add_argument("--every", type=int, default=20, help="minutes between cycles")
     p = sub.add_parser("watch"); p.add_argument("channel"); p.add_argument("--dry-run", action="store_true")
@@ -138,6 +192,9 @@ def main():
     elif a.cmd == "local":
         from .pipeline import process_local
         process_local(a.video, a.chat, a.streamer, a.lang, max_clips=a.max)
+    elif a.cmd == "seed":
+        cmd_seed(a.lang or sorted({x["language"] for x in settings()["accounts"].values()}),
+                 a.top, a.dry_run, a.max_videos)
     elif a.cmd == "discover":
         cmd_discover()
     elif a.cmd == "run":
