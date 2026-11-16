@@ -1,0 +1,442 @@
+# Paid clipping campaigns discovered 2026-11-16 (web-search snippets only; verify live page before use).
+# status: active | ended | expected | unverified
+# cpm_usd: base rate per 1,000 views (null = unknown). min_payout_views estimated from min payout / CPM where given.
+# max_payout_usd: per-clip/per-post cap.
+- id: cr-streamer-university-kai-cenat
+  platform: content_rewards
+  title: "Streamer University (Kai Cenat)"
+  creator: Kai Cenat (listing by Rynenzo)
+  url: https://contentrewards.com/discover/a55d9ef1-915a-4a04-b807-180016adff77
+  status: unverified
+  cpm_usd: 1.50
+  min_payout_views: null
+  max_payout_usd: 100
+  platforms_allowed: [youtube, instagram, tiktok]
+  languages: [en]
+  rules:
+    required_hashtags: []
+    required_mentions: []
+    caption_must_include: []
+    min_seconds: null
+    max_seconds: null
+    other: ["Budget $1,000, $742 left at stale (~2 weeks) snapshot", "Confirm official permission via Kai Cenat channels"]
+  source_channels: [https://www.twitch.tv/kaicenat, https://www.youtube.com/@KaiCenat]
+  notes: Kai Cenat-related; prime candidate for GTA 6 marathon clips if a new campaign appears.
+  sources: [https://contentrewards.com/discover/a55d9ef1-915a-4a04-b807-180016adff77]
+
+- id: cr-clip-streamers-2usd
+  platform: content_rewards
+  title: "Clip Streamers Earn $2 per 1k Views"
+  creator: unknown
+  url: https://contentrewards.com/discover/9a1fbc53-42de-4487-a1a8-58db5578adef
+  status: unverified
+  cpm_usd: 2.00
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [tiktok, youtube, instagram]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: []}
+  source_channels: []
+  notes: Platforms not confirmed from snippet.
+  sources: [https://contentrewards.com/discover/9a1fbc53-42de-4487-a1a8-58db5578adef]
+
+- id: cr-streamer-1p50-min4p50
+  platform: content_rewards
+  title: "Streamer clipping campaign ($1.50/1k, $4.50 min, $300 max)"
+  creator: unknown
+  url: null
+  status: unverified
+  cpm_usd: 1.50
+  min_payout_views: 3000
+  max_payout_usd: 300
+  platforms_allowed: []
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: []}
+  source_channels: []
+  notes: Cited as example in Content Rewards streamer article snippet; exact listing URL not resolved.
+  sources: [https://contentrewards.com/articles/get-paid-clip-streamers]
+
+- id: cr-androgenic-kick
+  platform: content_rewards
+  title: "Androgenic (Kick reference source)"
+  creator: Androgenic
+  url: null
+  status: ended
+  cpm_usd: 1.00
+  min_payout_views: 15000
+  max_payout_usd: 150
+  platforms_allowed: [youtube, instagram, tiktok]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Submissions closed at snapshot", "Min payout $15"]}
+  source_channels: [https://kick.com]
+  notes: Listing was among CR discover results for Kick/gaming query; exact UUID not resolved.
+  sources: [https://contentrewards.com/c/discover]
+
+- id: cr-jack-neel-podcast
+  platform: content_rewards
+  title: "Jack Neel Podcast"
+  creator: Jack Neel
+  url: null
+  status: active
+  cpm_usd: 2.00
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [youtube, tiktok]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["YouTube $2/1k, TikTok $3/1k", "Budget $5,568 of $6,000 remaining at snapshot"]}
+  source_channels: [https://www.youtube.com/@JackNeel]
+  notes: Podcast; per-platform rates. Snapshot date unknown.
+  sources: [https://contentrewards.com/c/discover]
+
+- id: cr-jerith-podcast
+  platform: content_rewards
+  title: "Jerith Podcast Clipping"
+  creator: Jerith
+  url: null
+  status: active
+  cpm_usd: 2.00
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [youtube, tiktok, instagram]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["$180 of $430 left - nearly drained"]}
+  source_channels: []
+  notes: Likely exhausted soon.
+  sources: [https://contentrewards.com/c/discover]
+
+- id: cr-double-coverage-podcast
+  platform: content_rewards
+  title: "Double Coverage Podcast ($43,000 campaign)"
+  creator: Double Coverage Podcast
+  url: null
+  status: ended
+  cpm_usd: 2.00
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: []
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["$0 remaining"]}
+  source_channels: []
+  notes: Watch for relaunch.
+  sources: [https://contentrewards.com/c/discover]
+
+- id: cr-kyro-podcasts
+  platform: content_rewards
+  title: "KYRO Podcasts Clipping"
+  creator: KYRO
+  url: null
+  status: unverified
+  cpm_usd: 1.25
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [tiktok, instagram, youtube, x]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Application-only"]}
+  source_channels: []
+  notes: ""
+  sources: [https://contentrewards.com/c/discover]
+
+- id: cr-goldie-podcast
+  platform: content_rewards
+  title: "Earn $1 Per 1k Views Clipping Goldie Podcast"
+  creator: Goldie Podcast
+  url: https://contentrewards.com/discover/457eb40c-28ad-413a-9e82-9588eb117ca2
+  status: unverified
+  cpm_usd: 1.00
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: []
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: []}
+  source_channels: []
+  notes: ""
+  sources: [https://contentrewards.com/discover/457eb40c-28ad-413a-9e82-9588eb117ca2]
+
+- id: cr-vibe-scaling-podcast
+  platform: content_rewards
+  title: "Earn $3 per 1,000 views by clipping Vibe Scaling Podcast (2)"
+  creator: Vibe Scaling Podcast
+  url: https://contentrewards.com/discover/af945aa3-5767-451c-a6a0-f808d400b17c
+  status: unverified
+  cpm_usd: 3.00
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: []
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: []}
+  source_channels: []
+  notes: Highest CPM found among listings.
+  sources: [https://contentrewards.com/discover/af945aa3-5767-451c-a6a0-f808d400b17c]
+
+- id: cr-es-carlos-esparraga
+  platform: content_rewards
+  title: "Clips Hablando - 1$ por cada 1000 visitas (Carlos Esparraga)"
+  creator: Carlos Esparraga
+  url: null
+  status: unverified
+  cpm_usd: 1.00
+  min_payout_views: 7500
+  max_payout_usd: null
+  platforms_allowed: [tiktok, youtube, instagram]
+  languages: [es]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["TikTok rate $0.30/1k (lower)", "Min payout $7.50", "Spanish clips"]}
+  source_channels: []
+  notes: One of the ES discover results (candidate URLs in sources).
+  sources: [https://contentrewards.com/discover/a84c85aa-4325-4519-aba3-7d45caae96a8, https://contentrewards.com/discover/f048d5ae-fd0c-404d-8630-99e2ab70cec4, https://contentrewards.com/discover/ebc7dd27-5d08-4d06-86d5-659706286077]
+
+- id: cr-es-carlotta-sabina
+  platform: content_rewards
+  title: "Clips Hablando de VALOR (Carlotta Sabina Academy)"
+  creator: Carlotta Sabina Academy
+  url: null
+  status: unverified
+  cpm_usd: 0.30
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [tiktok, youtube, instagram]
+  languages: [es]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["YouTube $0.30/1k seen; other platform rates unknown"]}
+  source_channels: []
+  notes: Low CPM.
+  sources: [https://contentrewards.com/discover/6d24f2d1-08c1-41e4-a6ff-08052ffda827, https://www.contentrewards.com/campaigns/06b66a5c-daa4-49e7-86f5-38e9e8bf588b]
+
+- id: cr-es-clippixstudio-daniel-curto
+  platform: content_rewards
+  title: "ClippiXStudio Español - Daniel Curto"
+  creator: Daniel Curto
+  url: null
+  status: unverified
+  cpm_usd: null
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: []
+  languages: [es]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: []}
+  source_channels: []
+  notes: ""
+  sources: [https://www.contentrewards.com/campaigns/7610267f-aa08-45b4-9975-6acf0faeca1a]
+
+- id: cr-es-cliphaus-course-creator
+  platform: content_rewards
+  title: "ClipHaus - Spanish course creator podcast clips"
+  creator: ClipHaus (agency)
+  url: null
+  status: unverified
+  cpm_usd: null
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: []
+  languages: [es]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Drive viewers to a single academy account (likely mention/link required)"]}
+  source_channels: []
+  notes: ""
+  sources: [https://contentrewards.com/c/discover]
+
+- id: cr-es-empiredrop-ricky-world
+  platform: content_rewards
+  title: "EmpireDrop - Ricky World (Spanish)"
+  creator: Ricky World
+  url: null
+  status: unverified
+  cpm_usd: null
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: []
+  languages: [es]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Spanish-language clips for Spanish-speaking audience"]}
+  source_channels: []
+  notes: ""
+  sources: [https://contentrewards.com/c/discover]
+
+- id: vyro-mrbeast
+  platform: vyro
+  title: "MrBeast"
+  creator: MrBeast
+  url: https://vyro.com
+  status: active
+  cpm_usd: 1.00
+  min_payout_views: 1000
+  max_payout_usd: 1000
+  platforms_allowed: [youtube, tiktok, instagram]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Do not edit/alter Vyro-provided clips (reported)", "No bought views/engagement groups - permanent ban", "Earnings pending until campaign end + final verification", "Min view threshold disputed: 1,000 vs 5,000"]}
+  source_channels: [https://www.youtube.com/@MrBeast]
+  notes: "$1,000 per 1M views as of 2026-09-27 (REPORTED). Withdraw >= $10 weekly via Stripe/PayPal."
+  sources: [https://findclout.com/blog/how-much-does-vyro-pay, https://streamer.guide/guides/how-to-earn-money-vyro]
+
+- id: vyro-ketone-iq
+  platform: vyro
+  title: "Ketone-IQ"
+  creator: Ketone-IQ (brand)
+  url: https://vyro.com
+  status: unverified
+  cpm_usd: 1.50
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [youtube, tiktok, instagram]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Brand campaign - disclosure (#ad + paid-partnership toggle) required"]}
+  source_channels: []
+  notes: Reported Sep 2026.
+  sources: [https://findclout.com/blog/how-much-does-vyro-pay]
+
+- id: vyro-heylemon-ai
+  platform: vyro
+  title: "HeyLemon AI"
+  creator: HeyLemon AI (brand)
+  url: https://vyro.com
+  status: unverified
+  cpm_usd: 1.50
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [youtube, tiktok, instagram]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Brand campaign - disclosure required"]}
+  source_channels: []
+  notes: Reported Sep 2026.
+  sources: [https://findclout.com/blog/how-much-does-vyro-pay]
+
+- id: discord-n3on-network
+  platform: streamer_discord
+  title: "N3on clipper network (with Adin Ross; partly Kick-funded)"
+  creator: N3on
+  url: null
+  status: active
+  cpm_usd: 0.45
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [tiktok, youtube, instagram]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["$40-50 per 100k views", "Join via official Discord (beware impersonator servers)", "Gambling content: banned for PT-BR, age-restricted"]}
+  source_channels: [https://kick.com/n3on]
+  notes: "$1.4M paid to 303 clippers over 5 weeks (Business Insider, Apr 2026). Likely GTA 6 clip demand."
+  sources: [https://www.tubefilter.com/2026/04/29/n3on-spending-millions-stream-clippers-tiktok-kick/amp/, https://www.complex.com/pop-culture/a/alex-ocho/n3on-303-clippers-stream-boost]
+
+- id: clipping-stake-adin-ross
+  platform: clipping_io
+  title: "Stake / Adin Ross campaign"
+  creator: Adin Ross / Stake
+  url: null
+  status: ended
+  cpm_usd: 0.80
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [tiktok, youtube, instagram, x]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Gambling promo - illegal in Brazil (MP 1.394); avoid for PT-BR accounts"]}
+  source_channels: [https://kick.com/adinross]
+  notes: "430M views, 11k videos, 520 clippers (self-reported). Stake paid $500 then $800 per 1M views."
+  sources: [https://www.bloomberg.com/features/2026-stake-drake-crypto-casino-adin-ross-gambling/]
+
+- id: cutpro-thiago-roas
+  platform: cut_pro
+  title: "Thiago Roas"
+  creator: Thiago Roas
+  url: https://cut.pro/en/championships/thiago-roas-105051858909433856
+  status: unverified
+  cpm_usd: null
+  min_payout_views: 5000
+  max_payout_usd: null
+  platforms_allowed: []
+  languages: [pt]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Pays from 5k views/video", "Cap R$200 per video", "Paid via PIX", "CONAR: label as #publi"]}
+  source_channels: []
+  notes: BRL-denominated.
+  sources: [https://cut.pro/en/championships/thiago-roas-105051858909433856]
+
+- id: cutpro-piva-educacional
+  platform: cut_pro
+  title: "Piva Educacional 1ª Edição"
+  creator: Piva Educacional
+  url: https://cut.pro/pt-BR/championships/piva-educacional-1-edicao-97084674824376320
+  status: unverified
+  cpm_usd: null
+  min_payout_views: 0
+  max_payout_usd: null
+  platforms_allowed: []
+  languages: [pt]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["No per-video minimum", "PIX payout every Friday from R$20 accumulated"]}
+  source_channels: []
+  notes: ""
+  sources: [https://cut.pro/pt-BR/championships/piva-educacional-1-edicao-97084674824376320]
+
+- id: cutpro-other-br
+  platform: cut_pro
+  title: "Other BR championships (Flávio Passos, Mariana Rios, Sheviii2k Deserthon, Cortes Louco por Leilões, Batalha de cortes Erico Rocha)"
+  creator: various (BR)
+  url: https://cut.pro/pt-BR/championships
+  status: unverified
+  cpm_usd: null
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: []
+  languages: [pt]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Check each championship page"]}
+  source_channels: []
+  notes: Split into separate entries once live terms are fetched.
+  sources: [https://cut.pro/en/championships/flavio-passos-104635384797569024, https://cut.pro/es/championships/mariana-rios-98167962636894208, https://cut.pro/pt-BR/championships/sheviii2k-deserthon-expedicao-utah-97509644381601792, https://cut.pro/es/championships/cortes-louco-por-leiloes-97388958375903232, https://cut.pro/es/championships/batalha-de-cortes-erico-rocha-122325743488913409]
+
+# ---- GTA 6 (release 2026-11-19): none announced; expected/likely sponsors ----
+- id: gta6-kai-cenat-expected
+  platform: content_rewards
+  title: "GTA 6 100% marathon clips (expected, not announced)"
+  creator: Kai Cenat
+  url: null
+  status: expected
+  cpm_usd: null
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [tiktok, youtube, instagram]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: ["Kai asked fans to avoid spoilers - expect spoiler restrictions", "Rockstar DMCA risk"]}
+  source_channels: [https://www.twitch.tv/kaicenat]
+  notes: Announced full-completion marathon at launch; has prior CR campaign (Streamer University).
+  sources: [https://win.gg/kai-cenat-reveals-gta-6-marathon/, https://sportskeeda.com/us/streamers/news-kai-cenat-hold-gta-6-100-playthrough-marathon-upon-game-s-release]
+
+- id: gta6-n3on-expected
+  platform: streamer_discord
+  title: "N3on GTA 6 streams (expected via existing paid network)"
+  creator: N3on
+  url: null
+  status: expected
+  cpm_usd: 0.45
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [tiktok, youtube, instagram]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: []}
+  source_channels: [https://kick.com/n3on]
+  notes: N3on-lookalike streamer featured in GTA 6 Extended Look; standing $40-50/100k network.
+  sources: [https://www.thenationalnews.com/arts-culture/pop-culture/2026/08/30/gta-6-n3on-netflix-kick/]
+
+- id: gta6-adin-ross-expected
+  platform: streamer_discord
+  title: "Adin Ross GTA 6 server streams (expected)"
+  creator: Adin Ross
+  url: null
+  status: expected
+  cpm_usd: null
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [tiktok, youtube, instagram, x]
+  languages: [en]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: []}
+  source_channels: [https://kick.com/adinross]
+  notes: Said people can 'get a job in his GTA 6 server and get paid'; history of Clipping/Kick-funded clipper campaigns.
+  sources: [https://sportskeeda.com/gta/news-streamers-like-kai-cenat-await-gta-6-release-all-need-know]
+
+- id: gta6-es-pt-expected
+  platform: unknown
+  title: "ES/PT GTA 6 clips (Ibai, AuronPlay; BR streamers via Cut.Pro) - expected"
+  creator: Ibai / AuronPlay / BR streamers
+  url: null
+  status: expected
+  cpm_usd: null
+  min_payout_views: null
+  max_payout_usd: null
+  platforms_allowed: [tiktok, youtube]
+  languages: [es, pt]
+  rules: {required_hashtags: [], required_mentions: [], caption_must_include: [], min_seconds: null, max_seconds: null, other: []}
+  source_channels: [https://www.twitch.tv/ibai, https://www.twitch.tv/auronplay]
+  notes: No paid program known; less competition per ClipSpeed GTA 6 streamer guides. Monitor cut.pro/pt-BR/championships.
+  sources: [https://clipspeed.ai/gta6/streamers/ibai-gta-6.html, https://clipspeed.ai/gta6/streamers/auronplay-gta-6.html]

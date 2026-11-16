@@ -6,7 +6,7 @@ import os
 import re
 from pathlib import Path
 
-from . import db, experiments
+from . import campaigns, db, experiments
 from .config import settings, streamers
 from .detect import find_moments
 from .models import ChatMessage, Moment, Segment, Source
@@ -35,6 +35,11 @@ def _heuristic_rank(moments: list[Moment], languages: list[str]):
               "pt": "O chat surtou com isso no GTA 6 💀"}
     tags = {"en": ["#gta6", "#gta6clips", "#gaming"], "es": ["#gta6", "#gta6español", "#gaming"],
             "pt": ["#gta6", "#gta6brasil", "#cortes"]}
+    camp = campaigns.CURRENT.get()
+    if camp:
+        who = camp.get("creator") or ""
+        titles = {"en": f"{who} chat lost it 💀", "es": f"{who} y el chat enloqueció 💀",
+                  "pt": f"{who} e o chat surtou 💀"}
     vs = []
     top = max((m.score for m in moments), default=1) or 1
     for i, m in enumerate(moments):
@@ -86,7 +91,10 @@ def produce(src: Source, m: Moment, verdict, section_path: Path, section_offset:
     """Renders one ranked moment for every target account. Returns clip ids."""
     cfg = settings()
     st = streamers().get(src.streamer_id or "", {})
+    camp = campaigns.CURRENT.get()
     accounts = target_accounts(src.language, verdict.virality)
+    if camp:
+        accounts = campaigns.accounts_for(camp, accounts)
     if not accounts:
         return []
     tight = (m.start + verdict.trim_start, m.start + verdict.trim_end)
@@ -111,6 +119,8 @@ def produce(src: Source, m: Moment, verdict, section_path: Path, section_offset:
         pack = packs.get(lang) or next(iter(packs.values()))
         arms = experiments.choose_arms(acc_name)
         a, b = tight if arms["length"] == "tight" else full
+        if camp:
+            a, b = campaigns.clamp_length(camp, a, b, m.peak, src.duration)
         segs = shift(sec_segments, a, b)
         translated = None
         if src.language and lang != src.language and segs and have_agent():
@@ -128,12 +138,16 @@ def produce(src: Source, m: Moment, verdict, section_path: Path, section_offset:
                           ass, layout, st.get("facecam"))
         credit = f"🎥 {st.get('name', src.title)} — {src.url}"
         description = (pack.description + "\n" + credit).strip()
-        meta = {"title": pack.title, "description": description, "hashtags": pack.hashtags,
+        title, hashtags = pack.title, list(pack.hashtags)
+        if camp:
+            title, description, hashtags = campaigns.apply_rules(camp, title, description, hashtags, lang)
+        meta = {"title": title, "description": description, "hashtags": hashtags,
+                "campaign": camp and camp["id"],
                 "hook": hook, "arms": arms, "virality": verdict.virality, "why": verdict.why,
                 "moment_type": verdict.moment_type, "source": src.url, "vod_start": a, "vod_end": b}
         (outdir / f"{name}.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
         (outdir / f"{name}.caption.txt").write_text(
-            f"{pack.title}\n\n{description}\n\n{' '.join(pack.hashtags)}\n", encoding="utf-8")
+            f"{title}\n\n{description}\n\n{' '.join(hashtags)}\n", encoding="utf-8")
         long_path = None
         if cfg["render"].get("tiktok_long_variant") and "tiktok" in acc["platforms"]:
             la, lb = long_window(m, src.duration)
@@ -150,8 +164,8 @@ def produce(src: Source, m: Moment, verdict, section_path: Path, section_offset:
                                             lb - section_offset, lass, layout, st.get("facecam")))
         cid = db.insert_clip(source_id=src.id, streamer_id=src.streamer_id, source_language=src.language,
                              account=acc_name, language=lang, start=a, end=b, signal_score=m.score,
-                             virality=verdict.virality, title=pack.title, description=description,
-                             hashtags=pack.hashtags, hook=hook, arms=arms, path=str(out), long_path=long_path,
+                             virality=verdict.virality, title=title, description=description,
+                             hashtags=hashtags, campaign_id=camp and camp["id"], hook=hook, arms=arms, path=str(out), long_path=long_path,
                              agent_json=verdict.model_dump())
         log(f"  ✔ [{acc_name}] v={verdict.virality} {pack.title!r} -> {out}")
         ids.append(cid)
@@ -161,13 +175,30 @@ def produce(src: Source, m: Moment, verdict, section_path: Path, section_offset:
 # ─────────────────────────── process a VOD ───────────────────────────
 
 def process_url(url: str, chat_file: str | None = None, use_audio: bool = True,
-                max_clips: int = 6, force: bool = False) -> list[int]:
+                max_clips: int = 6, force: bool = False, campaign_id: str | None = None) -> list[int]:
+    if campaign_id:
+        camp = campaigns.load().get(campaign_id)
+        if not camp:
+            raise SystemExit(f"unknown campaign {campaign_id} (see config/campaigns.yaml)")
+        token = campaigns.CURRENT.set(camp)
+        try:
+            return _process_url(url, chat_file, use_audio, max_clips, force)
+        finally:
+            campaigns.CURRENT.reset(token)
+    return _process_url(url, chat_file, use_audio, max_clips, force)
+
+
+def _process_url(url: str, chat_file: str | None, use_audio: bool, max_clips: int, force: bool) -> list[int]:
     from .sources import twitch, youtube
     src = youtube.probe(url)
     if not force and db.source_seen(src.id):
         log("already processed", src.id)
         return []
-    if not src.streamer_id:
+    camp = campaigns.CURRENT.get()
+    if camp:
+        src.language = src.language or camp.get("language") or (camp.get("languages") or [None])[0]
+        log(f"campaign: {camp['id']} (${camp.get('cpm_usd')}/1k)")
+    elif not src.streamer_id:
         log("WARNING: streamer not in config/streamers.yaml -> generic persona")
     db.upsert_source(src, "processing")
     log(f"{src.platform} | {src.title} | {src.duration/3600:.1f}h | streamer={src.streamer_id} lang={src.language}")

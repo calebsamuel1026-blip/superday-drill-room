@@ -39,6 +39,10 @@ def connect():
     con = sqlite3.connect(settings()["database"])
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
+    for table, col, typ in (("clips", "campaign_id", "TEXT"), ("posts", "submitted", "REAL")):
+        cols = {r[1] for r in con.execute(f"PRAGMA table_info({table})")}
+        if col not in cols:
+            con.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
     try:
         yield con
         con.commit()

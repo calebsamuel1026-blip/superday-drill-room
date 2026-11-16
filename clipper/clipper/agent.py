@@ -131,6 +131,10 @@ def rank_moments(source_title: str, streamer_id: str | None, source_language: st
             f"Write packaging for these languages: {languages}\n\n"
             f"CANDIDATES\n{json.dumps(cands, ensure_ascii=False, indent=1)}\n\n"
             "Return one verdict per candidate.")
+    from .campaigns import CURRENT, brief
+    camp = CURRENT.get()
+    if camp:
+        user = brief(camp) + "\n\n" + user
     return _parse(Ranking, system, user)
 
 

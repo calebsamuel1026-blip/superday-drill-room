@@ -46,6 +46,34 @@ python -m clipper learn                                         # AI updates eac
 ```
 Rendered clips go to `out/<account>/<source>/`. Each one comes with a `.caption.txt` (title, description with credit, hashtags) and a `.json` (virality score, the agent's reasoning, A/B arms). Until the APIs are connected, you can upload straight from that folder by hand.
 
+## Paid clipping campaigns (Content Rewards, Vyro, streamer networks)
+```bash
+python -m clipper campaigns list           # 27 researched campaigns + status + $/1k
+python -m clipper campaigns run            # clip new videos from every campaign you've joined
+python -m clipper campaigns submissions    # posted campaign clips you still need to submit on the site
+python -m clipper campaigns submitted 12   # mark post 12 as submitted
+python -m clipper campaigns earnings       # estimated payout (views x CPM, min/max applied)
+```
+How it works:
+1. Join a campaign on its site and link your accounts there.
+2. In `config/campaigns.yaml`, set `joined: true` and `status: active`, and copy the campaign's rules: hashtags, @mentions, length, and things to avoid.
+3. The pipeline then clips that campaign's channels and gives the AI the creator's brief. It forces the rules into every caption and adds the ad label (`#ad`, `#publicidad` or `#publi`). It also keeps betting campaigns off the PT-BR account, as Brazilian ad rules require.
+4. Campaign clips get priority in the posting queue, weighted by $/1k.
+5. The autopilot (`run --loop`) includes campaigns. Expected GTA 6 campaigns (Kai Cenat, N3on, Adin Ross, Ibai/AuronPlay) are already listed as `expected`. Flip them on the day they go live.
+
+Rejection traps to avoid: hidden like counts, editing the caption after approval, copyrighted music, and posting after the campaign's budget runs out. Research: `docs/CAMPAIGNS_RESEARCH.md`.
+
+## How much to post (no-shadowban schedule)
+10+ posts a day on ONE account is risky. Spread volume across accounts instead. New accounts ramp up automatically from each account's `started` date (`config/settings.yaml → cadence`):
+
+| | warm-up | week 1 | weeks 2–4 | steady | min gap | hard cap |
+|---|---|---|---|---|---|---|
+| TikTok | 4 days | 1/day | 2/day | 3/day | 2.5 h | 5 |
+| YouTube Shorts | 0 | 2/day | 3/day | 4/day | 1.5 h | 6 |
+| Instagram Reels | 4 days | 1/day | 2/day | 2/day | 3 h | 3 |
+
+The real ban risk is unoriginal content, not volume. Keep the hooks, captions and edits on every clip, and never post the exact same file on two accounts. Details: `docs/POSTING_VOLUME_RESEARCH.md`.
+
 ## Connect the accounts (when you're on your computer)
 1. **Create the 6 accounts.** That is one YouTube channel and one TikTok per language. Put each channel's handle in `config/settings.yaml → accounts` (it is burned into the video as a small watermark).
 2. **YouTube.**

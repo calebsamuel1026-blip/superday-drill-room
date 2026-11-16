@@ -15,7 +15,8 @@ accounts:
     handle: "@gta6clips"                  # burned into the video as a small watermark
     platforms: [youtube, tiktok]
     timezone: America/New_York
-    max_posts_per_day: {youtube: 6, tiktok: 4}
+    max_posts_per_day: {youtube: 4, tiktok: 3}
+    started: {youtube: null, tiktok: null}   # YYYY-MM-DD each account was created -> drives the ramp
     post_windows_local: ["11:30", "15:00", "18:30", "21:00", "23:30", "01:30"]
     # take clips from streamers of other languages too, with translated captions
     crosspost_from: [es, pt]
@@ -26,7 +27,8 @@ accounts:
     handle: "@gta6clipses"
     platforms: [youtube, tiktok]
     timezone: America/Mexico_City
-    max_posts_per_day: {youtube: 6, tiktok: 4}
+    max_posts_per_day: {youtube: 4, tiktok: 3}
+    started: {youtube: null, tiktok: null}   # YYYY-MM-DD each account was created -> drives the ramp
     post_windows_local: ["12:00", "15:30", "19:00", "21:30", "23:45", "02:00"]
     crosspost_from: [en]
     crosspost_min_score: 88
@@ -36,7 +38,8 @@ accounts:
     handle: "@gta6cortesbr"
     platforms: [youtube, tiktok]
     timezone: America/Sao_Paulo
-    max_posts_per_day: {youtube: 6, tiktok: 4}
+    max_posts_per_day: {youtube: 4, tiktok: 3}
+    started: {youtube: null, tiktok: null}   # YYYY-MM-DD each account was created -> drives the ramp
     post_windows_local: ["12:00", "16:00", "19:00", "21:00", "23:00", "01:00"]
     crosspost_from: [en]
     crosspost_min_score: 88
@@ -85,6 +88,14 @@ publish:
   tiktok:
     mode: inbox                    # inbox (draft to the app, works unaudited) | direct
     privacy_level: SELF_ONLY       # unaudited apps can only post SELF_ONLY with mode=direct
+
+# Ramp-up schedule (docs/POSTING_VOLUME_RESEARCH.md). Posts/day per ACCOUNT.
+# Scale by adding accounts, not by posting 10+/day on one — the real ban risk is "unoriginal content",
+# so every clip keeps hook + captions + edit, and cross-posts get new captions/hook/title per language.
+cadence:
+  tiktok:    {warmup_days: 4, week1: 1, week2_4: 2, steady: 3, min_gap_minutes: 150, hard_cap: 5}
+  youtube:   {warmup_days: 0, week1: 2, week2_4: 3, steady: 4, min_gap_minutes: 90,  hard_cap: 6}
+  instagram: {warmup_days: 4, week1: 1, week2_4: 2, steady: 2, min_gap_minutes: 180, hard_cap: 3}
 
 experiments:
   # A/B arms. Each new clip gets one value per factor via Thompson sampling.

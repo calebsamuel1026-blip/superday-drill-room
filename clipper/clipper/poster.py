@@ -28,6 +28,29 @@ def _in_window(acc: dict, tolerance_min: int = 25) -> bool:
     return False
 
 
+def allowed_today(acc: dict, platform: str) -> int:
+    """Posts allowed today = min(account cap, ramp schedule for the account's age)."""
+    cap = (acc.get("max_posts_per_day") or {}).get(platform, 3)
+    cad = (settings().get("cadence") or {}).get(platform)
+    started = (acc.get("started") or {}).get(platform) if isinstance(acc.get("started"), dict) else acc.get("started")
+    if not cad or not started:
+        return cap
+    age = (datetime.now().date() - datetime.fromisoformat(str(started)).date()).days
+    if age < cad["warmup_days"]:
+        return 0                                       # warm-up: scroll/like/follow by hand, no posts
+    week = (age - cad["warmup_days"]) // 7
+    ramp = cad["week1"] if week == 0 else cad["week2_4"] if week < 4 else cad["steady"]
+    return min(cap, ramp, cad["hard_cap"])
+
+
+def _too_soon(con, account: str, platform: str) -> bool:
+    cad = (settings().get("cadence") or {}).get(platform) or {}
+    gap = cad.get("min_gap_minutes", 0) * 60
+    last = con.execute("SELECT MAX(posted_at) FROM posts WHERE account=? AND platform=? AND status='posted'",
+                       (account, platform)).fetchone()[0]
+    return bool(last and time.time() - last < gap)
+
+
 def next_clip(con, account: str, platform: str):
     prio = experiments.streamer_priority(account)
     rows = con.execute(
@@ -37,9 +60,16 @@ def next_clip(con, account: str, platform: str):
     if not rows:
         return None
     # freshness matters: decay virality by age (half-life 18h), boost streamers that win on this account
+    from .campaigns import load
+    camps = load()
+
     def key(r):
         age_h = (time.time() - r["created_at"]) / 3600
-        return r["virality"] * 0.5 ** (age_h / 18) * (0.6 + 0.8 * prio.get(r["streamer_id"], 0.5))
+        k = r["virality"] * 0.5 ** (age_h / 18) * (0.6 + 0.8 * prio.get(r["streamer_id"], 0.5))
+        c = camps.get(r["campaign_id"] or "")
+        if c and c.get("status") == "active":
+            k *= 1.3 + 0.3 * min(float(c.get("cpm_usd") or 0), 3)   # paid clips jump the queue
+        return k
     return max(rows, key=key)
 
 
@@ -52,7 +82,9 @@ def post(account: str | None = None, now: bool = False, dry_run: bool = False):
             continue
         for platform in acc["platforms"]:
             with connect() as con:
-                if _posted_today(con, name, platform, acc["timezone"]) >= acc["max_posts_per_day"][platform]:
+                if _posted_today(con, name, platform, acc["timezone"]) >= allowed_today(acc, platform):
+                    continue
+                if _too_soon(con, name, platform):
                     continue
                 clip = next_clip(con, name, platform)
             if not clip:
