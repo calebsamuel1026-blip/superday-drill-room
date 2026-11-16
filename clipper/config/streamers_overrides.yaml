@@ -1,0 +1,9 @@
+# Per-streamer hand edits merged over the research data (keyed by id).
+# Use it to set the facecam box for the facecam_split layout, bump priority, or add notes, e.g.:
+# kai_cenat:
+#   facecam: {x: 0.0, y: 0.0, w: 0.28, h: 0.33}
+#   priority: 10
+ishowspeed:
+  notes: "HIGH COPYRIGHT RISK: reported mass strikes on clip channels via Thumb Media. Clip only if you accept strike risk."
+adin_ross:
+  notes: "Reported copyright strikes on clip channels via Thumb Media. Prefer joining his/N3on's paid clipper network instead."

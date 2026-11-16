@@ -1,0 +1,9 @@
+secrets/*
+!secrets/README.md
+work/
+out/
+*.db
+__pycache__/
+*.pyc
+.env
+tests/fixtures/

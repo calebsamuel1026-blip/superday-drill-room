@@ -1,0 +1,95 @@
+# ─────────────────────────────────────────────────────────────
+#  GTA 6 Clip Farm — main settings
+# ─────────────────────────────────────────────────────────────
+
+workdir: work          # downloads, chat logs, buffers
+outdir: out            # rendered clips, one folder per account
+database: clipper.db
+
+# The three channels. Each one posts in ONE language.
+# Fill in the handles once the accounts exist.
+accounts:
+  en:
+    language: en
+    display_name: "GTA 6 Clips"          # placeholder brand
+    handle: "@gta6clips"                  # burned into the video as a small watermark
+    platforms: [youtube, tiktok]
+    timezone: America/New_York
+    max_posts_per_day: {youtube: 6, tiktok: 4}
+    post_windows_local: ["11:30", "15:00", "18:30", "21:00", "23:30", "01:30"]
+    # take clips from streamers of other languages too, with translated captions
+    crosspost_from: [es, pt]
+    crosspost_min_score: 85
+  es:
+    language: es
+    display_name: "GTA 6 Clips Español"
+    handle: "@gta6clipses"
+    platforms: [youtube, tiktok]
+    timezone: America/Mexico_City
+    max_posts_per_day: {youtube: 6, tiktok: 4}
+    post_windows_local: ["12:00", "15:30", "19:00", "21:30", "23:45", "02:00"]
+    crosspost_from: [en]
+    crosspost_min_score: 88
+  pt:
+    language: pt
+    display_name: "GTA 6 Cortes BR"
+    handle: "@gta6cortesbr"
+    platforms: [youtube, tiktok]
+    timezone: America/Sao_Paulo
+    max_posts_per_day: {youtube: 6, tiktok: 4}
+    post_windows_local: ["12:00", "16:00", "19:00", "21:00", "23:00", "01:00"]
+    crosspost_from: [en]
+    crosspost_min_score: 88
+
+# What counts as GTA 6 content when discovering VODs / streams
+game_filter:
+  title_keywords: ["gta 6", "gta vi", "gta6", "gtavi", "grand theft auto vi", "grand theft auto 6", "leonida", "vice city"]
+  twitch_game_names: ["Grand Theft Auto VI"]
+
+detection:
+  bin_seconds: 1
+  smooth_seconds: 4
+  baseline_window_seconds: 300     # rolling baseline for "normal" chat speed
+  chat_delay_seconds: 7            # chat reacts ~5-10s after the moment (stream delay + typing)
+  spike_z: 3.0                     # robust z-score that counts as "chat went crazy"
+  min_gap_seconds: 45              # don't produce two clips from the same moment
+  pre_roll_seconds: 14             # context before the moment starts
+  post_roll_seconds: 6
+  min_clip_seconds: 14
+  max_clip_seconds: 58             # Shorts sweet spot; TikTok "long" variant handled below
+  candidates_per_hour: 8           # how many moments per hour of VOD go to the AI agent
+  weights: {chat: 1.0, audio: 0.45, heatmap: 0.9, keywords: 0.35}
+
+agent:
+  model: claude-opus-5-5
+  effort: medium
+  min_virality_score: 70           # below this we don't render
+  write_copy_for: [en, es, pt]
+
+render:
+  width: 1080
+  height: 1920
+  fps: 30
+  layout: blur_fill                # blur_fill | facecam_split (uses streamer facecam box)
+  caption_font: "Inter Display"
+  caption_size: 84
+  hook_seconds: 3.0
+  crf: 20
+  preset: veryfast
+  tiktok_long_variant: true        # also render a 61-75s cut for TikTok Creator Rewards (>1 min)
+
+publish:
+  youtube:
+    privacy: public                # private until your API project passes the compliance audit
+    category_id: "20"              # Gaming
+  tiktok:
+    mode: inbox                    # inbox (draft to the app, works unaudited) | direct
+    privacy_level: SELF_ONLY       # unaudited apps can only post SELF_ONLY with mode=direct
+
+experiments:
+  # A/B arms. Each new clip gets one value per factor via Thompson sampling.
+  factors:
+    hook_style: [question, shock, none]
+    caption_style: [karaoke_yellow, white_box, big_center]
+    length: [tight, full]
+  success_metric: views_48h_vs_account_median
