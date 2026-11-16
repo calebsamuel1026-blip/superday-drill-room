@@ -47,6 +47,9 @@ def watch(channel: str, cooldown: int = 75, dry_run: bool = False):
     try:
         while True:
             time.sleep(2)
+            if buf and buf.proc and buf.proc.poll() is not None:
+                print("\n[live] stream ended — stopping watcher")
+                break
             now = time.time()
             msgs = [m for m in list(chat.messages) if m[0] >= now - 900]
             n = int(now - max(t0, now - 900)) + 1

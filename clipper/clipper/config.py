@@ -12,6 +12,19 @@ CONFIG_DIR = ROOT / "config"
 SECRETS_DIR = ROOT / "secrets"
 
 
+def load_env(path: Path | None = None):
+    """Reads KEY=VALUE lines from clipper/.env into the environment (doesn't override real env vars)."""
+    path = path or ROOT / ".env"
+    if not path.exists():
+        return
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
 @lru_cache
 def settings() -> dict:
     path = Path(os.environ.get("CLIPPER_SETTINGS", CONFIG_DIR / "settings.yaml"))

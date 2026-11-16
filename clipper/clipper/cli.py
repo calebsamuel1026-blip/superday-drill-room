@@ -1,5 +1,6 @@
 """python -m clipper <command>
 
+  autopilot                        FULLY AUTOMATIC: live clipping + VODs + campaigns + seed + post + learn, forever
   process <url> [--chat FILE]     clip one VOD / YouTube video (YouTube, Twitch, Kick)
   local <video> [--chat FILE]     clip a local file
   seed [--lang en] [--top 6]       START TODAY: find + clip existing GTA 6 reaction videos (warm-up content)
@@ -157,6 +158,42 @@ def cmd_campaigns(action: str, arg: str | None):
         print(json.dumps(campaigns.earnings(), indent=1))
 
 
+def cmd_doctor():
+    """Checks that everything needed to run locally is installed and configured."""
+    import os
+    import shutil
+    from .config import SECRETS_DIR
+    ok = True
+
+    def row(good, name, fix=""):
+        nonlocal ok
+        ok &= bool(good) or name.startswith("(optional)")
+        print(f"  {'✅' if good else '❌'} {name}" + ("" if good else f"   -> {fix}"))
+    print("clipper doctor")
+    row(shutil.which("ffmpeg"), "ffmpeg", "macOS: brew install ffmpeg | Windows: winget install Gyan.FFmpeg")
+    row(shutil.which("deno"), "deno (yt-dlp needs it for YouTube)",
+        "macOS: brew install deno | Windows: winget install DenoLand.Deno")
+    for mod, name in (("yt_dlp", "yt-dlp"), ("anthropic", "anthropic"), ("numpy", "numpy")):
+        try:
+            __import__(mod)
+            row(True, name)
+        except ImportError:
+            row(False, name, "pip install -r requirements.txt")
+    try:
+        __import__("faster_whisper")
+        row(True, "(optional) faster-whisper captions")
+    except ImportError:
+        row(False, "(optional) faster-whisper captions", "pip install faster-whisper")
+    row(os.environ.get("ANTHROPIC_API_KEY"), "(optional) ANTHROPIC_API_KEY in .env (AI picks + hooks)",
+        "add ANTHROPIC_API_KEY=... to clipper/.env")
+    for name, acc in settings()["accounts"].items():
+        for plat in acc["platforms"]:
+            f = SECRETS_DIR / f"{plat}_token_{name}.json"
+            row(f.exists(), f"(optional) {plat} connected for '{name}'",
+                f"python -m clipper auth {plat} --account {name}  (until then clips wait in out/{name}/)")
+    print("\nready to run: python -m clipper autopilot" if ok else "\nfix the ❌ items above first")
+
+
 def main():
     ap = argparse.ArgumentParser(prog="clipper", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -169,7 +206,7 @@ def main():
     p.add_argument("arg", nargs="?")
     p = sub.add_parser("local"); p.add_argument("video"); p.add_argument("--chat")
     p.add_argument("--streamer"); p.add_argument("--lang"); p.add_argument("--max", type=int, default=6)
-    sub.add_parser("discover")
+    sub.add_parser("discover"); sub.add_parser("autopilot"); sub.add_parser("doctor")
     p = sub.add_parser("seed"); p.add_argument("--lang", action="append")
     p.add_argument("--top", type=int, default=6); p.add_argument("--max-videos", type=int, default=30)
     p.add_argument("--dry-run", action="store_true")
@@ -192,6 +229,11 @@ def main():
     elif a.cmd == "local":
         from .pipeline import process_local
         process_local(a.video, a.chat, a.streamer, a.lang, max_clips=a.max)
+    elif a.cmd == "autopilot":
+        from .autopilot import run
+        run()
+    elif a.cmd == "doctor":
+        cmd_doctor()
     elif a.cmd == "seed":
         cmd_seed(a.lang or sorted({x["language"] for x in settings()["accounts"].values()}),
                  a.top, a.dry_run, a.max_videos)

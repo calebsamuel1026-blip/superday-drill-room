@@ -20,7 +20,28 @@ An automatic clipping system. It finds the best moments in GTA 6 streams and You
 - **Persona agent.** `config/streamers.yaml` holds a persona for each of the 43 creators: energy, catchphrases, running bits, which moment types go viral, copyright notes. Claude Opus 5.5 reads it with each batch of candidate moments. It rejects false spikes (giveaways, raids, sub trains), tightens the cut, and writes native hooks, titles and hashtags for each language.
 - **Learning from results.** After 48h, a post counts as a "win" if it beats that channel's median views. A Thompson-sampling bandit then picks hook style, caption style and clip length for new clips, and decides which streamers to clip more. `learn` has Claude rewrite each streamer's "what works" notes from the real numbers.
 
-## Install (on your computer or a cheap VPS)
+## Run it on your computer, fully automatic
+**One-time setup**
+- **Mac:** double-click `setup.command`. If macOS blocks it, right-click → Open.
+- **Windows:** double-click `setup.bat`.
+
+Setup installs Python packages, ffmpeg and deno, and asks for your Anthropic API key.
+
+**Start:** double-click `start.command` (Mac) or `start.bat` (Windows). That's it. It runs forever, keeps the computer awake, and restarts itself if anything crashes. Everything it does is logged in `logs/autopilot.log`.
+
+What the autopilot does by itself, on repeat:
+| Every | Job |
+|---|---|
+| 5 min | Checks if top streamers are **live playing GTA 6** on Twitch, and starts a live clipper for each (max 2 at once). It stops when the stream ends. |
+| 30 min | Clips **new GTA 6 VODs/videos** from all 43 streamers, plus every **paid campaign** you've joined. |
+| when low | If an account has fewer than 6 clips waiting, it **tops up with GTA 6 reaction videos**, so there's always something to post. |
+| 10 min | **Posts** inside each account's posting windows, following the ramp-up schedule. |
+| 1 h / 24 h | Pulls **views** every hour, and has the AI **update each streamer's "what works" notes** once a day. |
+
+Check everything is ready with `python -m clipper doctor`. Until you connect the accounts (`auth`, see below), clips pile up in `out/<account>/` with a ready-to-paste caption file, and nothing is posted.
+Tune timings in `config/settings.yaml → autopilot`.
+
+## Manual install (on your computer or a cheap VPS)
 ```bash
 cd clipper
 python3 -m venv .venv && source .venv/bin/activate

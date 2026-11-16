@@ -109,6 +109,20 @@ cadence:
   youtube:   {warmup_days: 0, week1: 2, week2_4: 3, steady: 4, min_gap_minutes: 90,  hard_cap: 6}
   instagram: {warmup_days: 0, week1: 1, week2_4: 2, steady: 2, min_gap_minutes: 180, hard_cap: 3}
 
+# Fully automatic mode: `python -m clipper autopilot`
+autopilot:
+  cycle_minutes: 10            # how often it wakes up
+  vod_every_minutes: 30        # check streamers for new GTA 6 VODs/videos + campaigns
+  live_check_minutes: 5        # check who's live on Twitch
+  live_top_streamers: 15       # how many top-priority streamers to check
+  live_max_concurrent: 2       # live clippers at once (each records the stream; CPU + bandwidth)
+  seed_when_queue_below: 6     # top up an account with reaction clips when fewer unposted clips than this
+  seed_every_minutes: 60
+  seed_videos_per_run: 6
+  vods_per_cycle: 4
+  metrics_every_minutes: 60
+  learn_every_hours: 24
+
 experiments:
   # A/B arms. Each new clip gets one value per factor via Thompson sampling.
   factors:
