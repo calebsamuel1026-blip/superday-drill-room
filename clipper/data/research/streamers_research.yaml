@@ -1,0 +1,741 @@
+# GTA 6 clipping target research - compiled 2026-11-16
+# Method: web search only (direct page fetches to streamscharts.com / win.gg were blocked in this
+# sandbox, so figures come from search-result snippets + prior knowledge).
+# Convention: anything not confirmed by a 2026 source is tagged "unverified". Follower counts are
+# approximate, mostly from pre-2026 knowledge, and should be refreshed from Streams Charts /
+# SullyGnome / Social Blade before use.
+
+meta:
+  compiled: "2026-11-16"
+  caveats:
+    - "Follower/viewer numbers are approximate and largely unverified for Nov 2026."
+    - "'clipping_program' = whether a paid/official program is publicly documented. Almost none were verifiable; Kick-side programs and N3on/Adin network are the exceptions."
+    - "GTA 6 launches single-player only on console. No GTA 6 RP servers exist at launch (no PC version, no FiveM for GTA 6). RP drama clips will keep coming from GTA V servers in parallel."
+    - "Copyright: clips contain both streamer footage (streamer's IP) and Rockstar footage. Rockstar historically tolerates/permits gameplay videos, but story spoilers and leaked content are higher-risk; confirm Rockstar's current video policy. Some streamers (Adin Ross, IShowSpeed) have been accused of mass copyright-striking YouTube clip/reupload channels via the agency Thumb Media."
+
+gta6_status:
+  title: "Grand Theft Auto VI"
+  release_date: "2026-11-19 (Thursday)"
+  status: "Confirmed and on track as of 2026-11-16; preload live since 2026-11-10. Launch is 3 days away."
+  unlock: "Midnight local time per region (rolling). New Zealand unlocks first: ~3 AM PT / 11 AM BRT / 07:00 CET on Nov 18. Creators using NZ accounts/region trick can stream ~18-21h early."
+  platforms: ["PS5", "Xbox Series X|S", "Xbox Cloud Gaming (reported, incl. Xbox One via cloud)"]
+  pc: "Not announced"
+  price_usd: 79.99
+  preload: "Started 2026-11-10 (moved up from Nov 12); up to 212 GB"
+  physical: "Code-in-box, no disc, from Nov 12"
+  delay_history: "Originally 2025 -> May 26 2026 -> Nov 19 2026 (announced Nov 2025)"
+  multiplayer: "Single-player at launch. Twitch CEO Dan Clancy said multiplayer expected 2027 (not confirmed by Rockstar). No GTA 6 RP/FiveM support announced."
+  launch_events:
+    - "YouTube official 24h livestream on youtube.com/youtube: RDCWorld pre-show 11 PM ET Nov 18, main stream 12 AM ET Nov 19; 30+ creators incl. Caylus, Zhong & Kat, Jelly, Rivers, Jake Baldino, Cinna; Spanish: Rivers, JuanSGuarnizo (Germán Garmendia per 3DJuegos); Brazil: GamerCosta, Skorpion Gamer, Samira Close (Adrenaline)."
+    - "Twitch: daily GTA 6 Ultimate Edition code drops Nov 19-30 (announced TwitchCon 2026)."
+    - "Kick: 10,000 GTA 6 Ultimate Edition codes via 'cases' after 180 min watch time, Nov 12 - Dec 7; Ed Craven says Kick is 'the home of GTA streaming' with launch activations."
+    - "Kai Cenat: 100% completion marathon; streamed 5 classic GTA games back-to-back pre-launch."
+    - "Lacy + Clix: Miami mansion GTA 6 marathon mixed with IRL."
+    - "IShowSpeed: reportedly flying to New Zealand to stream first (single source, unverified)."
+    - "Alanzoka (BR): said he will open the game 8h on Nov 18 via NZ release -> controversy (Choquei GTA on X)."
+  context_stats:
+    - "Kick overtook Twitch in GTA V average viewers in April 2026 (Streams Charts)."
+    - "Aug 27 2026 Netflix/Twitch 'Extended Look' event: ~39M viewers claimed; IlloJuan set the co-stream record (~233,520 viewers) per profesionalreview."
+    - "Streams Charts top GTA streamers 2025: 1 MixiGaming, 2 drb7h, 3 PaulinhoLOKO, 4 loud_victor (Coringa), 5 Absi_151, 6 RDjavi, 7 Bac Gau, 8 SHoNgxBoNgYT, 9 LordKebun, 10 JLTomy. 9 of top 10 non-English."
+  sources:
+    - "https://www.rockstargames.com/newswire/article/ak3ak31a49a221/grand-theft-auto-vi-is-now-set-to-launch-november-19-2026"
+    - "https://www.rockstargames.com/newswire/article/k4ak9okk485712/grand-theft-auto-vi-pre-load-begins-on-november-10"
+    - "https://support.rockstargames.com/articles/29jV3Cv2cCgvwM1XgtMO5o/grand-theft-auto-vi-regional-pre-load-and-release-times-on-playstation-5-and-xbox-series-x-or-s"
+    - "https://www.ghacks.net/2026/11/04/rockstar-confirms-gta-6-preload-starts-november-10-with-a-download-of-up-to-212-gb/"
+    - "https://maketecheasier.com/gta-6-release-date-price-preload/"
+    - "https://www.gamesradar.com/games/grand-theft-auto/gta-6-delayed-6-more-months-as-rockstar-commits-to-november-2026-and-says-sorry"
+    - "https://blog.youtube/news-and-events/youtube-rockstar-games-gta-vi-launch/"
+    - "https://www.adrenaline.com.br/games/gta-6-tera-transmissao-de-24-horas-no-youtube-para-o-lancamento/"
+    - "https://movistaresports.com/gta-6-rivers-juan-guarnizo-launch-day-youtube/"
+    - "https://es.kotaku.com/gta-6-gratis-twitch-regalara-copias-de-la-ultimate-edition-durante-el-lanzamiento-del-juego-2000057205"
+    - "https://gamersrd.com/kick-twitch-gta-vi-codigos-gratis/"
+    - "https://mp1st.com/news/gta-6-unlock-times-revealed"
+    - "https://blog.eklipse.gg/gaming-news/gta-6-rp-fivem.html"
+    - "https://www.dexerto.com/gta/twitch-ceo-says-gta-6-online-is-launching-next-year-after-speaking-to-rockstar-3409995/"
+    - "https://x.com/StreamsCharts/status/2006432415720550499"
+    - "https://streamscharts.com/news/kick-overtakes-twitch-gta-v-viewership"
+    - "https://www.profesionalreview.com/2026/08/31/la-presentacion-del-gta-6-supera-los-39-millones-de-espectadores-y-satura-los-servidores-de-twitch-y-netflix/amp/"
+
+clipping_landscape:
+  notes:
+    - "Whop Content Rewards: campaign owner sets CPM (typ. $0.20-$6 per 1k views, avg ~$1; gaming median ~$1.41/1k in a Nov 2026 snapshot), approves clips, 10% fee, budgets can run out before late clips are paid."
+    - "Kick runs a clipping program (made official Dec 2025 per win.gg; reported 3B views in Sep 2025) but sources disagree whether Kick pays clippers directly; part of N3on's ~1,000-clipper network is reportedly paid by Kick."
+    - "N3on paid ~$1.4M to 303 clippers over 5 weeks at ~$40 per 100k views (Tubefilter, Apr 2026). Network co-built with Adin Ross."
+    - "No verifiable official paid clipping program found for Kai Cenat, IShowSpeed, xQc, or any ES/PT creator. Check Whop Content Rewards / Vyro / creator Discords live before posting."
+    - "PT-BR: 'canais de cortes' culture - many streamers have official/endorsed cut channels (e.g. 'cortes paulinho o loko [oficial]'), terms not public."
+  sources:
+    - "https://docs.whop.com/manage-your-business/growth-marketing/content-rewards"
+    - "https://www.clipspeed.ai/blog/whop-content-rewards-clipping-guide.html"
+    - "https://win.gg/kick-clipping-program/"
+    - "https://findclout.com/blog/kick-clipping-program"
+    - "https://www.tubefilter.com/2026/04/29/n3on-spending-millions-stream-clippers-tiktok-kick/amp/"
+    - "https://sportskeeda.com/esports/news-what-thumb-media-agency-fire-adin-ross-ishowspeed-get-accused-copyright-striking-youtubers"
+    - "https://contentrewards.com/blog/get-paid-clip-streamers"
+
+# =====================================================================================
+en:
+  - name: "Kai Cenat"
+    platform: "Twitch"
+    handles: {twitch: "kaicenat", youtube: "@KaiCenat", tiktok: "unverified"}
+    followers: "~19-20M Twitch (unverified, pre-2026 figure); launch-type streams 100k-700k+ concurrent"
+    gta_history: "Played GTA V story + GTA RP bits; streamed 5 classic GTA games back-to-back before GTA 6; Rockstar reportedly reached out to him."
+    gta6_announced: "Yes - 100% completion nonstop marathon at launch (confirmed by multiple outlets)."
+    persona: "Loudest, most-clipped streamer in the US. Explosive reactions, jumps out of chair, screams at chat, AMP collabs (Fanum, Duke Dennis, Agent00, ImDavisss). Constant chat interaction and 'subathon' marathons."
+    viral_moment_types: ["screaming/rage", "over-the-top reactions to story reveals", "funny fails", "chat interactions", "co-op chaos with AMP", "wholesome/emotional moments"]
+    catchphrases: ["WHAT IS GOING ON", "Bro what", "Chat chat chat", "Mafiathon", "W chat / L chat", "Yo chat be quiet", "GYATT (unverified as current)"]
+    clipping_program: "No official paid program verified; huge fan clip ecosystem (e.g. 'Kai Cenat Live' fan channel ~16M subs) suggests tolerance. Unverified Whop claim."
+    virality_score: 10
+    notes: "Highest-probability viral source on launch week; marathon = volume. Competition from thousands of clippers -> speed matters."
+    sources:
+      - "https://www.gtaboom.com/kai-cenat-wants-to-100-gta-6-in-one-nonstop-marathon-d0ed"
+      - "https://gtaboom.com/kai-cenat-is-streaming-five-gta-games-back-to-back-before-gta-6-3437"
+      - "https://ssemble.com/blog/the-rise-of-kai-cenat-how-tiktok-clippers-fueled-his-viral-success"
+
+  - name: "IShowSpeed"
+    platform: "YouTube"
+    handles: {youtube: "@IShowSpeed", kick: "none", twitch: "none"}
+    followers: "~40M+ YouTube subs (unverified for Nov 2026); 100k-1M+ concurrent on events"
+    gta_history: "Occasional GTA V streams; rage-heavy. No serious RP history."
+    gta6_announced: "Reportedly travelling to New Zealand to stream GTA 6 first (single source, unverified). Publicly said he will stream GTA 6."
+    persona: "Hyperactive, unpredictable, screams and barks, dances, breaks things. Global IRL streamer; humor comes from pure chaos and rage."
+    viral_moment_types: ["rage", "screaming", "barking/physical outbursts", "funny fails", "reaction to N3on lookalike / in-game streamer references"]
+    catchphrases: ["SEWEY / SIUUU", "WHY ARE YOU RUNNING", "Speed barking", "Ronaldo!"]
+    clipping_program: "No official program verified. RISK: accused (with Adin Ross) of copyright-striking YouTube reupload channels via agency Thumb Media. Treat YouTube reposts of his streams as higher-risk."
+    virality_score: 9
+    notes: "Very high ceiling but highest copyright risk on YouTube Shorts; TikTok safer. Early NZ stream would give a clip head-start."
+    sources:
+      - "https://www.gamingamigos.com/post/ishowspeed-plans-new-zealand-trip-gta-6-stream"
+      - "https://www.dexerto.com/gta/ishowspeed-and-kai-cenat-shocked-as-gta-6-appears-to-feature-n3on-lookalike-3403397/"
+      - "https://sportskeeda.com/esports/news-what-thumb-media-agency-fire-adin-ross-ishowspeed-get-accused-copyright-striking-youtubers"
+
+  - name: "xQc"
+    platform: "Kick (also Twitch)"
+    handles: {kick: "xqc", twitch: "xqc", youtube: "@xQcOW"}
+    followers: "~12M Twitch, Kick multi-million (unverified); 50-100k+ concurrent"
+    gta_history: "One of the biggest NoPixel RP streamers ever (Jean Paul, etc.); top Twitch GTA V streamer during NoPixel V launch month (~8M hours)."
+    gta6_announced: "Not verified; offered Rockstar $1M for early access (old). Near-certain to play (unverified)."
+    persona: "Fast-talking, juicer, chaotic. Speedruns everything, rage-quits, argues with chat. Mumbled rapid-fire commentary is meme material."
+    viral_moment_types: ["rage", "RP drama", "speed-through-cutscenes skipping memes", "funny fails", "chat arguments"]
+    catchphrases: ["JUICER", "Gigachad", "Chat what do I do", "I'm GOING", "Shush", "Clap"]
+    clipping_program: "Historically very permissive about reuploads/react; no paid program verified."
+    virality_score: 8
+    notes: "Will likely also return to NoPixel V; dual stream of RP + GTA 6 content."
+    sources:
+      - "https://www.sportskeeda.com/gta/news-xqc-offers-rockstar-1-000-000-let-play-gta-6-early"
+      - "https://streamscharts.com/news/kick-overtakes-twitch-gta-v-viewership"
+
+  - name: "CaseOh"
+    platform: "Twitch / YouTube"
+    handles: {twitch: "caseoh_", youtube: "@caseoh_"}
+    followers: "~6M+ Twitch, ~10M YouTube (unverified)"
+    gta_history: "Some GTA V; mostly indie/horror/sim. No RP history (unverified)."
+    gta6_announced: "unverified"
+    persona: "Laid-back big-guy humor, roasts chat and himself, sudden loud yelling bursts. Extremely Shorts-friendly face-cam reactions."
+    viral_moment_types: ["funny fails", "self-deprecating jokes", "sudden screaming", "chat roasting"]
+    catchphrases: ["unverified - add from VODs"]
+    clipping_program: "unverified"
+    virality_score: 8
+    notes: "His clips perform exceptionally well on Shorts/TikTok even when content is mundane."
+    sources: []
+
+  - name: "Adin Ross"
+    platform: "Kick"
+    handles: {kick: "adinross", youtube: "unverified"}
+    followers: "~1.5-2M Kick (unverified); 30-100k concurrent"
+    gta_history: "Played GTA RP; building his own GTA 6 RP server (with FaZe Banks) with real-money/crypto economy - no launch date."
+    gta6_announced: "Yes (publicly said he will stream GTA 6); claims a role/NDAs re GTA 6 (unverified)."
+    persona: "Controversy magnet, celebrity guests, gambling, loud trash talk. Content is chaotic and drama-driven."
+    viral_moment_types: ["controversy", "celebrity cameos", "rage", "drama"]
+    catchphrases: ["Brand risk", "unverified"]
+    clipping_program: "Co-built N3on's clipper network (~500 clippers); said Kick clips pay 'double'. RISK: Thumb Media copyright-strike accusations. Check current Kick/Discord campaign terms."
+    virality_score: 7
+    notes: "Gambling-adjacent content gets restricted on TikTok/IG - filter those out."
+    sources:
+      - "https://sportskeeda.com/gta/adin-ross-announces-biggest-gta-6-rp-server-cryptocurrencies-fans-react"
+      - "https://www.sportskeeda.com/us/streamers/news-adin-ross-says-speak-role-gta-6-due-ndas"
+      - "https://www.tubefilter.com/2026/04/29/n3on-spending-millions-stream-clippers-tiktok-kick/amp/"
+
+  - name: "N3on"
+    platform: "Kick"
+    handles: {kick: "n3on"}
+    followers: "~1M+ Kick (unverified)"
+    gta_history: "Limited. GTA 6 reportedly features an N3on lookalike streamer NPC; he recreated the clip."
+    gta6_announced: "unverified (likely, given lookalike storyline)"
+    persona: "Edgy, provocative, IRL chaos, loud outbursts, frequent bans/feuds."
+    viral_moment_types: ["controversy", "reacting to his in-game lookalike", "rage"]
+    catchphrases: ["unverified"]
+    clipping_program: "YES - most documented paid program: ~$1.4M to 303 clippers in 5 weeks at ~$40/100k views; ~1,000-clipper network partly Kick-funded."
+    virality_score: 7
+    notes: "Best monetization/copyright safety for EN, but brand-safety issues; check content guidelines."
+    sources:
+      - "https://www.tubefilter.com/2026/04/29/n3on-spending-millions-stream-clippers-tiktok-kick/amp/"
+      - "https://khelnow.com/gaming/kick-streamer-neon-recreated-gta-6-streamer-clip-from-extended-look-after-viral-rockstar-reference-202608"
+
+  - name: "Lacy"
+    platform: "Twitch"
+    handles: {twitch: "lacy"}
+    followers: "~1.5M Twitch (unverified)"
+    gta_history: "unverified"
+    gta6_announced: "Yes - Miami mansion GTA 6 marathon with Clix, mixed with IRL (win.gg, Sep 2026). Disabled Twitch ads."
+    persona: "Young FaZe-adjacent energy, rage and trolling, friend-group chaos with Clix and possibly StableRonaldo."
+    viral_moment_types: ["rage", "friend-group chaos", "IRL x gaming crossover"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 7
+    notes: "Marathon + mansion setting = lots of reaction material."
+    sources: ["https://win.gg/lacy-plans-gta-6-marathon/"]
+
+  - name: "Jynxzi"
+    platform: "Twitch"
+    handles: {twitch: "jynxzi", youtube: "@Jynxzi"}
+    followers: "~7M Twitch (unverified)"
+    gta_history: "Mainly R6 Siege; little GTA."
+    gta6_announced: "unverified"
+    persona: "Screamer; meltdowns and over-the-top rage; competitive banter with chat."
+    viral_moment_types: ["rage", "screaming", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 6
+    notes: "Only if he actually streams GTA 6."
+    sources: []
+
+  - name: "summit1g"
+    platform: "Twitch"
+    handles: {twitch: "summit1g"}
+    followers: "~6M Twitch (unverified)"
+    gta_history: "NoPixel legend (Charles Johnson / 'CG'); long GTA V history."
+    gta6_announced: "unverified"
+    persona: "Chill veteran, deadpan humor, iconic panicked laugh; deep NoPixel friend group."
+    viral_moment_types: ["RP drama", "chase/heist highlights", "funny fails", "laugh moments"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 6
+    notes: "Older audience; better for long-form than Shorts, but RP chase clips do well."
+    sources: []
+
+  - name: "Fanum"
+    platform: "Twitch / YouTube"
+    handles: {twitch: "fanum", youtube: "@FanumTV"}
+    followers: "~2M Twitch (unverified)"
+    gta_history: "AMP GTA content with Kai (unverified)."
+    gta6_announced: "unverified (likely appears in Kai's marathon)"
+    persona: "'Fanum tax' food-stealing meme; AMP comic foil, playful trolling."
+    viral_moment_types: ["co-op chaos", "trolling", "AMP banter"]
+    catchphrases: ["Fanum tax"]
+    clipping_program: "unverified"
+    virality_score: 6
+    notes: "Clip from Kai's stream when he appears for double audience."
+    sources: []
+
+  - name: "Duke Dennis"
+    platform: "YouTube / Twitch"
+    handles: {youtube: "@DukeDennis", twitch: "dukedennis"}
+    followers: "~5M YouTube (unverified)"
+    gta_history: "Long-time GTA Online/2K content (unverified)."
+    gta6_announced: "unverified"
+    persona: "Smooth, sarcastic, 'Did you pray today?' personality; AMP member."
+    viral_moment_types: ["deadpan jokes", "AMP chaos", "wholesome"]
+    catchphrases: ["Did you pray today?"]
+    clipping_program: "unverified"
+    virality_score: 6
+    notes: ""
+    sources: []
+
+  - name: "zackrawrr (Asmongold)"
+    platform: "Twitch / YouTube"
+    handles: {twitch: "zackrawrr", youtube: "@AsmonTV"}
+    followers: "~4M Twitch combined (unverified)"
+    gta_history: "Played NoPixel 4.0 (cop RP) (unverified)."
+    gta6_announced: "unverified"
+    persona: "Commentary-heavy, contrarian takes, mold jokes; huge reaction audience."
+    viral_moment_types: ["hot takes", "reaction/review", "RP drama"]
+    catchphrases: ["unverified"]
+    clipping_program: "Reaction/commentary content widely reuploaded; no paid program verified."
+    virality_score: 6
+    notes: "Good for 'opinion' Shorts (graphics/price/game reviews)."
+    sources: []
+
+  - name: "Caylus"
+    platform: "YouTube"
+    handles: {youtube: "@Caylus"}
+    followers: "~15M+ YouTube (unverified)"
+    gta_history: "GTA V/Fortnite YouTube videos (unverified)."
+    gta6_announced: "Yes - in YouTube's official 24h GTA VI launch livestream."
+    persona: "Kid-friendly, high-energy YouTube gamer, trolling and challenge content."
+    viral_moment_types: ["challenges", "funny fails", "trolling"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 5
+    notes: "Official YouTube event = lots of clippable launch-night footage."
+    sources: ["https://blog.youtube/news-and-events/youtube-rockstar-games-gta-vi-launch/"]
+
+  - name: "Buddha"
+    platform: "Twitch (unverified - check if moved)"
+    handles: {twitch: "buddha"}
+    followers: "~1M Twitch (unverified)"
+    gta_history: "NoPixel 'RP king' (Lang Buddha); one of the most watched RP streamers."
+    gta6_announced: "unverified"
+    persona: "Committed long-form RPer, gang leader dynamics, emotional story arcs."
+    viral_moment_types: ["RP drama", "emotional moments"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 4
+    notes: "RP drama clips work on TikTok with captions; lower short-form ceiling."
+    sources: ["https://www.dexerto.com/gta/who-is-buddha-twitchs-gta-rp-king-soaring-with-nopixel-hype-1609675/about:blank"]
+
+  - name: "Agent00"
+    platform: "Twitch"
+    handles: {twitch: "agent00"}
+    followers: "~1.5M Twitch (unverified)"
+    gta_history: "unverified"
+    gta6_announced: "unverified"
+    persona: "AMP member, competitive gamer, rap/hype energy."
+    viral_moment_types: ["AMP chaos", "skill clips"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 4
+    notes: ""
+    sources: []
+
+# =====================================================================================
+es:
+  - name: "IlloJuan"
+    platform: "Twitch"
+    handles: {twitch: "illojuan", youtube: "@IlloJuan"}
+    followers: "~6M Twitch (unverified); record ~233,520 viewers co-streaming the Aug 2026 GTA 6 Extended Look"
+    gta_history: "Marbella Vice participant (unverified); variety."
+    gta6_announced: "Not explicitly verified, but set the GTA 6 Extended Look co-stream record - very likely."
+    persona: "Andalusian humor, absurd tangents, crude jokes, imitations; loyal and very active chat."
+    viral_moment_types: ["absurd humor", "reaction to story", "chat interactions", "accent/meme lines"]
+    catchphrases: ["illo", "Masi (unverified)"]
+    clipping_program: "unverified"
+    virality_score: 9
+    notes: "Highest proven Spanish GTA 6 audience signal in 2026."
+    sources:
+      - "https://www.profesionalreview.com/2026/08/31/la-presentacion-del-gta-6-supera-los-39-millones-de-espectadores-y-satura-los-servidores-de-twitch-y-netflix/amp/"
+      - "https://en.wikipedia.org/wiki/IlloJuan"
+
+  - name: "AuronPlay"
+    platform: "Twitch"
+    handles: {twitch: "auronplay", youtube: "@AuronPlay"}
+    followers: "~16M Twitch (unverified)"
+    gta_history: "Top viewer on Marbella Vice launch (~272k peak); Marbella 3 Twitch leader (~42k avg)."
+    gta6_announced: "unverified"
+    persona: "Sarcastic trolling, puts on characters, deadpan insults; 'Auronplay' laugh and trolling groups (with Biyin, etc.)."
+    viral_moment_types: ["trolling", "RP characters", "funny fails", "chat interactions"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 9
+    notes: "If he streams GTA 6, enormous audience."
+    sources:
+      - "https://tec.com.pe/marbella-vice-el-servidor-roleplay-de-ibai-fue-inaugurado-con-un-millon-de-espectadores/"
+      - "https://movistaresports.com/audiencias-marbella-3-en-su-estreno/"
+
+  - name: "Spreen"
+    platform: "Kick"
+    handles: {kick: "spreen", youtube: "@Spreen"}
+    followers: "~2.1M Kick; #1-2 most watched Spanish Kick streamer in recent weeks"
+    gta_history: "Played GTA RP (Marbella Vice / Argentine servers) (unverified)."
+    gta6_announced: "unverified"
+    persona: "Argentine, young, loud, competitive; friend group with Westcol and LATAM Kick scene."
+    viral_moment_types: ["rage", "screaming", "friend-group chaos"]
+    catchphrases: ["unverified"]
+    clipping_program: "No program verified; Kick clipping program likely applies."
+    virality_score: 8
+    notes: "Kick Spanish GTA activations likely."
+    sources:
+      - "https://streamscharts.com/channels?lang=es&platform=kick"
+      - "https://en.wikipedia.org/wiki/Spreen"
+
+  - name: "Westcol"
+    platform: "Kick"
+    handles: {kick: "westcol"}
+    followers: "~4.7M Kick (most followed on Kick)"
+    gta_history: "unverified"
+    gta6_announced: "unverified"
+    persona: "Colombian, brash, rage-prone, boxing events (Stream Fighters), frequent controversies."
+    viral_moment_types: ["rage", "controversy", "screaming"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified (many fan clip channels, e.g. 'Streams Kick Westcol')"
+    virality_score: 8
+    notes: "Huge raw reach; check brand-safety."
+    sources:
+      - "https://en.wikipedia.org/wiki/WestCOL"
+      - "https://livecounts.nl/top/kick-followers/"
+
+  - name: "JuanSGuarnizo"
+    platform: "Twitch / YouTube"
+    handles: {twitch: "juansguarnizo", youtube: "@JuanSGuarnizo"}
+    followers: "~6M+ Twitch (unverified)"
+    gta_history: "GTA RP participant (unverified)."
+    gta6_announced: "Yes - in YouTube official 24h launch stream (per 3DJuegos/Movistar eSports/PSLS)."
+    persona: "Colombian, expressive, gamer-comedian; went viral over GTA 6 delay ('Me mudé, me casé, me divorcié y aún no sale')."
+    viral_moment_types: ["emotional reactions", "funny rants", "chat interactions"]
+    catchphrases: ["Me mudé, me casé, me divorcié y aún no sale"]
+    clipping_program: "unverified"
+    virality_score: 8
+    notes: "Launch-night pick; Twitch loyal (critical of Kick)."
+    sources:
+      - "https://movistaresports.com/gta-6-rivers-juan-guarnizo-launch-day-youtube/"
+      - "https://www.infobae.com/colombia/2025/11/07/streamer-colombiano-juan-guarnizo-se-enojo-por-el-retraso-del-videojuego-gta6-y-se-hizo-viral-me-mude-me-case-me-divorcie-y-aun-no-sale/"
+
+  - name: "Rivers"
+    platform: "Twitch / YouTube"
+    handles: {twitch: "rivers_gg", youtube: "@Rivers"}
+    followers: "~10M Twitch (unverified); avg 12k+, peaks 75k+"
+    gta_history: "unverified"
+    gta6_announced: "Yes - in YouTube official 24h GTA VI launch livestream (YouTube blog)."
+    persona: "Mexican, most-watched female streamer 2023; bubbly, loud laughs, Mexican slang, big collab circle."
+    viral_moment_types: ["screaming/laughing", "funny fails", "chat interactions", "wholesome"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 7
+    notes: "Official launch event participant = safe early content."
+    sources:
+      - "https://blog.youtube/news-and-events/youtube-rockstar-games-gta-vi-launch/"
+      - "https://en.wikipedia.com/wiki/Samy_Rivers"
+
+  - name: "Ibai"
+    platform: "Twitch"
+    handles: {twitch: "ibai", youtube: "@ibai"}
+    followers: "~17M Twitch (unverified)"
+    gta_history: "Created Marbella Vice (with CooLifeGame) - most popular Spanish GTA RP server."
+    gta6_announced: "unverified"
+    persona: "Event king (La Velada), self-deprecating humor, huge Spanish streamer network."
+    viral_moment_types: ["event moments", "funny fails", "collab chaos"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 7
+    notes: "Watch for any GTA 6 / future RP event announcement."
+    sources: ["https://www.vidaextra.com/juegos-online/marbella-vice-ha-abierto-sus-puertas-puedes-ver-a-150-streamers-jugando-servidor-gta-online-creado-ibai"]
+
+  - name: "RDjavi"
+    platform: "Kick"
+    handles: {kick: "rdjavi", x: "@RDjavii"}
+    followers: "unverified; #6 most watched GTA streamer worldwide 2025 (~21.4M hours)"
+    gta_history: "Creativos RP main; top Spanish-language Kick GTA streamer."
+    gta6_announced: "unverified"
+    persona: "Dominican (Streamdle) - nationality conflicting; RP-focused, Caribbean humor (unverified)."
+    viral_moment_types: ["RP drama", "chases", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 7
+    notes: "Daily high-volume GTA V RP while GTA 6 RP doesn't exist."
+    sources:
+      - "https://x.com/StreamsCharts/status/2006432415720550499"
+      - "https://blog.eklipse.gg/creator/gta-rp-streamers.html"
+
+  - name: "ElMariana"
+    platform: "Kick (unverified) / YouTube"
+    handles: {kick: "elmariana", twitch: "elmariana"}
+    followers: "~4M+ combined (unverified)"
+    gta_history: "Mexican GTA RP participation (unverified)."
+    gta6_announced: "unverified"
+    persona: "Mexican, loud, pranks and rage, close to Rivers circle (unverified)."
+    viral_moment_types: ["rage", "screaming", "pranks"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 6
+    notes: ""
+    sources: []
+
+  - name: "Perxitaa"
+    platform: "Twitch"
+    handles: {twitch: "perxitaa"}
+    followers: "~2M Twitch (unverified)"
+    gta_history: "Among most watched Spanish GTA V streamers (Streamdle); Marbella Vice (unverified)."
+    gta6_announced: "unverified"
+    persona: "Spanish, sarcastic, gamer-competitive."
+    viral_moment_types: ["RP drama", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 6
+    notes: ""
+    sources: ["https://streamdle.net/juegos/grand-theft-auto-v"]
+
+  - name: "Rubius"
+    platform: "Twitch / YouTube"
+    handles: {twitch: "rubius", youtube: "@elrubiusOMG"}
+    followers: "~15M Twitch, ~40M YouTube (unverified)"
+    gta_history: "Classic GTA V YouTube videos; Marbella Vice participant (unverified)."
+    gta6_announced: "unverified"
+    persona: "Veteran Spanish YouTuber, goofy, screamy, absurd voice work."
+    viral_moment_types: ["screaming", "absurd humor", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 6
+    notes: "Streams less often; if live, big."
+    sources: []
+
+  - name: "TheGrefg"
+    platform: "Twitch / YouTube"
+    handles: {twitch: "thegrefg", youtube: "@TheGrefg"}
+    followers: "~12M Twitch (unverified)"
+    gta_history: "unverified"
+    gta6_announced: "unverified"
+    persona: "Hype-driven, events and launches, competitive."
+    viral_moment_types: ["hype reactions", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 5
+    notes: ""
+    sources: []
+
+  - name: "Carola"
+    platform: "Twitch"
+    handles: {twitch: "carola"}
+    followers: "unverified"
+    gta_history: "Marbella Vice star RPer (Fedor Chernyshev)."
+    gta6_announced: "unverified"
+    persona: "Character-actor RPer; deep voice and comedic Russian character."
+    viral_moment_types: ["RP drama", "character comedy"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 5
+    notes: ""
+    sources: ["https://gtaroleplay.fandom.com/es/wiki/Carola"]
+
+  - name: "Germán Garmendia"
+    platform: "YouTube"
+    handles: {youtube: "@HolaSoyGerman / @JuegaGerman"}
+    followers: "~50M+ YouTube combined (unverified)"
+    gta_history: "JuegaGerman GTA videos (unverified)."
+    gta6_announced: "Reported in YouTube's GTA VI launch line-up per 3DJuegos (not in YouTube blog snippet) - partially verified."
+    persona: "Chilean, classic YouTube screaming-gamer persona, expressive."
+    viral_moment_types: ["screaming", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 5
+    notes: ""
+    sources: ["https://www.3djuegos.com/juegos/grand-theft-auto-vi/noticias/mayor-lanzamiento-historia-se-merece-mayor-directo-fenomeno-gta-6-masivo-que-youtube-se-viste-gala-para-celebrar-su-estreno"]
+
+  - name: "Goncho / Zeko / Kenai (Kick Marbella 3 cluster)"
+    platform: "Kick"
+    handles: {kick: "goncho, zeko, kenai (unverified exact handles)"}
+    followers: "Top Spanish Kick channels during Marbella 3 launch (Zeko ~5.7k avg)"
+    gta_history: "Marbella Vice 3 on Kick."
+    gta6_announced: "unverified"
+    persona: "Kick-native mid-tier RP streamers."
+    viral_moment_types: ["RP drama", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "Kick clipping program may apply (unverified)."
+    virality_score: 4
+    notes: "Less competition among clippers."
+    sources: ["https://movistaresports.com/audiencias-marbella-3-en-su-estreno/"]
+
+# =====================================================================================
+pt:
+  - name: "Paulinho o LOKO"
+    platform: "Twitch / Kick / YouTube"
+    handles: {twitch: "paulinholokobr", kick: "unverified", youtube: "@PaulinhooLOKO (unverified)", x: "@paulinhooloko_"}
+    followers: "#3 most watched GTA streamer worldwide 2025 (~27.9M hours; ~31.3M across platforms)"
+    gta_history: "Brazil's top GTA RP streamer (Complexo, now Brazuca City); most watched GTA streamer worldwide in 2023."
+    gta6_announced: "Already made GTA 6 reaction content ('GTA 6 TÁ IGUAL O GTA 5...'); launch stream unverified. Streams Mon-Fri 20h."
+    persona: "Chaotic, loud favela-humor RP, screaming and laughing, big recurring cast; rivalry/collab with Coringa."
+    viral_moment_types: ["RP drama", "screaming", "funny fails", "chat interactions"]
+    catchphrases: ["unverified"]
+    clipping_program: "Official cut channel exists ('cortes paulinho o loko [oficial]'); terms not public."
+    virality_score: 10
+    notes: "#1 PT target; RP content continues daily on GTA V."
+    sources:
+      - "https://x.com/StreamsCharts/status/2006432415720550499"
+      - "https://www.youtube.com/watch?v=UD00f-6D0ZI"
+      - "https://www.youtube.com/channel/UCosQ7mChs8yBAAe8z12jrZw"
+
+  - name: "Coringa (LOUD)"
+    platform: "Twitch / Kick (unverified)"
+    handles: {twitch: "loud_coringa (unverified)", x: "@loud_victor"}
+    followers: "#4 most watched GTA streamer worldwide 2025; ~51.9M total hours 2025"
+    gta_history: "Cidade Alta (LOUD's server, created 2020) RP star."
+    gta6_announced: "unverified"
+    persona: "LOUD org face, energetic, dramatic RP, competitive with Paulinho."
+    viral_moment_types: ["RP drama", "screaming", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 9
+    notes: ""
+    sources:
+      - "https://x.com/StreamsCharts/status/2006432415720550499"
+      - "https://www.pichauarena.com.br/noticias/coringa-paulinho-loko-gta-cupons/"
+
+  - name: "Alanzoka"
+    platform: "Twitch / YouTube"
+    handles: {twitch: "alanzoka", youtube: "@alanzoka"}
+    followers: "~5M+ Twitch (unverified)"
+    gta_history: "Plays GTA V story/online; some RP (unverified)."
+    gta6_announced: "Yes - said he'll start at 8h on Nov 18 via New Zealand release (controversy)."
+    persona: "Calm, sarcastic, dry humor; known for blind playthroughs of big releases."
+    viral_moment_types: ["story reactions", "dry humor", "funny fails", "controversy (early play)"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 9
+    notes: "First major BR creator on GTA 6 -> ~20h head start for PT clips."
+    sources:
+      - "https://x.com/choqueigta/status/2122031507233763635"
+      - "https://en.wikipedia.org/wiki/Alanzoka"
+
+  - name: "Casimiro"
+    platform: "Twitch / YouTube (CazéTV)"
+    handles: {twitch: "casimito", youtube: "@CazeTV"}
+    followers: "~5M Twitch (unverified)"
+    gta_history: "Played GTA RP occasionally (unverified)."
+    gta6_announced: "unverified"
+    persona: "Brazil's biggest reactor; iconic laugh, food and football memes, 'Cazé' persona."
+    viral_moment_types: ["reactions", "laughing", "memes"]
+    catchphrases: ["unverified"]
+    clipping_program: "Massive cortes culture; no official paid program verified."
+    virality_score: 7
+    notes: "Mostly reacts; GTA 6 trailer/story reacts likely."
+    sources: ["https://en.wikipedia.org/wiki/Casimiro_(streamer)"]
+
+  - name: "Gaules"
+    platform: "Twitch"
+    handles: {twitch: "gaules"}
+    followers: "~4M Twitch (unverified)"
+    gta_history: "GTA RP sporadically (unverified); CS2 primary."
+    gta6_announced: "unverified"
+    persona: "'Tribo' community, loud catchphrases, older uncle-energy."
+    viral_moment_types: ["catchphrase moments", "rage"]
+    catchphrases: ["Bom dia tribo (unverified)"]
+    clipping_program: "unverified"
+    virality_score: 5
+    notes: ""
+    sources: []
+
+  - name: "Samira Close"
+    platform: "YouTube / Twitch"
+    handles: {youtube: "@SamiraClose", twitch: "samiraclose"}
+    followers: "unverified"
+    gta_history: "unverified"
+    gta6_announced: "Yes - in YouTube official 24h launch stream (Brazil)."
+    persona: "Drag queen gamer, sharp humor, big LGBTQ+ gaming community."
+    viral_moment_types: ["funny reactions", "screaming", "wholesome"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 6
+    notes: ""
+    sources: ["https://www.adrenaline.com.br/games/gta-6-tera-transmissao-de-24-horas-no-youtube-para-o-lancamento/"]
+
+  - name: "Skorpion Gamer"
+    platform: "YouTube"
+    handles: {youtube: "unverified"}
+    followers: "unverified"
+    gta_history: "unverified"
+    gta6_announced: "Yes - in YouTube official 24h launch stream (Brazil)."
+    persona: "unverified"
+    viral_moment_types: ["unverified"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 5
+    notes: ""
+    sources: ["https://www.adrenaline.com.br/games/gta-6-tera-transmissao-de-24-horas-no-youtube-para-o-lancamento/"]
+
+  - name: "GamerCosta"
+    platform: "YouTube"
+    handles: {youtube: "@GamerCosta (unverified)"}
+    followers: "unverified"
+    gta_history: "unverified"
+    gta6_announced: "Yes - in YouTube official 24h launch stream (listed as Brazilian by Adrenaline)."
+    persona: "unverified"
+    viral_moment_types: ["unverified"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 5
+    notes: "Possibly English-language creator; verify language."
+    sources: ["https://www.adrenaline.com.br/games/gta-6-tera-transmissao-de-24-horas-no-youtube-para-o-lancamento/", "https://www.playstationlifestyle.net/2026/11/12/gta-6-youtube-creators-valorant-streaming-record"]
+
+  - name: "Jon Vlogs"
+    platform: "YouTube / Twitch"
+    handles: {youtube: "@JonVlogs", twitch: "jonvlogs"}
+    followers: "~15M YouTube (unverified)"
+    gta_history: "Complexo RP (unverified)."
+    gta6_announced: "unverified"
+    persona: "Big BR YouTuber, loud, reality-show energy."
+    viral_moment_types: ["screaming", "RP drama"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 6
+    notes: ""
+    sources: []
+
+  - name: "Piuzinho"
+    platform: "Twitch / Kick (unverified)"
+    handles: {twitch: "piuzinho"}
+    followers: "unverified"
+    gta_history: "Cidade Alta RP (unverified)."
+    gta6_announced: "unverified"
+    persona: "Funny RP, voices and banter (unverified)."
+    viral_moment_types: ["RP drama", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 5
+    notes: ""
+    sources: []
+
+  - name: "Cellbit"
+    platform: "Twitch"
+    handles: {twitch: "cellbit"}
+    followers: "~3M Twitch (unverified)"
+    gta_history: "GTA RP stints (unverified)."
+    gta6_announced: "unverified"
+    persona: "Story-lover, emotional and investigative, loud jump-scares."
+    viral_moment_types: ["story reactions", "screaming"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 5
+    notes: ""
+    sources: []
+
+  - name: "YoDa"
+    platform: "Twitch"
+    handles: {twitch: "yoda"}
+    followers: "unverified"
+    gta_history: "Frequent GTA RP (per 2025 BR guide)."
+    gta6_announced: "unverified"
+    persona: "Veteran BR streamer, comedic RP."
+    viral_moment_types: ["RP drama", "funny fails"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 4
+    notes: ""
+    sources: ["https://gtarpbrasil.org/quem-sao-os-streamers-mais-famosos-de-gta-rp/"]
+
+  - name: "Venom Extreme"
+    platform: "YouTube"
+    handles: {youtube: "@VenomExtreme (unverified)"}
+    followers: "unverified"
+    gta_history: "Classic BR GTA V YouTuber (unverified)."
+    gta6_announced: "unverified"
+    persona: "Long-time GTA YouTube personality."
+    viral_moment_types: ["easter eggs", "secrets/tips"]
+    catchphrases: ["unverified"]
+    clipping_program: "unverified"
+    virality_score: 4
+    notes: "Better for 'secrets/easter-egg' style Shorts."
+    sources: []
+
+# =====================================================================================
+chat_lexicon:
+  # Tokens for chat-spike hype detector. Match case-insensitively; collapse repeated letters
+  # (regex e.g. k{4,}, ja(ja)+, KEK\w*). Weight emote-only messages higher. Source: domain
+  # knowledge of Twitch/Kick/7TV/BTTV/FFZ culture - not web-verified per community.
+  en:
+    laughter: ["KEKW", "OMEGALUL", "LUL", "LULW", "LMAO", "LMFAO", "LOL", "ICANT", "pepeLaugh", "KEKL", "💀", "😭", "😂", "HAHAHA", "DEAD", "I'M DEAD", "bro", "crying"]
+    hype: ["W", "WWW", "POG", "PogChamp", "Pog", "PogU", "POGGERS", "LETS GO", "LETSGO", "GOATED", "HOLY", "HOLY SHIT", "NO WAY", "NAHHH", "NAH", "CLIP IT", "CLIP THAT", "+2", "EZ", "GIGACHAD", "Clap", "🔥", "🐐"]
+    shock: ["WHAT", "WTF", "monkaS", "monkaW", "D:", "Aware", "Stare", "OMG", "BRO", "😳", "😱"]
+    rage_fail: ["L", "LLL", "Sadge", "PepeHands", "BibleThump", "ResidentSleeper", "F", "FFFF", "RIP", "COPIUM", "Clueless"]
+  es:
+    laughter: ["jajaja", "JAJAJA", "jaja", "JAJSJAJS", "jsjsjs", "JSJSJS", "ajajaj", "XD", "XDDD", "xd", "KEKW", "OMEGALUL", "LUL", "😂", "🤣", "💀", "me meo", "me muero", "lmao"]
+    hype: ["QUE", "QUEEE", "QUÉ", "NOOO", "NOOOO", "VAMOS", "VAMOOOS", "BRUTAL", "CRACK", "GOD", "GOAT", "POG", "W", "GG", "TREMENDO", "INSANO", "CLIP", "CLIPEA", "QUE ACABA DE PASAR", "NO PUEDE SER", "🔥"]
+    shock: ["WTF", "OMG", "hostia", "ostia", "joder", "madre mía", "qué cojones", "NMMS (MX)", "ALV (MX)", "no mames (MX)", "WEY", "NAAA (AR)", "BOLUDO (AR)", "uy no (CO)", "parce (CO)", "😳", "😱"]
+    rage_fail: ["F", "FFFF", "L", "RIP", "manco", "MANCO", "que malo", "nooo", "Sadge", "PepeHands", "F en el chat"]
+  pt:
+    laughter: ["kkkk", "kkkkkkkk", "KKKKKKKK", "KKKKKKKKKKKKK", "kkkkk", "rsrs", "hahaha", "huehue", "KEKW", "OMEGALUL", "LUL", "😂", "🤣", "💀", "chorando", "to chorando", "morri", "MORRI", "SOCORRO"]
+    hype: ["CARALHO", "CARALHOOO", "PQP", "MDS", "MEU DEUS", "VAMO", "VAMOOO", "BORA", "INSANO", "BRABO", "BRABOOO", "MONSTRO", "LENDA", "W", "POG", "CLIPA", "CLIPA ISSO", "NÃO ACREDITO", "🔥", "🐐"]
+    shock: ["OQ", "OQUE", "OQUEEE", "QUE ISSO", "QUE ISSO MANO", "MANO", "NAMORAL", "NA MORAL", "VTNC", "WTF", "AAAAAA", "😳", "😱", "Gzuis"]
+    rage_fail: ["F", "FFFF", "L", "RIP", "RUIM", "Sadge", "pepeHands", "que fase", "tnc", "vish", "VISH"]
+  detector_tips:
+    - "Count unique chatters per 5-10s window vs rolling baseline (z-score), not raw messages."
+    - "Normalize repeats: collapse k{3,} -> kkk, (ja){2,} -> jaja, (ha){2,} -> haha; uppercase ratio is a strong hype signal."
+    - "Emote-only messages and identical copy-paste spam (e.g. 'KEKW KEKW KEKW') are high-weight."
+    - "Kick and Twitch chats differ: Kick uses Kick/7TV emotes (KEKW, emojis); BR chats overwhelmingly use 'k' spam."

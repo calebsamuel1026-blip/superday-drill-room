@@ -1,0 +1,15 @@
+# core
+yt-dlp>=2026.10.26
+anthropic>=2.8.0
+numpy>=2.0
+pyyaml>=6.0
+requests>=2.32
+pydantic>=2.0
+# editing: face-cam detection for the cam-top/gameplay-bottom layout
+opencv-python-headless>=4.9,<5
+Pillow>=10.0           # headline cards with color emoji
+# transcription (recommended; runs on CPU, faster with a GPU)
+faster-whisper>=1.1
+# publishing
+google-api-python-client>=2.150
+google-auth-oauthlib>=1.2

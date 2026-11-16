@@ -1,0 +1,118 @@
+# Chat vocabulary that signals "something just happened".
+# weight = how much one occurrence adds on top of the plain message count.
+# Matching is case-insensitive, on whole tokens unless `regex: true`.
+# Category tags let the agent know WHAT kind of moment it is (laugh vs shock vs hype vs rage).
+
+common:
+  - {token: "KEKW", weight: 1.5, tag: laugh}
+  - {token: "OMEGALUL", weight: 1.8, tag: laugh}
+  - {token: "LUL", weight: 1.2, tag: laugh}
+  - {token: "LULW", weight: 1.3, tag: laugh}
+  - {token: "ICANT", weight: 1.6, tag: laugh}
+  - {token: "OMEGADANCE", weight: 1.0, tag: hype}
+  - {token: "Pog", weight: 1.3, tag: hype}
+  - {token: "PogChamp", weight: 1.3, tag: hype}
+  - {token: "POGGERS", weight: 1.3, tag: hype}
+  - {token: "PogU", weight: 1.3, tag: hype}
+  - {token: "monkaS", weight: 1.2, tag: tension}
+  - {token: "monkaW", weight: 1.4, tag: tension}
+  - {token: "Clueless", weight: 0.8, tag: laugh}
+  - {token: "Aware", weight: 0.8, tag: laugh}
+  - {token: "Sadge", weight: 0.6, tag: sad}
+  - {token: "D:", weight: 1.3, tag: shock}
+  - {token: "WutFace", weight: 1.2, tag: shock}
+  - {token: "Kappa", weight: 0.4, tag: laugh}
+  - {token: "💀", weight: 1.6, tag: laugh}
+  - {token: "😭", weight: 1.3, tag: laugh}
+  - {token: "😂", weight: 1.2, tag: laugh}
+  - {token: "🤣", weight: 1.2, tag: laugh}
+  - {token: "🔥", weight: 0.8, tag: hype}
+  - {token: "😱", weight: 1.2, tag: shock}
+  - {token: "CLIP", weight: 2.5, tag: clip_request}
+  - {token: "CLIPPED", weight: 2.5, tag: clip_request}
+  - {token: "CLIP IT", weight: 3.0, tag: clip_request}
+  - {token: "+2", weight: 1.0, tag: laugh}
+  - {token: "W", weight: 0.9, tag: hype}
+  - {token: "L", weight: 0.7, tag: fail}
+  - {token: "GG", weight: 0.6, tag: hype}
+  - {token: "?", weight: 0.5, tag: shock}
+  - {token: "???", weight: 1.0, tag: shock}
+
+en:
+  - {token: "LMAO", weight: 1.3, tag: laugh}
+  - {token: "LMFAO", weight: 1.5, tag: laugh}
+  - {token: "LOL", weight: 0.8, tag: laugh}
+  - {token: "NO WAY", weight: 1.6, tag: shock}
+  - {token: "NAH", weight: 0.9, tag: shock}
+  - {token: "BRO", weight: 0.6, tag: shock}
+  - {token: "WTF", weight: 1.3, tag: shock}
+  - {token: "HOLY", weight: 1.1, tag: shock}
+  - {token: "INSANE", weight: 1.2, tag: hype}
+  - {token: "CRAZY", weight: 1.0, tag: hype}
+  - {token: "DEAD", weight: 1.0, tag: laugh}
+  - {token: "IM DEAD", weight: 1.5, tag: laugh}
+  - {token: "RIP", weight: 0.8, tag: fail}
+  - {token: "OMG", weight: 1.0, tag: shock}
+  - {token: "BRUH", weight: 0.8, tag: fail}
+  - {token: "WWWW", weight: 1.4, tag: hype, regex: false}
+  - {token: "^W{3,}$", weight: 1.4, tag: hype, regex: true}
+  - {token: "^L{3,}$", weight: 1.0, tag: fail, regex: true}
+  - {token: "^(HA){2,}H?$", weight: 1.2, tag: laugh, regex: true}
+
+es:
+  - {token: "^(JA){2,}J?$", weight: 1.3, tag: laugh, regex: true}
+  - {token: "^(JE){2,}J?$", weight: 1.1, tag: laugh, regex: true}
+  - {token: "XD", weight: 1.1, tag: laugh}
+  - {token: "XDD", weight: 1.3, tag: laugh}
+  - {token: "^XD{2,}$", weight: 1.4, tag: laugh, regex: true}
+  - {token: "QUE", weight: 0.9, tag: shock}
+  - {token: "QUEE", weight: 1.2, tag: shock}
+  - {token: "^QUE+$", weight: 1.2, tag: shock, regex: true}
+  - {token: "^NO+$", weight: 1.0, tag: shock, regex: true}
+  - {token: "NOOO", weight: 1.3, tag: shock}
+  - {token: "NO MAMES", weight: 1.6, tag: shock}
+  - {token: "NMMS", weight: 1.5, tag: shock}
+  - {token: "LOCO", weight: 1.0, tag: hype}
+  - {token: "BRUTAL", weight: 1.3, tag: hype}
+  - {token: "MADRE MIA", weight: 1.3, tag: shock}
+  - {token: "OSTIA", weight: 1.3, tag: shock}
+  - {token: "HOSTIA", weight: 1.3, tag: shock}
+  - {token: "QUE PASO", weight: 1.3, tag: shock}
+  - {token: "QUÉ PASÓ", weight: 1.3, tag: shock}
+  - {token: "CLIPEADO", weight: 2.5, tag: clip_request}
+  - {token: "CLIPEALO", weight: 2.5, tag: clip_request}
+  - {token: "F", weight: 0.7, tag: fail}
+  - {token: "WTF", weight: 1.3, tag: shock}
+  - {token: "PUTA", weight: 1.0, tag: shock}
+  - {token: "BUENISIMO", weight: 1.0, tag: hype}
+  - {token: "GOLAZO", weight: 1.0, tag: hype}
+
+pt:
+  - {token: "^K{3,}$", weight: 1.4, tag: laugh, regex: true}
+  - {token: "^(KS){2,}$", weight: 1.2, tag: laugh, regex: true}
+  - {token: "^(RS){2,}$", weight: 0.9, tag: laugh, regex: true}
+  - {token: "^(HA|HU|HE){2,}$", weight: 1.1, tag: laugh, regex: true}
+  - {token: "MDS", weight: 1.3, tag: shock}
+  - {token: "MEU DEUS", weight: 1.4, tag: shock}
+  - {token: "CARALHO", weight: 1.4, tag: shock}
+  - {token: "CRLH", weight: 1.3, tag: shock}
+  - {token: "PQP", weight: 1.4, tag: shock}
+  - {token: "PUTA QUE PARIU", weight: 1.6, tag: shock}
+  - {token: "NAO", weight: 0.8, tag: shock}
+  - {token: "NÃO", weight: 0.8, tag: shock}
+  - {token: "^N[AÃ]O+$", weight: 1.1, tag: shock, regex: true}
+  - {token: "SOCORRO", weight: 1.4, tag: laugh}
+  - {token: "MORRI", weight: 1.4, tag: laugh}
+  - {token: "TO MORRENDO", weight: 1.5, tag: laugh}
+  - {token: "CHORANDO", weight: 1.2, tag: laugh}
+  - {token: "BIZARRO", weight: 1.1, tag: hype}
+  - {token: "INSANO", weight: 1.2, tag: hype}
+  - {token: "BRABO", weight: 1.0, tag: hype}
+  - {token: "BRABOO", weight: 1.2, tag: hype}
+  - {token: "TA DE SACANAGEM", weight: 1.4, tag: shock}
+  - {token: "OXI", weight: 0.8, tag: shock}
+  - {token: "VSF", weight: 1.2, tag: shock}
+  - {token: "CLIPA", weight: 2.5, tag: clip_request}
+  - {token: "CLIPA ISSO", weight: 3.0, tag: clip_request}
+  - {token: "CORTE", weight: 2.0, tag: clip_request}
+  - {token: "ISSO VAI PRO CORTE", weight: 3.0, tag: clip_request}
